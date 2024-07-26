@@ -33,19 +33,25 @@ public class PaymentBot extends TelegramLongPollingBot {
     Validator validator = new Validator();
 
     public PaymentBot() {
-        try (InputStream input = Main.class.getClassLoader().getResourceAsStream("config.properties")) {
-            if (input == null) {
-                System.out.println("Sorry, unable to find config.properties");
-                log.error("Sorry, unable to find config.properties");
-                return;
+        if (System.getenv("AMVERA") != null && System.getenv("AMVERA").equals("1")) {
+            // В облаке Амвера: берем токен из переменной окружения
+            bottocken = System.getenv("BOTTOCKEN");
+        } else {
+            // Локальная среда: берем токен из файла конфигурации
+            try (InputStream input = Main.class.getClassLoader().getResourceAsStream("config.properties")) {
+                if (input == null) {
+                    System.out.println("Sorry, unable to find config.properties");
+                    Main.log.error("Sorry, unable to find config.properties");
+                    return;
+                }
+                Properties properties = new Properties();
+                properties.load(input);
+                bottocken = properties.getProperty("bottocken");
+            } catch (FileNotFoundException e) {
+                Main.log.error("File not found", e);
+            } catch (IOException e) {
+                Main.log.error("IO error", e);
             }
-            Properties properties = new Properties();
-            properties.load(input);
-            bottocken = properties.getProperty("bottocken");
-        } catch (FileNotFoundException e) {
-            Main.log.error("File not found", e);
-        } catch (IOException e) {
-            Main.log.error("IO error", e);
         }
     }
 
