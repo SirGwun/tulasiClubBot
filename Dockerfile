@@ -1,11 +1,8 @@
-# Используем базовый образ с JRE для финальной сборки
-FROM openjdk:17-jdk-slim as runtime
-
-# Рабочая директория внутри контейнера
+FROM maven:3.6.3-jdk-11 AS build
+COPY . /app
 WORKDIR /app
+RUN mvn clean package
 
-# Копируем JAR файл из папки target в контейнер
-COPY target/tulasiClabBot-1.0-jar-with-dependencies.jar /app/tcbot.jar
-
-# Команда для запуска JAR файла
-ENTRYPOINT ["java", "-jar", "/app/tcbot.jar"]
+FROM openjdk:11-jre-slim
+COPY --from=build /app/target/tulasiClabBot-1.0-jar-with-dependencies.jar /tcbot.jar
+CMD ["java", "-jar", "/tcbot.jar"]
