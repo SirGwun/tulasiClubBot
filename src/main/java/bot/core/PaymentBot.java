@@ -13,28 +13,30 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 
 public class PaymentBot extends TelegramLongPollingBot {
     private static final Logger log = LoggerFactory.getLogger(PaymentBot.class);
-    private final static long adminChatId = 7066573077L; // ID админа
-    private final long groupId = -4282643859L;
     Validator validator = new Validator();
 
     @Override
     public void onUpdateReceived(Update update) {
-        if (update.hasMessage() && !update.getMessage().isGroupMessage()) {
-            Message message = update.getMessage();
-            long chatId = message.getChatId();
+        if (update.hasMessage()) {
+            handleIncomingMessage(update.getMessage());
+        } else if (update.hasCallbackQuery()) {
+            handleCallbackQuery(update.getCallbackQuery());
+        }
+    }
+
+    private void handleIncomingMessage(Message message) {
+        long chatId = message.getChatId();
+
+        if (message.isGroupMessage()) {
+            log.info("New message from group {}", chatId);
+        } else {
             long userId = message.getFrom().getId();
 
             if (message.hasDocument() || message.hasPhoto()) {
                 handlePayment(message, chatId, userId);
             } else {
-                sendMessage(chatId, "Пожалуйста приложите документ или фото платежа");
+                ChatUtils.sendMessage(chatId, "Пожалуйста приложите документ или фото платежа");
             }
-        } else if (update.hasCallbackQuery()) {
-            handleCallbackQuery(update.getCallbackQuery());
-        }
-        if (update.hasMessage() && update.getMessage().isGroupMessage()) {
-            long chatId = update.getMessage().getChatId();
-            System.out.println(chatId);
         }
     }
 
@@ -45,14 +47,12 @@ public class PaymentBot extends TelegramLongPollingBot {
     private void handlePayment(Message message, long chatId, long userId) {
         boolean valid = validator.isValidPayment(message);
 
-        if (message.hasDocument() && !valid) {
-            sendMessage(chatId, "Оплата не подтверждена");
-        } else if (valid) {
+        if (valid) {
             addInGroup(userId);
-            sendMessage(chatId, "Оплата подтверждена");
+            ChatUtils.sendMessage(chatId, "Оплата подтверждена");
         } else {
             validator.sendOuHumanValidation(message);
-            sendMessage(chatId, "Ваше подтверждение отправлено на проверку. Пожалуйста, подождите.\n \n" +
+            ChatUtils.sendMessage(chatId, "Ваше подтверждение отправлено на проверку. Пожалуйста, подождите.\n \n" +
                     "Как только проверка завершится, бот пришлет вам ссылку для вступления в группу.");
         }
     }
@@ -94,7 +94,7 @@ public class PaymentBot extends TelegramLongPollingBot {
         try {
             log.info("Declined user request {} to group {}", GroupUtils.getUserName(userId, ConfigUtils.getGroupID()),
                     GroupUtils.getGroupName(ConfigUtils.getGroupID()));
-            sendMessage(userId, "Ваша заявка была отклонена, \n" +
+            ChatUtils.sendMessage(userId, "Ваша заявка была отклонена, \n" +
                     "вы можете создать еще одну заявку или обратиться к администратору @Tulasikl");
         } catch (TelegramApiException e) {
             log.error("Error decline user request {} to group {}", userId, ConfigUtils.getGroupID());
@@ -122,17 +122,6 @@ public class PaymentBot extends TelegramLongPollingBot {
 
     }
 
-    public void sendMessage(long chatId, String message) {
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(chatId);
-        sendMessage.setText(message);
-        try {
-            execute(sendMessage);
-        }
-        catch (TelegramApiException e) {
-            Main.log.error("Ошибка при отправке сообщения {}", e.getMessage());
-        }
-    }
     @Override
     public String getBotToken() {
         return ConfigUtils.getBotToken();
