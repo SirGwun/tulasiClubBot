@@ -10,9 +10,11 @@ import org.slf4j.Logger;
 
 public class Main {
     public static final Logger log = LoggerFactory.getLogger(Main.class);
+    public static PaymentBot bot;
     public static void main(String[] args) {
-        PaymentBot bot = new PaymentBot();
+        bot = new PaymentBot();
         init(bot);
+        log.info("Бот запущен");
     }
 
     public static void init(LongPollingBot bot) {
@@ -20,7 +22,7 @@ public class Main {
             TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
             telegramBotsApi.registerBot(bot);
         } catch (TelegramApiException e) {
-            log.error("Ошибка при инициализации бота", e);
+            log.error("Ошибка при инициализации бота {}", e.getMessage());
         }
     }
 }
