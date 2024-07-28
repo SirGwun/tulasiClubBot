@@ -16,6 +16,7 @@ public class ChatUtils {
         sendMessage.setText(message);
         try {
             Main.bot.execute(sendMessage);
+            Main.log.info("Отправлено сообщение для {}", sendMessage.getChatId());
         }
         catch (TelegramApiException e) {
             Main.log.error("Ошибка при отправке сообщения {}", e.getMessage());

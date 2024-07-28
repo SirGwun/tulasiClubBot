@@ -11,6 +11,9 @@ import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 
+import java.util.Objects;
+import java.util.Properties;
+
 public class PaymentBot extends TelegramLongPollingBot {
     private static final Logger log = LoggerFactory.getLogger(PaymentBot.class);
     Validator validator = new Validator();
@@ -18,6 +21,9 @@ public class PaymentBot extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         if (update.hasMessage()) {
+            if (update.getMessage().hasText() && update.getMessage().getText().startsWith("/")) {
+                handleCommand(update.getMessage().getText(), update.getMessage().getChatId());
+            }
             handleIncomingMessage(update.getMessage());
         } else if (update.hasCallbackQuery()) {
             handleCallbackQuery(update.getCallbackQuery());
@@ -27,11 +33,11 @@ public class PaymentBot extends TelegramLongPollingBot {
     private void handleIncomingMessage(Message message) {
         long chatId = message.getChatId();
 
-        if (message.isGroupMessage()) {
+        if (message.getChat().getType().equals("group") || message.getChat().getType().equals("supergroup")) {
             log.info("New message from group {}", chatId);
         } else {
+            log.info("New message from user {}", chatId);
             long userId = message.getFrom().getId();
-
             if (message.hasDocument() || message.hasPhoto()) {
                 handlePayment(message, chatId, userId);
             } else {
@@ -41,6 +47,23 @@ public class PaymentBot extends TelegramLongPollingBot {
     }
 
     private void handleCommand(String command, long userID) {
+         String[] data = command.split(" ");
+         if (userID == ConfigUtils.getAdminChatId()) {
+             if (data[0].equalsIgnoreCase("/setGroup")) {
+                 Properties groupList = ConfigUtils.getGroupList();
+                 for (Object group: groupList.keySet()) {
+                     String groupName = (String) group;
+                     if (data[1].equalsIgnoreCase(groupName)) {
+                         ConfigUtils.updateConfig("groupID", groupList.getProperty(groupName));
+                         ChatUtils.sendMessage(userID, "Текущая группа установлена");
+                         return;
+                     }
+                 }
+                 ChatUtils.sendMessage(userID, "Группа не найдена");
+             }
+         } else {
+             ChatUtils.sendMessage(userID, "Данная команда доступна только администратору");
+         }
 
     }
 
