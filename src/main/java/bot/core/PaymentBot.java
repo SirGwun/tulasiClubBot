@@ -10,8 +10,6 @@ import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage
 import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
-
-import java.util.Objects;
 import java.util.Properties;
 
 public class PaymentBot extends TelegramLongPollingBot {
