@@ -245,7 +245,7 @@ public class PaymentBot extends TelegramLongPollingBot {
 
     private void decline(long userId) {
         try {
-            log.info("Declined user request {} to group {}", GroupUtils.getUserName(userId, ConfigUtils.getGroupID()),
+            log.info("Откланен запрос {} в группу {}", GroupUtils.getUserName(userId, ConfigUtils.getGroupID()),
                     GroupUtils.getGroupName(ConfigUtils.getGroupID()));
             ChatUtils.sendMessage(userId, "Ваша заявка была отклонена, \n" +
                     "вы можете создать еще одну заявку или обратиться к администратору @Tulasikl");
