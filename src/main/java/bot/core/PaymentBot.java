@@ -4,18 +4,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
+import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.CreateChatInviteLink;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.*;
+import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
+import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeChat;
+import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeChatAdministrators;
+import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 public class PaymentBot extends TelegramLongPollingBot {
     private static String newGroupName = null;
     private static final Logger log = LoggerFactory.getLogger(PaymentBot.class);
-    Validator validator = new Validator();
+    Validator validator;
 
     @Override
     public void onUpdateReceived(Update update) {
@@ -163,6 +171,27 @@ public class PaymentBot extends TelegramLongPollingBot {
         }
     }
 
+    private void setBotCommands() {
+        // Команды для всех пользователей
+        List<BotCommand> defaultCommands = new ArrayList<>();
+        defaultCommands.add(new BotCommand("/start", "Начать взаимодействие с ботом"));
+        defaultCommands.add(new BotCommand("/help", "Получить помощь"));
+
+        // Команды для администраторов
+        List<BotCommand> adminCommands = new ArrayList<>();
+        adminCommands.add(new BotCommand("/settings", "Настройки"));
+        adminCommands.add(new BotCommand("/admin", "Админ команды"));
+
+        try {
+            // Установка команд для всех пользователей
+            this.execute(new SetMyCommands(defaultCommands, new BotCommandScopeDefault(), null));
+            // Установка команд для администраторов в конкретном чате (например, для группы или канала)
+            this.execute(new SetMyCommands(adminCommands, new BotCommandScopeChat(Long.toString(ConfigUtils.getAdminChatID())), null));
+        } catch (Exception e) {
+            log.error("Error setting bot commands {}", e.getMessage());
+        }
+    }
+
     @Override
     public void clearWebhook() throws TelegramApiRequestException {
 
@@ -176,5 +205,12 @@ public class PaymentBot extends TelegramLongPollingBot {
     @Override
     public String getBotUsername() {
         return ConfigUtils.getBotName();
+    }
+
+    @Override
+    public void onRegister() {
+        super.onRegister();
+        setBotCommands();
+        validator = new Validator();
     }
 }
