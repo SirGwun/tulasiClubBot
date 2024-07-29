@@ -5,6 +5,7 @@ import java.util.Properties;
 
 
 public class ConfigUtils {
+    private static String botName = "tulasiClubBot";
     private static String botToken;
     private static long adminChatId;
     private static long groupID;
@@ -155,6 +156,7 @@ public class ConfigUtils {
     }
 
     public static void testMode() {
+        setBotName("harmoniousNutritionBot");
         Properties secretProperties = new Properties();
         try (InputStream input = ConfigUtils.class.getClassLoader().getResourceAsStream("secret.properties")) {
             secretProperties.load(input);
@@ -170,5 +172,13 @@ public class ConfigUtils {
 
     public static long getGroupID() {
         return groupID;
+    }
+
+    public static String getBotName() {
+        return botName;
+    }
+
+    public static void setBotName(String botName) {
+        ConfigUtils.botName = botName;
     }
 }

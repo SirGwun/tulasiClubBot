@@ -13,16 +13,29 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 import java.util.Properties;
 
 public class PaymentBot extends TelegramLongPollingBot {
+    private static String newGroupName = null;
     private static final Logger log = LoggerFactory.getLogger(PaymentBot.class);
     Validator validator = new Validator();
 
     @Override
     public void onUpdateReceived(Update update) {
         if (update.hasMessage()) {
-            if (update.getMessage().hasText() && update.getMessage().getText().startsWith("/")) {
-                handleCommand(update.getMessage().getText(), update.getMessage().getChatId());
+            Message message = update.getMessage();
+
+            if (newGroupName != null && message.getNewChatMembers() != null) {
+                for (User newMember : message.getNewChatMembers()) {
+                    if (newMember.getUserName().equals(getBotUsername())) {
+                        ConfigUtils.addNewGroup(newGroupName, message.getChatId());
+                        newGroupName = null;
+                    }
+                }
             }
-            handleIncomingMessage(update.getMessage());
+
+            if (message.hasText() && message.getText().startsWith("/")) {
+                handleCommand(message.getText(), message.getChatId());
+            } else {
+                handleIncomingMessage(message);
+            }
         } else if (update.hasCallbackQuery()) {
             handleCallbackQuery(update.getCallbackQuery());
         }
@@ -58,6 +71,10 @@ public class PaymentBot extends TelegramLongPollingBot {
                      }
                  }
                  ChatUtils.sendMessage(userID, "Группа не найдена");
+             } else if (data[0].equalsIgnoreCase("/newGroup")) {
+                 newGroupName = data[1];
+                 ChatUtils.sendMessage(userID, "Задано имя для новой группы " + newGroupName + "\n" +
+                         "Теперь пожалуйста, добавте этого бота в группу " + newGroupName);
              }
          } else {
              ChatUtils.sendMessage(userID, "Данная команда доступна только администратору");
@@ -150,6 +167,6 @@ public class PaymentBot extends TelegramLongPollingBot {
 
     @Override
     public String getBotUsername() {
-        return "tulasiClubBot";
+        return ConfigUtils.getBotName();
     }
 }
