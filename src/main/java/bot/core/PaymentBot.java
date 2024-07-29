@@ -25,8 +25,12 @@ public class PaymentBot extends TelegramLongPollingBot {
             if (newGroupName != null && message.getNewChatMembers() != null) {
                 for (User newMember : message.getNewChatMembers()) {
                     if (newMember.getUserName().equals(getBotUsername())) {
-                        ConfigUtils.addNewGroup(newGroupName, message.getChatId());
-                        newGroupName = null;
+                        if (ConfigUtils.addNewGroup(newGroupName, message.getChatId())) {
+                            log.info("Новая группа добавлена {}", newGroupName);
+                            newGroupName = null;
+                        } else {
+                            log.error("Не удалось добавить группу {}", newGroupName);
+                        }
                     }
                 }
             }
@@ -59,20 +63,24 @@ public class PaymentBot extends TelegramLongPollingBot {
 
     private void handleCommand(String command, long userID) {
          String[] data = command.split(" ");
-         if (userID == ConfigUtils.getAdminChatId()) {
+         if (userID == ConfigUtils.getAdminChatID()) {
              if (data[0].equalsIgnoreCase("/setGroup")) {
                  Properties groupList = ConfigUtils.getGroupList();
                  for (Object group: groupList.keySet()) {
                      String groupName = (String) group;
                      if (data[1].equalsIgnoreCase(groupName)) {
-                         ConfigUtils.updateConfig("groupID", groupList.getProperty(groupName));
-                         ChatUtils.sendMessage(userID, "Текущая группа установлена");
+                         if (ConfigUtils.updateConfig("groupID", groupList.getProperty(groupName))) {
+                             ChatUtils.sendMessage(userID, "Текущая группа установлена");
+                         } else {
+                             ChatUtils.sendMessage(userID, "Не удалось установить группу");
+                         }
                          return;
                      }
                  }
                  ChatUtils.sendMessage(userID, "Группа не найдена");
              } else if (data[0].equalsIgnoreCase("/newGroup")) {
                  newGroupName = data[1];
+                 log.info("New group name {}", newGroupName);
                  ChatUtils.sendMessage(userID, "Задано имя для новой группы " + newGroupName + "\n" +
                          "Теперь пожалуйста, добавте этого бота в группу " + newGroupName);
              }

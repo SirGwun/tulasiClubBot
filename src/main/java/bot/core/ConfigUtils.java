@@ -7,7 +7,7 @@ import java.util.Properties;
 public class ConfigUtils {
     private static String botName = "tulasiClubBot";
     private static String botToken;
-    private static long adminChatId;
+    private static long adminChatID;
     private static long groupID;
     private static final Properties config = new Properties();
     private static final Properties groupList = new Properties();
@@ -47,10 +47,11 @@ public class ConfigUtils {
         return false;
     }
 
-    public static void addNewGroup(String name, long id) {
-        groupList.put(name, String.valueOf(id));
+    public static boolean addNewGroup(String name, long id) {
+        boolean result = groupList.put(name, String.valueOf(id)) != null;
         saveGroupList();
         loadGroupList();
+        return result;
     }
 
     private static void saveConfig() {
@@ -59,7 +60,7 @@ public class ConfigUtils {
             if (System.getenv("AMVERA") != null && System.getenv("AMVERA").equals("1")) {
                 configOutput = new FileOutputStream("/data/config.properties");
             } else {
-                configOutput = new FileOutputStream(ConfigUtils.class.getClassLoader().getResource("config.properties").getPath());
+                configOutput = new FileOutputStream("data/config.properties");
             }
             config.store(configOutput, null);
         } catch (IOException ex) {
@@ -80,11 +81,11 @@ public class ConfigUtils {
             if (System.getenv("AMVERA") != null && System.getenv("AMVERA").equals("1")) {
                 configInput = new FileInputStream("/data/config.properties");
             } else {
-                configInput = ConfigUtils.class.getClassLoader().getResourceAsStream("config.properties");
+                configInput = new FileInputStream("data/config.properties");
             }
             config.load(configInput);
-            adminChatId = Long.parseLong(config.getProperty("adminChatId"));
-            groupID = Long.parseLong(config.getProperty("groupId"));
+            adminChatID = Long.parseLong(config.getProperty("adminChatID"));
+            groupID = Long.parseLong(config.getProperty("groupID"));
         } catch (FileNotFoundException ex) {
             Main.log.error("Не удалось загрузить конфиг {}", ex.getMessage());
         } catch (IOException ex) {
@@ -110,7 +111,7 @@ public class ConfigUtils {
             if (System.getenv("AMVERA") != null && System.getenv("AMVERA").equals("1")) {
                 groupListInput = new FileInputStream("/data/groupList.properties");
             } else {
-                groupListInput = ConfigUtils.class.getClassLoader().getResourceAsStream("groupList.properties");
+                groupListInput = new FileInputStream("data/groupList.properties");
             }
             groupList.load(groupListInput);
         } catch (FileNotFoundException ex) {
@@ -134,7 +135,7 @@ public class ConfigUtils {
             if (System.getenv("AMVERA") != null && System.getenv("AMVERA").equals("1")) {
                 groupListOutput = new FileOutputStream("/data/groupList.properties");
             } else {
-                groupListOutput = new FileOutputStream(ConfigUtils.class.getClassLoader().getResource("groupList.properties").getPath());
+                groupListOutput = new FileOutputStream("data/groupList.properties");
             }
             groupList.store(groupListOutput, null);
         } catch (IOException ex) {
@@ -166,8 +167,8 @@ public class ConfigUtils {
         }
     }
 
-    public static long getAdminChatId() {
-        return adminChatId;
+    public static long getAdminChatID() {
+        return adminChatID;
     }
 
     public static long getGroupID() {
