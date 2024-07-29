@@ -1,8 +1,10 @@
 package bot.core.util;
 
 import bot.core.Main;
+import org.apache.commons.io.IOUtils;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
 
@@ -11,6 +13,8 @@ public class ConfigUtils {
     private static String botToken;
     private static long adminChatID;
     private static long groupID;
+    private static String info;
+    private static String help;
     private static final Properties config = new Properties();
     private static final Properties groupList = new Properties();
 
@@ -183,5 +187,65 @@ public class ConfigUtils {
 
     public static void setBotName(String botName) {
         ConfigUtils.botName = botName;
+    }
+
+    public static String getHelp() {
+        if (help == null) {
+            String filePath = (System.getenv("AMVERA") != null && System.getenv("AMVERA").equals("1"))
+                    ? "/data/help.txt"
+                    : "data/help.txt";
+
+            try (InputStream input = new FileInputStream(filePath)) {
+                help = IOUtils.toString(input, StandardCharsets.UTF_8);
+            } catch (FileNotFoundException e) {
+                Main.log.error("Не удалось загрузить help.txt", e);
+            } catch (IOException e) {
+                Main.log.error("Не удалось прочитать help.txt", e);
+            }
+        }
+        return help;
+    }
+
+    public static void setHelp(String help) {
+        ConfigUtils.help = help;
+
+        String filePath = (System.getenv("AMVERA") != null && System.getenv("AMVERA").equals("1"))
+                ? "/data/help.txt"
+                : "data/help.txt";
+        try (OutputStream output = new FileOutputStream(filePath)) {
+            IOUtils.write(help, output, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            Main.log.error("Не удалось сохранить help.txt", e);
+        }
+    }
+
+    public static String getInfo() {
+        if (info == null) {
+            String filePath = (System.getenv("AMVERA") != null && System.getenv("AMVERA").equals("1"))
+                    ? "/data/info.txt"
+                    : "data/info.txt";
+
+            try (InputStream input = new FileInputStream(filePath)) {
+                info = IOUtils.toString(input, StandardCharsets.UTF_8);
+            } catch (FileNotFoundException e) {
+                Main.log.error("Не удалось загрузить info.txt", e);
+            } catch (IOException e) {
+                Main.log.error("Не удалось прочитать info.txt", e);
+            }
+        }
+        return info;
+    }
+
+    public static void setInfo(String info) {
+        ConfigUtils.info = info;
+
+        String filePath = (System.getenv("AMVERA") != null && System.getenv("AMVERA").equals("1"))
+                ? "/data/info.txt"
+                : "data/info.txt";
+        try (OutputStream output = new FileOutputStream(filePath)) {
+            IOUtils.write(help, output, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            Main.log.error("Не удалось сохранить info.txt", e);
+        }
     }
 }

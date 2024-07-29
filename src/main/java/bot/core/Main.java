@@ -20,9 +20,6 @@ public class Main {
         bot = new PaymentBot();
         init(bot);
         log.info("Бот запущен");
-//        System.out.println("Группа 1 " + isBotAdminInGroup(-1002211393792L));
-//        System.out.println("Группа 2 " + isBotAdminInGroup(-4282090457L));
-//        System.out.println("Группа 3 " + isBotAdminInGroup(-42L));
     }
 
     public static void init(LongPollingBot bot) {
