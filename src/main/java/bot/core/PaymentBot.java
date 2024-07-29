@@ -32,6 +32,8 @@ public class PaymentBot extends TelegramLongPollingBot {
 
     private static String newGroupName = null;
     private static boolean newGroup = false;
+    private static boolean editInfo = false;
+    private static boolean editHelp = false;
 
     @Override
     public void onUpdateReceived(Update update) {
@@ -66,6 +68,30 @@ public class PaymentBot extends TelegramLongPollingBot {
                             log.error("Не удалось добавить группу {}", newGroupName);
                         }
                     }
+                }
+                return;
+            }
+
+            if (editInfo) {
+                if (message.hasText() && message.getText().equals("/cancel")) {
+                    editInfo = false;
+                    ChatUtils.sendMessage(message.getChatId(), "Редактирование info отменено");
+                } else {
+                    ConfigUtils.setInfo(message.getText());
+                    editInfo = false;
+                    ChatUtils.sendMessage(message.getChatId(), "Информация изменена");
+                }
+                return;
+            }
+
+            if (editHelp) {
+                if (message.hasText() && message.getText().equals("/cancel")) {
+                    editHelp = false;
+                    ChatUtils.sendMessage(message.getChatId(), "Редактирование help отменено");
+                } else {
+                    ConfigUtils.setHelp(message.getText());
+                    editHelp = false;
+                    ChatUtils.sendMessage(message.getChatId(), "Cообщение help изменено");
                 }
                 return;
             }
@@ -142,6 +168,14 @@ public class PaymentBot extends TelegramLongPollingBot {
                 break;
             case "/help":
                 ChatUtils.sendMessage(userID, ConfigUtils.getHelp());
+                break;
+            case "/edit_info":
+                editInfo = true;
+                ChatUtils.sendMessage(userID, "Введите новое описание группы");
+                break;
+            case "/edit_help":
+                editHelp = true;
+                ChatUtils.sendMessage(userID, "Введите новое сообщение помощи");
                 break;
             default:
                 ChatUtils.sendMessage(userID, "Неизвестная команда");
@@ -246,6 +280,8 @@ public class PaymentBot extends TelegramLongPollingBot {
         List<BotCommand> adminCommands = new ArrayList<>();
         adminCommands.add(new BotCommand("/set_group", "Установить группу, в которую бот будет добавлять после подтверждения"));
         adminCommands.add(new BotCommand("/new_group", "Добавить новую группу"));
+        adminCommands.add(new BotCommand("/edit_info", "Изменить информацию о группе"));
+        adminCommands.add(new BotCommand("/edit_help", "Изменить сообщение помощи"));
         adminCommands.add(new BotCommand("/cancel", "Отменить режим работы над командой"));
 
         try {
