@@ -1,5 +1,8 @@
-package bot.core;
+package bot.core.validator;
 
+import bot.core.Main;
+import bot.core.util.ChatUtils;
+import bot.core.util.ConfigUtils;
 import org.telegram.telegrambots.meta.api.methods.ForwardMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;

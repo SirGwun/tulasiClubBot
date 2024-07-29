@@ -1,5 +1,6 @@
-package bot.core;
+package bot.core.util;
 
+import bot.core.Main;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.*;
 import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;

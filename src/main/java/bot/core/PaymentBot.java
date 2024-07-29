@@ -1,5 +1,9 @@
 package bot.core;
 
+import bot.core.util.ChatUtils;
+import bot.core.util.ConfigUtils;
+import bot.core.util.GroupUtils;
+import bot.core.validator.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;

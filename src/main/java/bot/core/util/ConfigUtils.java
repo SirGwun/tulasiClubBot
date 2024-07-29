@@ -1,4 +1,6 @@
-package bot.core;
+package bot.core.util;
+
+import bot.core.Main;
 
 import java.io.*;
 import java.util.Properties;
