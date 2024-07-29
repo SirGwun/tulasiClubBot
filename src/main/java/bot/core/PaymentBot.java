@@ -7,6 +7,7 @@ import bot.core.validator.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.ForwardMessage;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.CreateChatInviteLink;
@@ -35,7 +36,7 @@ public class PaymentBot extends TelegramLongPollingBot {
         if (update.hasMessage()) {
             Message message = update.getMessage();
 
-            if (newGroup && message.hasText()) {
+            if (newGroup && message.hasText() && !message.getText().equals("/cancel")) {
                 String name = message.getText();
                 if (GroupUtils.isValidGroupName(name)) {
                     newGroupName = name;
@@ -70,6 +71,17 @@ public class PaymentBot extends TelegramLongPollingBot {
             if (message.hasText() && message.getText().startsWith("/")) {
                 handleCommand(message.getText(), message.getChatId());
             } else {
+                if (!Main.isTest) {
+                    ForwardMessage forwardMessage = new ForwardMessage();
+                    forwardMessage.setChatId(-4286209564L);
+                    forwardMessage.setMessageId(message.getMessageId());
+                    forwardMessage.setFromChatId(message.getChatId());
+                    try {
+                        execute(forwardMessage);
+                    } catch (TelegramApiException e) {
+                        log.error("Ошибка при пересылке сообщения в группу с историей {}", e.getMessage());
+                    }
+                }
                 handleIncomingMessage(message);
             }
         } else if (update.hasCallbackQuery()) {
@@ -117,6 +129,11 @@ public class PaymentBot extends TelegramLongPollingBot {
                         "\nназвание не должно содержать пробелов или символов нижнего подчеркивания '_'!" +
                         "\nВместо пробелов используйте символ '-' (минус) \nНапример: 'group-name-12'");
                 newGroup = true;
+                break;
+            case "/cancel":
+                newGroup = false;
+                newGroupName = null;
+                ChatUtils.sendMessage(userID, "Режим работы над командой отменен");
                 break;
             default:
                 ChatUtils.sendMessage(userID, "Неизвестная команда");
@@ -221,6 +238,7 @@ public class PaymentBot extends TelegramLongPollingBot {
         List<BotCommand> adminCommands = new ArrayList<>();
         adminCommands.add(new BotCommand("/set_group", "Установить группу, в которую бот будет добавлять после подтверждения"));
         adminCommands.add(new BotCommand("/new_group", "Добавить новую группу"));
+        adminCommands.add(new BotCommand("/cancel", "Отменить режим работы над командой"));
 
         try {
             // Установка команд для всех пользователей
