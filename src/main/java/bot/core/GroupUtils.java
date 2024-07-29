@@ -1,13 +1,12 @@
 package bot.core;
 
-import org.telegram.telegrambots.meta.api.methods.groupadministration.CreateChatInviteLink;
-import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChat;
-import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatMember;
+import org.telegram.telegrambots.meta.api.methods.groupadministration.*;
 import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.time.Instant;
+import java.util.List;
 
 public class GroupUtils {
     public static CreateChatInviteLink createInviteLink(long groupID) {
@@ -42,5 +41,34 @@ public class GroupUtils {
 
         Chat chat = Main.bot.execute(getChat);
         return chat.getTitle();
+    }
+
+    public static boolean isBotAdminInGroup(String groupId) {
+        try {
+            // Проверяем, что группа существует, получив количество участников
+            GetChatMemberCount getChatMemberCount = new GetChatMemberCount(groupId);
+            int memberCount = Main.bot.execute(getChatMemberCount);
+            if (memberCount > 0) {
+                // Получаем список администраторов группы
+                GetChatAdministrators getChatAdministrators = new GetChatAdministrators();
+                getChatAdministrators.setChatId(groupId);
+                List<ChatMember> admins = Main.bot.execute(getChatAdministrators);
+
+                // Проверяем, есть ли бот среди администраторов
+                String botUsername = Main.bot.getBotUsername();
+                for (ChatMember admin : admins) {
+                    if (admin.getUser().getUserName().equals(botUsername)) {
+                        return true; // Бот является администратором в группе
+                    }
+                }
+            }
+        } catch (TelegramApiException e) {
+            Main.log.info("Попытка добавить бота в несуществующую группу {}", e.getMessage());
+        }
+        return false; // Группа не существует или бот не является администратором
+    }
+
+    public static boolean isValidGroupName(String groupName) {
+        return groupName != null && !groupName.isEmpty() && !groupName.contains("_") && !groupName.contains(" ");
     }
 }

@@ -5,8 +5,10 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 
 public class ChatUtils {
 
@@ -38,6 +40,25 @@ public class ChatUtils {
         InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup();
         keyboard.setKeyboard(rows);
 
+        return keyboard;
+    }
+
+    public static InlineKeyboardMarkup getAllGroupKeyboard(long userId) {
+        Properties groupList = ConfigUtils.getGroupList();
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+
+        for (Object group: groupList.keySet()) {
+            String groupName = (String) group;
+            List<InlineKeyboardButton> row = new ArrayList<>();
+            InlineKeyboardButton button = new InlineKeyboardButton();
+            button.setText(groupName);
+            button.setCallbackData("setGroup_" + userId + "_" + groupName);
+            row.add(button);
+            rows.add(row);
+        }
+
+        InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup();
+        keyboard.setKeyboard(rows);
         return keyboard;
     }
 }
