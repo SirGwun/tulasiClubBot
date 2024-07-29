@@ -40,7 +40,7 @@ public class PaymentBot extends TelegramLongPollingBot {
         if (update.hasMessage()) {
             Message message = update.getMessage();
 
-            if (newGroup && message.hasText() && !message.getText().equals("/cancel")) {
+            if (newGroup && message.getChatId() == ConfigUtils.getAdminChatID() && message.hasText() && !message.getText().equals("/cancel")) {
                 String name = message.getText();
                 if (GroupUtils.isValidGroupName(name)) {
                     newGroupName = name;
@@ -72,7 +72,7 @@ public class PaymentBot extends TelegramLongPollingBot {
                 return;
             }
 
-            if (editInfo) {
+            if (editInfo && message.getChatId() == ConfigUtils.getAdminChatID()) {
                 if (message.hasText() && message.getText().equals("/cancel")) {
                     editInfo = false;
                     ChatUtils.sendMessage(message.getChatId(), "Редактирование info отменено");
@@ -84,7 +84,7 @@ public class PaymentBot extends TelegramLongPollingBot {
                 return;
             }
 
-            if (editHelp) {
+            if (editHelp && message.getChatId() == ConfigUtils.getAdminChatID()) {
                 if (message.hasText() && message.getText().equals("/cancel")) {
                     editHelp = false;
                     ChatUtils.sendMessage(message.getChatId(), "Редактирование help отменено");
@@ -93,6 +93,7 @@ public class PaymentBot extends TelegramLongPollingBot {
                     editHelp = false;
                     ChatUtils.sendMessage(message.getChatId(), "Cообщение help изменено");
                 }
+
                 return;
             }
 
@@ -143,7 +144,7 @@ public class PaymentBot extends TelegramLongPollingBot {
                     sendMessage.setChatId(userID);
                     sendMessage.setText("Выберите группу");
                     sendMessage.setReplyMarkup(allGroupKeyboard);
-                    try{
+                    try {
                         execute(sendMessage);
                     } catch (TelegramApiException e) {
                         log.error("Ошибка при отправке ответа на команду /setGroup {}", e.getMessage());
@@ -153,15 +154,23 @@ public class PaymentBot extends TelegramLongPollingBot {
                 }
                 break;
             case "/new_group":
-                ChatUtils.sendMessage(userID, "Введите название новой группы " +
-                        "\nназвание не должно содержать пробелов или символов нижнего подчеркивания '_'!" +
-                        "\nВместо пробелов используйте символ '-' (минус) \nНапример: 'group-name-12'");
-                newGroup = true;
+                if (userID == ConfigUtils.getAdminChatID()) {
+                    ChatUtils.sendMessage(userID, "Введите название новой группы " +
+                            "\nназвание не должно содержать пробелов или символов нижнего подчеркивания '_'!" +
+                            "\nВместо пробелов используйте символ '-' (минус) \nНапример: 'group-name-12'");
+                    newGroup = true;
+                } else {
+                    ChatUtils.sendMessage(userID, "Данная команда доступна только администратору");
+                }
                 break;
             case "/cancel":
-                newGroup = false;
-                newGroupName = null;
-                ChatUtils.sendMessage(userID, "Режим работы над командой отменен");
+                if (userID == ConfigUtils.getAdminChatID()) {
+                    newGroup = false;
+                    newGroupName = null;
+                    ChatUtils.sendMessage(userID, "Режим работы над командой отменен");
+                } else {
+                    ChatUtils.sendMessage(userID, "Данная команда доступна только администратору");
+                }
                 break;
             case "/info":
                 ChatUtils.sendMessage(userID, ConfigUtils.getInfo());
@@ -170,12 +179,20 @@ public class PaymentBot extends TelegramLongPollingBot {
                 ChatUtils.sendMessage(userID, ConfigUtils.getHelp());
                 break;
             case "/edit_info":
-                editInfo = true;
-                ChatUtils.sendMessage(userID, "Введите новое описание группы");
+                if (userID == ConfigUtils.getAdminChatID()) {
+                    editInfo = true;
+                    ChatUtils.sendMessage(userID, "Введите новое описание группы");
+                } else {
+                    ChatUtils.sendMessage(userID, "Данная команда доступна только администратору");
+                }
                 break;
             case "/edit_help":
-                editHelp = true;
-                ChatUtils.sendMessage(userID, "Введите новое сообщение помощи");
+                if (userID == ConfigUtils.getAdminChatID()) {
+                    editHelp = true;
+                    ChatUtils.sendMessage(userID, "Введите новое сообщение помощи");
+                } else {
+                    ChatUtils.sendMessage(userID, "Данная команда доступна только администратору");
+                }
                 break;
             default:
                 ChatUtils.sendMessage(userID, "Неизвестная команда");
