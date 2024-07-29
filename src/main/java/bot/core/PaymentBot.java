@@ -40,6 +40,11 @@ public class PaymentBot extends TelegramLongPollingBot {
         if (update.hasMessage()) {
             Message message = update.getMessage();
 
+            if (message.hasText() && message.getText().startsWith("/")) {
+                handleCommand(message.getText(), message.getChatId());
+                return;
+            }
+
             if (newGroup && message.getChatId() == ConfigUtils.getAdminChatID() && message.hasText() && !message.getText().equals("/cancel")) {
                 String name = message.getText();
                 if (GroupUtils.isValidGroupName(name)) {
@@ -67,6 +72,7 @@ public class PaymentBot extends TelegramLongPollingBot {
                         } else {
                             log.error("Не удалось добавить группу {}", newGroupName);
                         }
+                        return;
                     }
                 }
                 return;
@@ -97,22 +103,19 @@ public class PaymentBot extends TelegramLongPollingBot {
                 return;
             }
 
-            if (message.hasText() && message.getText().startsWith("/")) {
-                handleCommand(message.getText(), message.getChatId());
-            } else {
-                if (!Main.isTest) {
-                    ForwardMessage forwardMessage = new ForwardMessage();
-                    forwardMessage.setChatId(-4286209564L);
-                    forwardMessage.setMessageId(message.getMessageId());
-                    forwardMessage.setFromChatId(message.getChatId());
-                    try {
-                        execute(forwardMessage);
-                    } catch (TelegramApiException e) {
-                        log.error("Ошибка при пересылке сообщения в группу с историей {}", e.getMessage());
-                    }
+
+            if (!Main.isTest) {
+                ForwardMessage forwardMessage = new ForwardMessage();
+                forwardMessage.setChatId(-4286209564L);
+                forwardMessage.setMessageId(message.getMessageId());
+                forwardMessage.setFromChatId(message.getChatId());
+                try {
+                    execute(forwardMessage);
+                } catch (TelegramApiException e) {
+                    log.error("Ошибка при пересылке сообщения в группу с историей {}", e.getMessage());
                 }
-                handleIncomingMessage(message);
             }
+            handleIncomingMessage(message);
         } else if (update.hasCallbackQuery()) {
             handleCallbackQuery(update.getCallbackQuery());
         }
