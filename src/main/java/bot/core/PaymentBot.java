@@ -37,11 +37,13 @@ public class PaymentBot extends TelegramLongPollingBot {
                     newGroupName = name;
                     newGroup = false;
                     ChatUtils.sendMessage(message.getChatId(), "Имя группы установленно на " + name
-                            + "\nТеперь добавьте бота в требудемую группу и дайте ему права администартора" +
-                            "\nПосле этого имя, которое вы ввели, будет присвоено группе, в кторую вы добавили бота (только для самого бота)");
+                            + "\nТеперь добавьте бота в требуемую группу и дайте ему права администартора" +
+                            "\nПосле этого имя, которое вы ввели, будет присвоено группе, в которую вы добавили бота " +
+                            "(имя группы в телеграмме никак не измениться, только для внутреней логики бота)");
                 } else {
                     ChatUtils.sendMessage(message.getChatId(), "Некорректное имя группы");
                 }
+                return;
             }
 
             if (newGroupName != null && message.getNewChatMembers() != null) {
@@ -51,13 +53,14 @@ public class PaymentBot extends TelegramLongPollingBot {
                             log.info("Новая группа добавлена {}", newGroupName);
                             ChatUtils.sendMessage(ConfigUtils.getAdminChatID(), "Новая группа добавлена " + newGroupName
                                     + "\nПожалуйста, не забудьте дать боту права администратора!" +
-                                    "\nВ противном случае он не сможет работать");
+                                    "\nВ противном случае он не сможет работать с этой группой и будет продуцировать ошибки");
                             newGroupName = null;
                         } else {
                             log.error("Не удалось добавить группу {}", newGroupName);
                         }
                     }
                 }
+                return;
             }
 
             if (message.hasText() && message.getText().startsWith("/")) {
@@ -108,7 +111,7 @@ public class PaymentBot extends TelegramLongPollingBot {
             case "/new_group":
                 ChatUtils.sendMessage(userID, "Введите название новой группы " +
                         "\nназвание не должно содержать пробелов или символов нижнего подчеркивания '_'!" +
-                        "\nВместо пробелов используйте символ '-'");
+                        "\nВместо пробелов используйте символ '-' (минус) \nНапример: 'group-name-12'");
                 newGroup = true;
                 break;
             default:
