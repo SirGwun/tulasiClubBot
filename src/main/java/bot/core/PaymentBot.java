@@ -18,6 +18,7 @@ import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeChat;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 
@@ -64,14 +65,17 @@ public class PaymentBot extends TelegramLongPollingBot {
                 for (User newMember : message.getNewChatMembers()) {
                     try {
                         if (newMember.getId().equals(this.getMe().getId())) {
-                            if (ConfigUtils.addNewGroup(newGroupName, message.getChatId())) {
-                                log.info("Новая группа добавлена {}", newGroupName);
-                                ChatUtils.sendMessage(ConfigUtils.getAdminChatID(), "Новая группа добавлена " + newGroupName
-                                        + "\nПожалуйста, не забудьте дать боту права администратора!" +
-                                        "\nВ противном случае он не сможет работать с этой группой и будет продуцировать ошибки");
-                                newGroupName = null;
-                            } else {
-                                log.error("Не удалось добавить группу {}", newGroupName);
+                            log.info("Новая группа определена {}", newGroupName);
+                            InlineKeyboardMarkup keyboard = getKonfirmAdminStatusKeyboard(new Group(newGroupName, message.getChatId()));
+                            SendMessage sendMessage = new SendMessage();
+                            sendMessage.setChatId(ConfigUtils.getAdminChatID());
+                            sendMessage.setText("Дайте боту права администратора в " + newGroupName
+                                    + "\nПосле нажмите кнопку подтверждения");
+                            sendMessage.setReplyMarkup(keyboard);
+                            try {
+                                execute(sendMessage);
+                            } catch (TelegramApiException e) {
+                                log.error("Send message error {} {}", newGroupName, e.getMessage());
                             }
                             return;
                         }
@@ -123,6 +127,19 @@ public class PaymentBot extends TelegramLongPollingBot {
         } else if (update.hasCallbackQuery()) {
             handleCallbackQuery(update.getCallbackQuery());
         }
+    }
+
+    private static InlineKeyboardMarkup getKonfirmAdminStatusKeyboard(Group group) {
+        InlineKeyboardMarkup keyboaed = new InlineKeyboardMarkup();
+        InlineKeyboardButton button = new InlineKeyboardButton();
+        button.setText("Подтверждаю, что бот - администратор в группе " + newGroupName);
+        button.setCallbackData("confirmAdmin_" + group.getName() + "_" + group.getId());
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+        List<InlineKeyboardButton> row = new ArrayList<>();
+        row.add(button);
+        rows.add(row);
+        keyboaed.setKeyboard(rows);
+        return keyboaed;
     }
 
     private void handleIncomingMessage(Message message) {
@@ -252,6 +269,17 @@ public class PaymentBot extends TelegramLongPollingBot {
                     ChatUtils.sendMessage(userID, "Бот не выходит в группу или не являеться в ней администратором");
                 }
                 break;
+            case "confirmAdmin":
+                if (GroupUtils.isBotAdminInGroup(data[2])) {
+                    if (ConfigUtils.addNewGroup(data[1], Long.parseLong(data[2]))) {
+                        ChatUtils.sendMessage(userID, "Группа добавлена");
+                    } else {
+                        ChatUtils.sendMessage(userID, "Не удалось добавить группу");
+                        log.error("Не удалось добавить группу {}", data[1]);
+                    }
+                } else {
+                    ChatUtils.sendMessage(ConfigUtils.getAdminChatID(), "Бот не являеться администартором в группе " + data[1]);
+                }
         }
     }
 
