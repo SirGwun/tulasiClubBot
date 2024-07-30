@@ -62,17 +62,21 @@ public class PaymentBot extends TelegramLongPollingBot {
 
             if (newGroupName != null && message.getNewChatMembers() != null) {
                 for (User newMember : message.getNewChatMembers()) {
-                    if (newMember.getUserName().equals(getBotUsername())) {
-                        if (ConfigUtils.addNewGroup(newGroupName, message.getChatId())) {
-                            log.info("Новая группа добавлена {}", newGroupName);
-                            ChatUtils.sendMessage(ConfigUtils.getAdminChatID(), "Новая группа добавлена " + newGroupName
-                                    + "\nПожалуйста, не забудьте дать боту права администратора!" +
-                                    "\nВ противном случае он не сможет работать с этой группой и будет продуцировать ошибки");
-                            newGroupName = null;
-                        } else {
-                            log.error("Не удалось добавить группу {}", newGroupName);
+                    try {
+                        if (newMember.getId().equals(this.getMe().getId())) {
+                            if (ConfigUtils.addNewGroup(newGroupName, message.getChatId())) {
+                                log.info("Новая группа добавлена {}", newGroupName);
+                                ChatUtils.sendMessage(ConfigUtils.getAdminChatID(), "Новая группа добавлена " + newGroupName
+                                        + "\nПожалуйста, не забудьте дать боту права администратора!" +
+                                        "\nВ противном случае он не сможет работать с этой группой и будет продуцировать ошибки");
+                                newGroupName = null;
+                            } else {
+                                log.error("Не удалось добавить группу {}", newGroupName);
+                            }
+                            return;
                         }
-                        return;
+                    } catch (TelegramApiException e) {
+                        log.error("Error add new group {}", newGroupName, e);
                     }
                 }
                 return;

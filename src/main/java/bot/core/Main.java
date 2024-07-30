@@ -9,6 +9,8 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 import org.slf4j.Logger;
 
+import java.util.Arrays;
+
 public class Main {
     public static final Logger log = LoggerFactory.getLogger(Main.class);
     public static PaymentBot bot;

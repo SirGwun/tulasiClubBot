@@ -243,7 +243,7 @@ public class ConfigUtils {
                 ? "/data/info.txt"
                 : "data/info.txt";
         try (OutputStream output = new FileOutputStream(filePath)) {
-            IOUtils.write(help, output, StandardCharsets.UTF_8);
+            IOUtils.write(info, output, StandardCharsets.UTF_8);
         } catch (IOException e) {
             Main.log.error("Не удалось сохранить info.txt", e);
         }
