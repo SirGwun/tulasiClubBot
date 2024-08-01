@@ -7,6 +7,7 @@ import bot.core.validator.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.ForwardMessage;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
@@ -20,9 +21,8 @@ import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScope
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+
+import java.util.*;
 
 public class PaymentBot extends TelegramLongPollingBot {
     private static final Logger log = LoggerFactory.getLogger(PaymentBot.class);
@@ -143,16 +143,16 @@ public class PaymentBot extends TelegramLongPollingBot {
 
         switch (action) {
             case "confirm":
-                handleConfirmAction(data, userID, messageId);
+                handleConfirmAction(callbackQuery, data, userID, messageId);
                 break;
             case "decline":
-                handleDeclineAction(data, userID, messageId);
+                handleDeclineAction(callbackQuery, data, userID, messageId);
                 break;
             case "setGroup":
-                handleSetGroupAction(data, userID, messageId);
+                handleSetGroupAction(callbackQuery, data, userID, messageId);
                 break;
             case "confirmAdmin":
-                handleConfirmAdminAction(data, userID);
+                handleConfirmAdminAction(callbackQuery, data, userID);
                 break;
         }
     }
@@ -166,6 +166,10 @@ public class PaymentBot extends TelegramLongPollingBot {
     private void processNewGroupCreation(Message message) {
         log.info("New group started");
         String name = message.getText();
+        if (name.length() > 128) {
+            ChatUtils.sendMessage(message.getChatId(), "Слишком длинное имя группы, пожалуйста, используйте не более 128 символов");
+            return;
+        }
         if (GroupUtils.isValidGroupName(name)) {
             newGroupName = name;
             newGroup = false;
@@ -188,6 +192,21 @@ public class PaymentBot extends TelegramLongPollingBot {
             try {
                 if (newMember.getId().equals(this.getMe().getId())) {
                     log.info("Новая группа определена {}", newGroupName);
+                    if (ConfigUtils.getGroupList().containsValue(message.getChatId().toString())) {
+                        Set<Map.Entry<Object, Object>> entries = ConfigUtils.getGroupList().entrySet();
+                        String groupName = "";
+                        for (Map.Entry<Object, Object> entry : entries) {
+                            if (entry.getValue().equals(message.getChatId().toString())) {
+                                groupName = entry.getKey().toString();
+                                break;
+                            }
+                        }
+                        ChatUtils.sendMessage(ConfigUtils.getAdminChatID(), "Группа уже есть в списке. Имя группы "
+                                + groupName + "\nПожалуйста, просто используйте уже добавленную группу с помощю команды /set_group");
+                        newGroupName = null;
+                        newGroup = false;
+                        return;
+                    }
                     InlineKeyboardMarkup keyboard = ChatUtils.getKonfirmAdminStatusKeyboard(new Group(newGroupName, message.getChatId()));
                     sendAdminConfirmationMessage(newGroupName, keyboard);
                     return;
@@ -224,11 +243,11 @@ public class PaymentBot extends TelegramLongPollingBot {
     }
 
     private boolean isEditingHelp(Message message) {
-        log.info("Editing help");
         return editHelp && message.getChatId() == ConfigUtils.getAdminChatID();
     }
 
     private void processHelpEditing(Message message) {
+        log.info("Editing help");
         if (message.hasText() && message.getText().equals("/cancel")) {
             editHelp = false;
             ChatUtils.sendMessage(message.getChatId(), "Редактирование help отменено");
@@ -337,48 +356,100 @@ public class PaymentBot extends TelegramLongPollingBot {
     }
 
 
-    private void handleConfirmAction(String[] data, long userID, int messageId) {
+    private void handleConfirmAction(CallbackQuery callbackQuery, String[] data, long userID, int messageId) {
         log.info("User {} confirm {}", userID, data[2]);
         addInGroup(Long.parseLong(data[2]));
         deleteMessage(userID, messageId);
         deleteMessage(userID, Integer.parseInt(data[1]));
+
+        try {
+            AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery();
+            answerCallbackQuery.setCallbackQueryId(callbackQuery.getId());
+            execute(answerCallbackQuery);
+        } catch (TelegramApiException e) {
+            log.error("Ошибка при отправке ответа на CallbackQuery", e);
+        }
     }
 
-    private void handleDeclineAction(String[] data, long userID, int messageId) {
+    private void handleDeclineAction(CallbackQuery callbackQuery, String[] data, long userID, int messageId) {
         log.info("User {} decline {}", userID, data[2]);
         decline(Long.parseLong(data[2]));
         deleteMessage(userID, messageId);
         deleteMessage(userID, Integer.parseInt(data[1]));
-    }
 
-    private void handleSetGroupAction(String[] data, long userID, int messageId) {
-        log.info("User {} set group {}", userID, data[2]);
-        Properties groupList = ConfigUtils.getGroupList();
-        if (!groupList.containsKey(data[2])) {
-            ChatUtils.sendMessage(userID, "Группа не найдена");
-            return;
-        }
-        String groupID = groupList.getProperty(data[2]);
-        if (GroupUtils.isBotAdminInGroup(groupID)) {
-            ConfigUtils.updateConfig("groupID", groupID);
-            deleteMessage(userID, messageId);
-            ChatUtils.sendMessage(userID, "Группа для добавления изменена на " + data[2]);
-        } else {
-            ChatUtils.sendMessage(userID, "Бот не выходит в группу или не являеться в ней администратором");
+        try {
+            AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery();
+            answerCallbackQuery.setCallbackQueryId(callbackQuery.getId());
+            execute(answerCallbackQuery);
+        } catch (TelegramApiException e) {
+            log.error("Ошибка при отправке ответа на CallbackQuery", e);
         }
     }
 
-    private void handleConfirmAdminAction(String[] data, long userID) {
-        log.info("User {} confirm admin {}", userID, data[2]);
-        if (GroupUtils.isBotAdminInGroup(data[2])) {
-            if (ConfigUtils.addNewGroup(data[1], Long.parseLong(data[2]))) {
-                ChatUtils.sendMessage(userID, "Группа добавлена");
+    private void handleSetGroupAction(CallbackQuery callbackQuery, String[] data, long userID, int messageId) {
+        if (userID == ConfigUtils.getAdminChatID()) {
+            log.info("User {} set group {}", userID, data[1]);
+            Properties groupList = ConfigUtils.getGroupList();
+            if (!groupList.containsValue(data[1])) {
+                ChatUtils.sendMessage(userID, "Группа не найдена");
+                return;
+            }
+            String groupID = data[1];
+            if (GroupUtils.isBotAdminInGroup(groupID)) {
+                ConfigUtils.updateConfig("groupID", groupID);
+                deleteMessage(userID, messageId);
+                Set<Map.Entry<Object, Object>> entries = groupList.entrySet();
+                String groupName = "";
+                for (Map.Entry<Object, Object> entry : entries) {
+                    if (entry.getValue().equals(data[1])) {
+                        groupName = entry.getKey().toString();
+                        break;
+                    }
+                }
+                ChatUtils.sendMessage(userID, "Группа для добавления изменена на " + groupName);
             } else {
-                ChatUtils.sendMessage(userID, "Не удалось добавить группу");
-                log.error("Не удалось добавить группу {}", data[1]);
+                ChatUtils.sendMessage(userID, "Бот не выходит в группу или не являеться в ней администратором");
             }
         } else {
-            ChatUtils.sendMessage(ConfigUtils.getAdminChatID(), "Бот не являеться администартором в группе " + data[1]);
+            ChatUtils.sendMessage(userID, "Данная команда доступна только администратору");
+        }
+
+        try {
+            AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery();
+            answerCallbackQuery.setCallbackQueryId(callbackQuery.getId());
+            execute(answerCallbackQuery);
+        } catch (TelegramApiException e) {
+            log.error("Ошибка при отправке ответа на CallbackQuery", e);
+        }
+    }
+
+    private void handleConfirmAdminAction(CallbackQuery callbackQuery, String[] data, long userID) {
+        log.info("User {} confirm admin {}", userID, data[1]);
+
+        // Обработка запроса
+        String groupId = data[1];
+        if (GroupUtils.isBotAdminInGroup(groupId)) {
+            if (newGroupName == null) {
+                ChatUtils.sendMessage(userID, "Имя группы пусто");
+                log.error("Имя группы пусто");
+            } else if (ConfigUtils.addNewGroup(newGroupName, Long.parseLong(groupId))) {
+                ChatUtils.sendMessage(userID, "Группа добавлена");
+                newGroupName = null;
+                newGroup = false;
+            } else {
+                ChatUtils.sendMessage(userID, "Не удалось добавить группу");
+                log.error("Не удалось добавить группу {}", groupId);
+            }
+        } else {
+            ChatUtils.sendMessage(ConfigUtils.getAdminChatID(), "Бот не являеться администратором в группе " + groupId);
+        }
+
+        try {
+            AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery();
+            answerCallbackQuery.setCallbackQueryId(callbackQuery.getId());
+            execute(answerCallbackQuery);
+        } catch (TelegramApiException e) {
+            log.error("Ошибка при отправке ответа на CallbackQuery", e);
         }
     }
 

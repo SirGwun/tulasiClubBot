@@ -70,6 +70,6 @@ public class GroupUtils {
     }
 
     public static boolean isValidGroupName(String groupName) {
-        return groupName != null && !groupName.isEmpty() && !groupName.contains("_") && !groupName.contains(" ");
+        return groupName != null && !groupName.isEmpty() && !groupName.contains("_") && !groupName.contains(" ") && groupName.length() < 128;
     }
 }

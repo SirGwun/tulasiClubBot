@@ -8,10 +8,8 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 public class ChatUtils {
 
@@ -50,12 +48,12 @@ public class ChatUtils {
         Properties groupList = ConfigUtils.getGroupList();
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
 
-        for (Object group: groupList.keySet()) {
-            String groupName = (String) group;
+        for (Map.Entry<Object, Object> group: groupList.entrySet()) {
             List<InlineKeyboardButton> row = new ArrayList<>();
             InlineKeyboardButton button = new InlineKeyboardButton();
-            button.setText(groupName);
-            button.setCallbackData("setGroup_" + userId + "_" + groupName);
+            button.setText(group.getKey().toString());
+            button.setCallbackData("setGroup_" + group.getValue());
+            System.out.println(button.getCallbackData());
             row.add(button);
             rows.add(row);
         }
@@ -69,7 +67,7 @@ public class ChatUtils {
         InlineKeyboardMarkup keyboaed = new InlineKeyboardMarkup();
         InlineKeyboardButton button = new InlineKeyboardButton();
         button.setText("Подтверждаю, что бот - администратор в группе " + PaymentBot.getNewGroupName());
-        button.setCallbackData("confirmAdmin_" + group.getName() + "_" + group.getId());
+        button.setCallbackData("confirmAdmin_" + group.getId());
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
         List<InlineKeyboardButton> row = new ArrayList<>();
         row.add(button);
