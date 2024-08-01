@@ -74,6 +74,91 @@ public class PaymentBot extends TelegramLongPollingBot {
         handleIncomingMessage(message);
     }
 
+    private void handleIncomingMessage(Message message) {
+        long chatId = message.getChatId();
+
+        if (message.getChat().getType().equals("group") || message.getChat().getType().equals("supergroup")) {
+            log.info("New message from group {}", chatId);
+        } else {
+            log.info("New message from user {}", chatId);
+            long userId = message.getFrom().getId();
+            if (message.hasDocument() || message.hasPhoto()) {
+                handlePayment(message, chatId, userId);
+            } else {
+                ChatUtils.sendMessage(chatId, "Пожалуйста приложите документ или фото платежа");
+            }
+        }
+    }
+
+    private void handleCommand(String command, long userID) {
+        String[] data = command.split(" ");
+        switch (data[0]) {
+            case "/start":
+                handleStartCommand(userID);
+                break;
+            case "/set_group":
+                handleSetGroupCommand(userID);
+                break;
+            case "/new_group":
+                handleNewGroupCommand(userID);
+                break;
+            case "/cancel":
+                handleCancelCommand(userID);
+                break;
+            case "/info":
+                handleInfoCommand(userID);
+                break;
+            case "/help":
+                handleHelpCommand(userID);
+                break;
+            case "/edit_info":
+                handleEditInfoCommand(userID);
+                break;
+            case "/edit_help":
+                handleEditHelpCommand(userID);
+                break;
+            default:
+                handleUnknownCommand(userID);
+                break;
+        }
+    }
+
+    private void handlePayment(Message message, long chatId, long userId) {
+        boolean valid = validator.isValidPayment(message);
+
+        if (valid) {
+            addInGroup(userId);
+            ChatUtils.sendMessage(chatId, "Оплата подтверждена");
+        } else {
+            validator.sendOuHumanValidation(message);
+            ChatUtils.sendMessage(chatId, "Ваше подтверждение отправлено на проверку. Пожалуйста, подождите.\n \n" +
+                    "Как только проверка завершится, бот пришлет вам ссылку для вступления в группу.");
+        }
+    }
+
+    public void handleCallbackQuery(CallbackQuery callbackQuery) {
+        String[] data = callbackQuery.getData().split("_");
+        String action = data[0];
+        long userID = callbackQuery.getMessage().getChatId();
+        int messageId = callbackQuery.getMessage().getMessageId();
+
+        switch (action) {
+            case "confirm":
+                handleConfirmAction(data, userID, messageId);
+                break;
+            case "decline":
+                handleDeclineAction(data, userID, messageId);
+                break;
+            case "setGroup":
+                handleSetGroupAction(data, userID, messageId);
+                break;
+            case "confirmAdmin":
+                handleConfirmAdminAction(data, userID);
+                break;
+        }
+    }
+
+
     private boolean isCreatingNewGroup(Message message) {
         return newGroup && message.getChatId() == ConfigUtils.getAdminChatID()
                 && message.hasText() && !message.getText().equals("/cancel");
@@ -163,55 +248,6 @@ public class PaymentBot extends TelegramLongPollingBot {
         }
     }
 
-    private void handleIncomingMessage(Message message) {
-        long chatId = message.getChatId();
-
-        if (message.getChat().getType().equals("group") || message.getChat().getType().equals("supergroup")) {
-            log.info("New message from group {}", chatId);
-        } else {
-            log.info("New message from user {}", chatId);
-            long userId = message.getFrom().getId();
-            if (message.hasDocument() || message.hasPhoto()) {
-                handlePayment(message, chatId, userId);
-            } else {
-                ChatUtils.sendMessage(chatId, "Пожалуйста приложите документ или фото платежа");
-            }
-        }
-    }
-
-    private void handleCommand(String command, long userID) {
-        String[] data = command.split(" ");
-        switch (data[0]) {
-            case "/start":
-                handleStartCommand(userID);
-                break;
-            case "/set_group":
-                handleSetGroupCommand(userID);
-                break;
-            case "/new_group":
-                handleNewGroupCommand(userID);
-                break;
-            case "/cancel":
-                handleCancelCommand(userID);
-                break;
-            case "/info":
-                handleInfoCommand(userID);
-                break;
-            case "/help":
-                handleHelpCommand(userID);
-                break;
-            case "/edit_info":
-                handleEditInfoCommand(userID);
-                break;
-            case "/edit_help":
-                handleEditHelpCommand(userID);
-                break;
-            default:
-                handleUnknownCommand(userID);
-                break;
-        }
-    }
-
     private void handleStartCommand(long userID) {
         ChatUtils.sendMessage(userID, "Привет! \uD83D\uDC4B\n" +
                 "\n" +
@@ -289,41 +325,6 @@ public class PaymentBot extends TelegramLongPollingBot {
         ChatUtils.sendMessage(userID, "Неизвестная команда");
     }
 
-
-    private void handlePayment(Message message, long chatId, long userId) {
-        boolean valid = validator.isValidPayment(message);
-
-        if (valid) {
-            addInGroup(userId);
-            ChatUtils.sendMessage(chatId, "Оплата подтверждена");
-        } else {
-            validator.sendOuHumanValidation(message);
-            ChatUtils.sendMessage(chatId, "Ваше подтверждение отправлено на проверку. Пожалуйста, подождите.\n \n" +
-                    "Как только проверка завершится, бот пришлет вам ссылку для вступления в группу.");
-        }
-    }
-
-    public void handleCallbackQuery(CallbackQuery callbackQuery) {
-        String[] data = callbackQuery.getData().split("_");
-        String action = data[0];
-        long userID = callbackQuery.getMessage().getChatId();
-        int messageId = callbackQuery.getMessage().getMessageId();
-
-        switch (action) {
-            case "confirm":
-                handleConfirmAction(data, userID, messageId);
-                break;
-            case "decline":
-                handleDeclineAction(data, userID, messageId);
-                break;
-            case "setGroup":
-                handleSetGroupAction(data, userID, messageId);
-                break;
-            case "confirmAdmin":
-                handleConfirmAdminAction(data, userID);
-                break;
-        }
-    }
 
     private void handleConfirmAction(String[] data, long userID, int messageId) {
         addInGroup(Long.parseLong(data[2]));
