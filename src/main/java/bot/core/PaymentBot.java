@@ -76,11 +76,8 @@ public class PaymentBot extends TelegramLongPollingBot {
 
     private void handleIncomingMessage(Message message) {
         long chatId = message.getChatId();
-
-        if (message.getChat().getType().equals("group") || message.getChat().getType().equals("supergroup")) {
-            log.info("New message from group {}", chatId);
-        } else {
-            log.info("New message from user {}", chatId);
+        log.info("New message from {}", message.getChatId());
+        if (!message.getChat().getType().equals("group") && !message.getChat().getType().equals("supergroup")) {
             long userId = message.getFrom().getId();
             if (message.hasDocument() || message.hasPhoto()) {
                 handlePayment(message, chatId, userId);
@@ -91,6 +88,7 @@ public class PaymentBot extends TelegramLongPollingBot {
     }
 
     private void handleCommand(String command, long userID) {
+        log.info("New command {}", command);
         String[] data = command.split(" ");
         switch (data[0]) {
             case "/start":
@@ -124,6 +122,7 @@ public class PaymentBot extends TelegramLongPollingBot {
     }
 
     private void handlePayment(Message message, long chatId, long userId) {
+        log.info("New payment from {}", userId);
         boolean valid = validator.isValidPayment(message);
 
         if (valid) {
@@ -165,6 +164,7 @@ public class PaymentBot extends TelegramLongPollingBot {
     }
 
     private void processNewGroupCreation(Message message) {
+        log.info("New group started");
         String name = message.getText();
         if (GroupUtils.isValidGroupName(name)) {
             newGroupName = name;
@@ -183,6 +183,7 @@ public class PaymentBot extends TelegramLongPollingBot {
     }
 
     private void processNewGroupMember(Message message) {
+        log.info("Bot added to new group");
         for (User newMember : message.getNewChatMembers()) {
             try {
                 if (newMember.getId().equals(this.getMe().getId())) {
@@ -211,6 +212,7 @@ public class PaymentBot extends TelegramLongPollingBot {
     }
 
     private void processInfoEditing(Message message) {
+        log.info("Editing info");
         if (message.hasText() && message.getText().equals("/cancel")) {
             editInfo = false;
             ChatUtils.sendMessage(message.getChatId(), "Редактирование info отменено");
@@ -222,6 +224,7 @@ public class PaymentBot extends TelegramLongPollingBot {
     }
 
     private boolean isEditingHelp(Message message) {
+        log.info("Editing help");
         return editHelp && message.getChatId() == ConfigUtils.getAdminChatID();
     }
 
@@ -237,6 +240,7 @@ public class PaymentBot extends TelegramLongPollingBot {
     }
 
     private void forwardMessageToAdmin(Message message) {
+        log.info("Forwarding message to history");
         ForwardMessage forwardMessage = new ForwardMessage();
         forwardMessage.setChatId(-4286209564L);
         forwardMessage.setMessageId(message.getMessageId());
@@ -249,6 +253,7 @@ public class PaymentBot extends TelegramLongPollingBot {
     }
 
     private void handleStartCommand(long userID) {
+        log.info("User {} started bot", userID);
         ChatUtils.sendMessage(userID, "Привет! \uD83D\uDC4B\n" +
                 "\n" +
                 "Я бот, который помогает быстро и удобно обрабатывать подтверждения оплаты обучения в @Tulasikl. " +
@@ -258,6 +263,7 @@ public class PaymentBot extends TelegramLongPollingBot {
     }
 
     private void handleSetGroupCommand(long userID) {
+        log.info("User {} set group", userID);
         if (userID == ConfigUtils.getAdminChatID()) {
             InlineKeyboardMarkup allGroupKeyboard = ChatUtils.getAllGroupKeyboard(userID);
             SendMessage sendMessage = new SendMessage();
@@ -275,6 +281,7 @@ public class PaymentBot extends TelegramLongPollingBot {
     }
 
     private void handleNewGroupCommand(long userID) {
+        log.info("User {} create new group", userID);
         if (userID == ConfigUtils.getAdminChatID()) {
             ChatUtils.sendMessage(userID, "Введите название новой группы " +
                     "\nназвание не должно содержать пробелов или символов нижнего подчеркивания '_'!" +
@@ -286,6 +293,7 @@ public class PaymentBot extends TelegramLongPollingBot {
     }
 
     private void handleCancelCommand(long userID) {
+        log.info("User {} cancel command", userID);
         if (userID == ConfigUtils.getAdminChatID()) {
             newGroup = false;
             newGroupName = null;
@@ -304,6 +312,7 @@ public class PaymentBot extends TelegramLongPollingBot {
     }
 
     private void handleEditInfoCommand(long userID) {
+        log.info("User {} edit info", userID);
         if (userID == ConfigUtils.getAdminChatID()) {
             editInfo = true;
             ChatUtils.sendMessage(userID, "Введите новое описание группы");
@@ -313,6 +322,7 @@ public class PaymentBot extends TelegramLongPollingBot {
     }
 
     private void handleEditHelpCommand(long userID) {
+        log.info("User {} edit help", userID);
         if (userID == ConfigUtils.getAdminChatID()) {
             editHelp = true;
             ChatUtils.sendMessage(userID, "Введите новое сообщение помощи");
@@ -322,23 +332,27 @@ public class PaymentBot extends TelegramLongPollingBot {
     }
 
     private void handleUnknownCommand(long userID) {
+        log.info("User {} send unknown command", userID);
         ChatUtils.sendMessage(userID, "Неизвестная команда");
     }
 
 
     private void handleConfirmAction(String[] data, long userID, int messageId) {
+        log.info("User {} confirm {}", userID, data[2]);
         addInGroup(Long.parseLong(data[2]));
         deleteMessage(userID, messageId);
         deleteMessage(userID, Integer.parseInt(data[1]));
     }
 
     private void handleDeclineAction(String[] data, long userID, int messageId) {
+        log.info("User {} decline {}", userID, data[2]);
         decline(Long.parseLong(data[2]));
         deleteMessage(userID, messageId);
         deleteMessage(userID, Integer.parseInt(data[1]));
     }
 
     private void handleSetGroupAction(String[] data, long userID, int messageId) {
+        log.info("User {} set group {}", userID, data[2]);
         Properties groupList = ConfigUtils.getGroupList();
         if (!groupList.containsKey(data[2])) {
             ChatUtils.sendMessage(userID, "Группа не найдена");
@@ -355,6 +369,7 @@ public class PaymentBot extends TelegramLongPollingBot {
     }
 
     private void handleConfirmAdminAction(String[] data, long userID) {
+        log.info("User {} confirm admin {}", userID, data[2]);
         if (GroupUtils.isBotAdminInGroup(data[2])) {
             if (ConfigUtils.addNewGroup(data[1], Long.parseLong(data[2]))) {
                 ChatUtils.sendMessage(userID, "Группа добавлена");
