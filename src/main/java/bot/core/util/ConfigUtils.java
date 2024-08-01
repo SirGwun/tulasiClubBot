@@ -54,10 +54,10 @@ public class ConfigUtils {
     }
 
     public static boolean addNewGroup(String name, long id) {
-        boolean result = groupList.put(name, String.valueOf(id)) != null;
+        groupList.put(name, String.valueOf(id));
         saveGroupList();
         loadGroupList();
-        return result;
+        return groupList.containsKey(name);
     }
 
     private static void saveConfig() {

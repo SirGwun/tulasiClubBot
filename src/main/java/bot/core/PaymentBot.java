@@ -120,7 +120,7 @@ public class PaymentBot extends TelegramLongPollingBot {
                 try {
                     execute(forwardMessage);
                 } catch (TelegramApiException e) {
-                    log.error("Ошибка при пересылке сообщения в группу с историей {}", e.getMessage());
+                    log.error("Не пересылаемоее сообщение");
                 }
             }
             handleIncomingMessage(message);
@@ -161,6 +161,14 @@ public class PaymentBot extends TelegramLongPollingBot {
     private void handleCommand(String command, long userID) {
         String[] data = command.split(" ");
         switch (data[0]) {
+            case "/start":
+                ChatUtils.sendMessage(userID, "Привет! \uD83D\uDC4B\n" +
+                        "\n" +
+                        "Я бот, который помогает быстро и удобно обрабатывать подтверждения оплаты обучения в @Tulasikl. " +
+                        "Просто отправьте мне фото или документ, подтверждающий вашу оплату, и я добавлю вас в обучающую группу. \uD83C\uDF93\uD83D\uDCDA\n" +
+                        "\n" +
+                        "Давайте начнем!");
+                break;
             case "/set_group":
                 if (userID == ConfigUtils.getAdminChatID()) {
                     InlineKeyboardMarkup allGroupKeyboard = ChatUtils.getAllGroupKeyboard(userID);
