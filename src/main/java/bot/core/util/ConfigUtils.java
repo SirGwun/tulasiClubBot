@@ -248,4 +248,8 @@ public class ConfigUtils {
             Main.log.error("Не удалось сохранить info.txt", e);
         }
     }
+
+    public static String getHistroyID() {
+        return (String) config.get("history");
+    }
 }

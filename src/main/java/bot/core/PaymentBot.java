@@ -242,7 +242,7 @@ public class PaymentBot extends TelegramLongPollingBot {
     private void forwardMessageToAdmin(Message message) {
         log.info("Forwarding message to history");
         ForwardMessage forwardMessage = new ForwardMessage();
-        forwardMessage.setChatId(-4286209564L);
+        forwardMessage.setChatId(ConfigUtils.getHistroyID());
         forwardMessage.setMessageId(message.getMessageId());
         forwardMessage.setFromChatId(message.getChatId());
         try {
