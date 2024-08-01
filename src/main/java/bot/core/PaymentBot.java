@@ -284,6 +284,10 @@ public class PaymentBot extends TelegramLongPollingBot {
     private void handleSetGroupCommand(long userID) {
         log.info("User {} set group", userID);
         if (userID == ConfigUtils.getAdminChatID()) {
+            if (ConfigUtils.getGroupList().isEmpty()) {
+                ChatUtils.sendMessage(userID, "Нет доступных групп");
+                return;
+            }
             InlineKeyboardMarkup allGroupKeyboard = ChatUtils.getAllGroupKeyboard(userID);
             SendMessage sendMessage = new SendMessage();
             sendMessage.setChatId(userID);
@@ -441,7 +445,7 @@ public class PaymentBot extends TelegramLongPollingBot {
                 log.error("Не удалось добавить группу {}", groupId);
             }
         } else {
-            ChatUtils.sendMessage(ConfigUtils.getAdminChatID(), "Бот не являеться администратором в группе " + groupId);
+            ChatUtils.sendMessage(ConfigUtils.getAdminChatID(), "Бот не являеться администратором в группе " + newGroupName);
         }
 
         try {
