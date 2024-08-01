@@ -1,6 +1,8 @@
 package bot.core.util;
 
+import bot.core.Group;
 import bot.core.Main;
+import bot.core.PaymentBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -61,5 +63,18 @@ public class ChatUtils {
         InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup();
         keyboard.setKeyboard(rows);
         return keyboard;
+    }
+
+    public static InlineKeyboardMarkup getKonfirmAdminStatusKeyboard(Group group) {
+        InlineKeyboardMarkup keyboaed = new InlineKeyboardMarkup();
+        InlineKeyboardButton button = new InlineKeyboardButton();
+        button.setText("Подтверждаю, что бот - администратор в группе " + PaymentBot.getNewGroupName());
+        button.setCallbackData("confirmAdmin_" + group.getName() + "_" + group.getId());
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+        List<InlineKeyboardButton> row = new ArrayList<>();
+        row.add(button);
+        rows.add(row);
+        keyboaed.setKeyboard(rows);
+        return keyboaed;
     }
 }

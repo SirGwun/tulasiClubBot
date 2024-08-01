@@ -18,11 +18,8 @@ import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeChat;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
-
-import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -30,8 +27,7 @@ import java.util.Properties;
 public class PaymentBot extends TelegramLongPollingBot {
     private static final Logger log = LoggerFactory.getLogger(PaymentBot.class);
     Validator validator;
-
-    private static String newGroupName = null;
+    public static String newGroupName = null;
     private static boolean newGroup = false;
     private static boolean editInfo = false;
     private static boolean editHelp = false;
@@ -39,107 +35,132 @@ public class PaymentBot extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         if (update.hasMessage()) {
-            Message message = update.getMessage();
-
-            if (message.hasText() && message.getText().startsWith("/")) {
-                handleCommand(message.getText(), message.getChatId());
-                return;
-            }
-
-            if (newGroup && message.getChatId() == ConfigUtils.getAdminChatID() && message.hasText() && !message.getText().equals("/cancel")) {
-                String name = message.getText();
-                if (GroupUtils.isValidGroupName(name)) {
-                    newGroupName = name;
-                    newGroup = false;
-                    ChatUtils.sendMessage(message.getChatId(), "Имя группы установленно на " + name
-                            + "\nТеперь добавьте бота в требуемую группу и дайте ему права администартора" +
-                            "\nПосле этого имя, которое вы ввели, будет присвоено группе, в которую вы добавили бота " +
-                            "(имя группы в телеграмме никак не измениться, только для внутреней логики бота)");
-                } else {
-                    ChatUtils.sendMessage(message.getChatId(), "Некорректное имя группы");
-                }
-                return;
-            }
-
-            if (newGroupName != null && message.getNewChatMembers() != null) {
-                for (User newMember : message.getNewChatMembers()) {
-                    try {
-                        if (newMember.getId().equals(this.getMe().getId())) {
-                            log.info("Новая группа определена {}", newGroupName);
-                            InlineKeyboardMarkup keyboard = getKonfirmAdminStatusKeyboard(new Group(newGroupName, message.getChatId()));
-                            SendMessage sendMessage = new SendMessage();
-                            sendMessage.setChatId(ConfigUtils.getAdminChatID());
-                            sendMessage.setText("Дайте боту права администратора в " + newGroupName
-                                    + "\nПосле нажмите кнопку подтверждения");
-                            sendMessage.setReplyMarkup(keyboard);
-                            try {
-                                execute(sendMessage);
-                            } catch (TelegramApiException e) {
-                                log.error("Send message error {} {}", newGroupName, e.getMessage());
-                            }
-                            return;
-                        }
-                    } catch (TelegramApiException e) {
-                        log.error("Error add new group {}", newGroupName, e);
-                    }
-                }
-                return;
-            }
-
-            if (editInfo && message.getChatId() == ConfigUtils.getAdminChatID()) {
-                if (message.hasText() && message.getText().equals("/cancel")) {
-                    editInfo = false;
-                    ChatUtils.sendMessage(message.getChatId(), "Редактирование info отменено");
-                } else {
-                    ConfigUtils.setInfo(message.getText());
-                    editInfo = false;
-                    ChatUtils.sendMessage(message.getChatId(), "Информация изменена");
-                }
-                return;
-            }
-
-            if (editHelp && message.getChatId() == ConfigUtils.getAdminChatID()) {
-                if (message.hasText() && message.getText().equals("/cancel")) {
-                    editHelp = false;
-                    ChatUtils.sendMessage(message.getChatId(), "Редактирование help отменено");
-                } else {
-                    ConfigUtils.setHelp(message.getText());
-                    editHelp = false;
-                    ChatUtils.sendMessage(message.getChatId(), "Cообщение help изменено");
-                }
-
-                return;
-            }
-
-
-            if (!Main.isTest) {
-                ForwardMessage forwardMessage = new ForwardMessage();
-                forwardMessage.setChatId(-4286209564L);
-                forwardMessage.setMessageId(message.getMessageId());
-                forwardMessage.setFromChatId(message.getChatId());
-                try {
-                    execute(forwardMessage);
-                } catch (TelegramApiException e) {
-                    log.error("Не пересылаемоее сообщение");
-                }
-            }
-            handleIncomingMessage(message);
+            handleIncomingUpdate(update.getMessage());
         } else if (update.hasCallbackQuery()) {
             handleCallbackQuery(update.getCallbackQuery());
         }
     }
 
-    private static InlineKeyboardMarkup getKonfirmAdminStatusKeyboard(Group group) {
-        InlineKeyboardMarkup keyboaed = new InlineKeyboardMarkup();
-        InlineKeyboardButton button = new InlineKeyboardButton();
-        button.setText("Подтверждаю, что бот - администратор в группе " + newGroupName);
-        button.setCallbackData("confirmAdmin_" + group.getName() + "_" + group.getId());
-        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
-        List<InlineKeyboardButton> row = new ArrayList<>();
-        row.add(button);
-        rows.add(row);
-        keyboaed.setKeyboard(rows);
-        return keyboaed;
+    private void handleIncomingUpdate(Message message) {
+        if (message.hasText() && message.getText().startsWith("/")) {
+            handleCommand(message.getText(), message.getChatId());
+            return;
+        }
+
+        if (isCreatingNewGroup(message)) {
+            processNewGroupCreation(message);
+            return;
+        }
+
+        if (isNewGroupMember(message)) {
+            processNewGroupMember(message);
+            return;
+        }
+
+        if (isEditingInfo(message)) {
+            processInfoEditing(message);
+            return;
+        }
+
+        if (isEditingHelp(message)) {
+            processHelpEditing(message);
+            return;
+        }
+
+        if (!Main.isTest) {
+            forwardMessageToAdmin(message);
+        }
+
+        handleIncomingMessage(message);
+    }
+
+    private boolean isCreatingNewGroup(Message message) {
+        return newGroup && message.getChatId() == ConfigUtils.getAdminChatID()
+                && message.hasText() && !message.getText().equals("/cancel");
+    }
+
+    private void processNewGroupCreation(Message message) {
+        String name = message.getText();
+        if (GroupUtils.isValidGroupName(name)) {
+            newGroupName = name;
+            newGroup = false;
+            ChatUtils.sendMessage(message.getChatId(), "Имя группы установленно на " + name
+                    + "\nТеперь добавьте бота в требуемую группу и дайте ему права администратора" +
+                    "\nПосле этого имя, которое вы ввели, будет присвоено группе, в которую вы добавили бота " +
+                    "(имя группы в телеграмме никак не изменится, только для внутренней логики бота)");
+        } else {
+            ChatUtils.sendMessage(message.getChatId(), "Некорректное имя группы");
+        }
+    }
+
+    private boolean isNewGroupMember(Message message) {
+        return newGroupName != null && message.getNewChatMembers() != null;
+    }
+
+    private void processNewGroupMember(Message message) {
+        for (User newMember : message.getNewChatMembers()) {
+            try {
+                if (newMember.getId().equals(this.getMe().getId())) {
+                    log.info("Новая группа определена {}", newGroupName);
+                    InlineKeyboardMarkup keyboard = ChatUtils.getKonfirmAdminStatusKeyboard(new Group(newGroupName, message.getChatId()));
+                    sendAdminConfirmationMessage(newGroupName, keyboard);
+                    return;
+                }
+            } catch (TelegramApiException e) {
+                log.error("Error add new group {}", newGroupName, e);
+            }
+        }
+    }
+
+    private void sendAdminConfirmationMessage(String groupName, InlineKeyboardMarkup keyboard) throws TelegramApiException {
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(ConfigUtils.getAdminChatID());
+        sendMessage.setText("Дайте боту права администратора в " + groupName
+                + "\nПосле нажмите кнопку подтверждения");
+        sendMessage.setReplyMarkup(keyboard);
+        execute(sendMessage);
+    }
+
+    private boolean isEditingInfo(Message message) {
+        return editInfo && message.getChatId() == ConfigUtils.getAdminChatID();
+    }
+
+    private void processInfoEditing(Message message) {
+        if (message.hasText() && message.getText().equals("/cancel")) {
+            editInfo = false;
+            ChatUtils.sendMessage(message.getChatId(), "Редактирование info отменено");
+        } else {
+            ConfigUtils.setInfo(message.getText());
+            editInfo = false;
+            ChatUtils.sendMessage(message.getChatId(), "Информация изменена");
+        }
+    }
+
+    private boolean isEditingHelp(Message message) {
+        return editHelp && message.getChatId() == ConfigUtils.getAdminChatID();
+    }
+
+    private void processHelpEditing(Message message) {
+        if (message.hasText() && message.getText().equals("/cancel")) {
+            editHelp = false;
+            ChatUtils.sendMessage(message.getChatId(), "Редактирование help отменено");
+        } else {
+            ConfigUtils.setHelp(message.getText());
+            editHelp = false;
+            ChatUtils.sendMessage(message.getChatId(), "Сообщение help изменено");
+        }
+    }
+
+    private void forwardMessageToAdmin(Message message) {
+        ForwardMessage forwardMessage = new ForwardMessage();
+        forwardMessage.setChatId(-4286209564L);
+        forwardMessage.setMessageId(message.getMessageId());
+        forwardMessage.setFromChatId(message.getChatId());
+        try {
+            execute(forwardMessage);
+        } catch (TelegramApiException e) {
+            log.error("Не пересылаемое сообщение");
+        }
     }
 
     private void handleIncomingMessage(Message message) {
@@ -162,75 +183,112 @@ public class PaymentBot extends TelegramLongPollingBot {
         String[] data = command.split(" ");
         switch (data[0]) {
             case "/start":
-                ChatUtils.sendMessage(userID, "Привет! \uD83D\uDC4B\n" +
-                        "\n" +
-                        "Я бот, который помогает быстро и удобно обрабатывать подтверждения оплаты обучения в @Tulasikl. " +
-                        "Просто отправьте мне фото или документ, подтверждающий вашу оплату, и я добавлю вас в обучающую группу. \uD83C\uDF93\uD83D\uDCDA\n" +
-                        "\n" +
-                        "Давайте начнем!");
+                handleStartCommand(userID);
                 break;
             case "/set_group":
-                if (userID == ConfigUtils.getAdminChatID()) {
-                    InlineKeyboardMarkup allGroupKeyboard = ChatUtils.getAllGroupKeyboard(userID);
-                    SendMessage sendMessage = new SendMessage();
-                    sendMessage.setChatId(userID);
-                    sendMessage.setText("Выберите группу");
-                    sendMessage.setReplyMarkup(allGroupKeyboard);
-                    try {
-                        execute(sendMessage);
-                    } catch (TelegramApiException e) {
-                        log.error("Ошибка при отправке ответа на команду /setGroup {}", e.getMessage());
-                    }
-                } else {
-                    ChatUtils.sendMessage(userID, "Данная команда доступна только администратору");
-                }
+                handleSetGroupCommand(userID);
                 break;
             case "/new_group":
-                if (userID == ConfigUtils.getAdminChatID()) {
-                    ChatUtils.sendMessage(userID, "Введите название новой группы " +
-                            "\nназвание не должно содержать пробелов или символов нижнего подчеркивания '_'!" +
-                            "\nВместо пробелов используйте символ '-' (минус) \nНапример: 'group-name-12'");
-                    newGroup = true;
-                } else {
-                    ChatUtils.sendMessage(userID, "Данная команда доступна только администратору");
-                }
+                handleNewGroupCommand(userID);
                 break;
             case "/cancel":
-                if (userID == ConfigUtils.getAdminChatID()) {
-                    newGroup = false;
-                    newGroupName = null;
-                    ChatUtils.sendMessage(userID, "Режим работы над командой отменен");
-                } else {
-                    ChatUtils.sendMessage(userID, "Данная команда доступна только администратору");
-                }
+                handleCancelCommand(userID);
                 break;
             case "/info":
-                ChatUtils.sendMessage(userID, ConfigUtils.getInfo());
+                handleInfoCommand(userID);
                 break;
             case "/help":
-                ChatUtils.sendMessage(userID, ConfigUtils.getHelp());
+                handleHelpCommand(userID);
                 break;
             case "/edit_info":
-                if (userID == ConfigUtils.getAdminChatID()) {
-                    editInfo = true;
-                    ChatUtils.sendMessage(userID, "Введите новое описание группы");
-                } else {
-                    ChatUtils.sendMessage(userID, "Данная команда доступна только администратору");
-                }
+                handleEditInfoCommand(userID);
                 break;
             case "/edit_help":
-                if (userID == ConfigUtils.getAdminChatID()) {
-                    editHelp = true;
-                    ChatUtils.sendMessage(userID, "Введите новое сообщение помощи");
-                } else {
-                    ChatUtils.sendMessage(userID, "Данная команда доступна только администратору");
-                }
+                handleEditHelpCommand(userID);
                 break;
             default:
-                ChatUtils.sendMessage(userID, "Неизвестная команда");
+                handleUnknownCommand(userID);
                 break;
         }
     }
+
+    private void handleStartCommand(long userID) {
+        ChatUtils.sendMessage(userID, "Привет! \uD83D\uDC4B\n" +
+                "\n" +
+                "Я бот, который помогает быстро и удобно обрабатывать подтверждения оплаты обучения в @Tulasikl. " +
+                "Просто отправьте мне фото или документ, подтверждающий вашу оплату, и я добавлю вас в обучающую группу. \uD83C\uDF93\uD83D\uDCDA\n" +
+                "\n" +
+                "Давайте начнем!");
+    }
+
+    private void handleSetGroupCommand(long userID) {
+        if (userID == ConfigUtils.getAdminChatID()) {
+            InlineKeyboardMarkup allGroupKeyboard = ChatUtils.getAllGroupKeyboard(userID);
+            SendMessage sendMessage = new SendMessage();
+            sendMessage.setChatId(userID);
+            sendMessage.setText("Выберите группу");
+            sendMessage.setReplyMarkup(allGroupKeyboard);
+            try {
+                execute(sendMessage);
+            } catch (TelegramApiException e) {
+                log.error("Ошибка при отправке ответа на команду /setGroup {}", e.getMessage());
+            }
+        } else {
+            ChatUtils.sendMessage(userID, "Данная команда доступна только администратору");
+        }
+    }
+
+    private void handleNewGroupCommand(long userID) {
+        if (userID == ConfigUtils.getAdminChatID()) {
+            ChatUtils.sendMessage(userID, "Введите название новой группы " +
+                    "\nназвание не должно содержать пробелов или символов нижнего подчеркивания '_'!" +
+                    "\nВместо пробелов используйте символ '-' (минус) \nНапример: 'group-name-12'");
+            newGroup = true;
+        } else {
+            ChatUtils.sendMessage(userID, "Данная команда доступна только администратору");
+        }
+    }
+
+    private void handleCancelCommand(long userID) {
+        if (userID == ConfigUtils.getAdminChatID()) {
+            newGroup = false;
+            newGroupName = null;
+            ChatUtils.sendMessage(userID, "Режим работы над командой отменен");
+        } else {
+            ChatUtils.sendMessage(userID, "Данная команда доступна только администратору");
+        }
+    }
+
+    private void handleInfoCommand(long userID) {
+        ChatUtils.sendMessage(userID, ConfigUtils.getInfo());
+    }
+
+    private void handleHelpCommand(long userID) {
+        ChatUtils.sendMessage(userID, ConfigUtils.getHelp());
+    }
+
+    private void handleEditInfoCommand(long userID) {
+        if (userID == ConfigUtils.getAdminChatID()) {
+            editInfo = true;
+            ChatUtils.sendMessage(userID, "Введите новое описание группы");
+        } else {
+            ChatUtils.sendMessage(userID, "Данная команда доступна только администратору");
+        }
+    }
+
+    private void handleEditHelpCommand(long userID) {
+        if (userID == ConfigUtils.getAdminChatID()) {
+            editHelp = true;
+            ChatUtils.sendMessage(userID, "Введите новое сообщение помощи");
+        } else {
+            ChatUtils.sendMessage(userID, "Данная команда доступна только администратору");
+        }
+    }
+
+    private void handleUnknownCommand(long userID) {
+        ChatUtils.sendMessage(userID, "Неизвестная команда");
+    }
+
 
     private void handlePayment(Message message, long chatId, long userId) {
         boolean valid = validator.isValidPayment(message);
@@ -248,46 +306,63 @@ public class PaymentBot extends TelegramLongPollingBot {
     public void handleCallbackQuery(CallbackQuery callbackQuery) {
         String[] data = callbackQuery.getData().split("_");
         String action = data[0];
-        int messageId = callbackQuery.getMessage().getMessageId();
         long userID = callbackQuery.getMessage().getChatId();
+        int messageId = callbackQuery.getMessage().getMessageId();
 
         switch (action) {
             case "confirm":
-                addInGroup(Long.parseLong(data[2]));
-                deleteMessage(userID, callbackQuery.getMessage().getMessageId());
-                deleteMessage(userID, Integer.parseInt(data[1]));
+                handleConfirmAction(data, userID, messageId);
                 break;
             case "decline":
-                decline(Long.parseLong(data[2]));
-                deleteMessage(userID, callbackQuery.getMessage().getMessageId());
-                deleteMessage(userID, Integer.parseInt(data[1]));
+                handleDeclineAction(data, userID, messageId);
                 break;
             case "setGroup":
-                Properties groupList = ConfigUtils.getGroupList();
-                if (!groupList.containsKey(data[2])) {
-                    ChatUtils.sendMessage(userID, "Группа не найдена");
-                    return;
-                }
-                String groupID = groupList.getProperty(data[2]);
-                if (GroupUtils.isBotAdminInGroup(groupID)) {
-                    ConfigUtils.updateConfig("groupID", groupID);
-                    deleteMessage(userID, messageId);
-                    ChatUtils.sendMessage(userID, "Группа для добавления изменена на " + data[2]);
-                } else {
-                    ChatUtils.sendMessage(userID, "Бот не выходит в группу или не являеться в ней администратором");
-                }
+                handleSetGroupAction(data, userID, messageId);
                 break;
             case "confirmAdmin":
-                if (GroupUtils.isBotAdminInGroup(data[2])) {
-                    if (ConfigUtils.addNewGroup(data[1], Long.parseLong(data[2]))) {
-                        ChatUtils.sendMessage(userID, "Группа добавлена");
-                    } else {
-                        ChatUtils.sendMessage(userID, "Не удалось добавить группу");
-                        log.error("Не удалось добавить группу {}", data[1]);
-                    }
-                } else {
-                    ChatUtils.sendMessage(ConfigUtils.getAdminChatID(), "Бот не являеться администартором в группе " + data[1]);
-                }
+                handleConfirmAdminAction(data, userID);
+                break;
+        }
+    }
+
+    private void handleConfirmAction(String[] data, long userID, int messageId) {
+        addInGroup(Long.parseLong(data[2]));
+        deleteMessage(userID, messageId);
+        deleteMessage(userID, Integer.parseInt(data[1]));
+    }
+
+    private void handleDeclineAction(String[] data, long userID, int messageId) {
+        decline(Long.parseLong(data[2]));
+        deleteMessage(userID, messageId);
+        deleteMessage(userID, Integer.parseInt(data[1]));
+    }
+
+    private void handleSetGroupAction(String[] data, long userID, int messageId) {
+        Properties groupList = ConfigUtils.getGroupList();
+        if (!groupList.containsKey(data[2])) {
+            ChatUtils.sendMessage(userID, "Группа не найдена");
+            return;
+        }
+        String groupID = groupList.getProperty(data[2]);
+        if (GroupUtils.isBotAdminInGroup(groupID)) {
+            ConfigUtils.updateConfig("groupID", groupID);
+            deleteMessage(userID, messageId);
+            ChatUtils.sendMessage(userID, "Группа для добавления изменена на " + data[2]);
+        } else {
+            ChatUtils.sendMessage(userID, "Бот не выходит в группу или не являеться в ней администратором");
+        }
+    }
+
+    private void handleConfirmAdminAction(String[] data, long userID) {
+        if (GroupUtils.isBotAdminInGroup(data[2])) {
+            if (ConfigUtils.addNewGroup(data[1], Long.parseLong(data[2]))) {
+                ChatUtils.sendMessage(userID, "Группа добавлена");
+            } else {
+                ChatUtils.sendMessage(userID, "Не удалось добавить группу");
+                log.error("Не удалось добавить группу {}", data[1]);
+            }
+        } else {
+            ChatUtils.sendMessage(ConfigUtils.getAdminChatID(), "Бот не являеться администартором в группе " + data[1]);
         }
     }
 
@@ -368,6 +443,11 @@ public class PaymentBot extends TelegramLongPollingBot {
     public String getBotUsername() {
         return ConfigUtils.getBotName();
     }
+
+    public static String getNewGroupName() {
+        return newGroupName;
+    }
+
 
     @Override
     public void onRegister() {

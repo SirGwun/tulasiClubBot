@@ -3,13 +3,14 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 src/main/resources/secret.properties
-data/config.properties
 data/groupList.properties
+src/main/java/bot/core/test/PaymentBotTest.java
 /shelf/
 /workspace.xml
 
 
 ### IntelliJ IDEA ###
+/data/config.properties
 .idea/modules.xml
 .idea/jarRepositories.xml
 .idea/compiler.xml
@@ -42,3 +43,7 @@ build/
 
 ### Mac OS ###
 .DS_Store
+/logs/app.log
+/dependency-reduced-pom.xml
+/data/help.txt
+/data/info.txt
