@@ -1,6 +1,7 @@
 package bot.core;
 
 import bot.core.util.ConfigUtils;
+import bot.core.validator.Validator;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -9,15 +10,16 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 import org.slf4j.Logger;
 
-import java.util.Arrays;
-
 public class Main {
     public static final Logger log = LoggerFactory.getLogger(Main.class);
     public static PaymentBot bot;
     public static boolean isTest = false;
     public static void main(String[] args) {
         for (String arg : args) {
-            isTest = arg.equals("--test");
+            if (arg.equals("--test")) {
+                isTest = true;
+                break;
+            }
         }
         bot = new PaymentBot();
         init(bot);

@@ -68,7 +68,7 @@ public class PaymentBot extends TelegramLongPollingBot {
         }
 
         if (!Main.isTest) {
-            forwardMessageToAdmin(message);
+            forwardMessageToHistory(message);
         }
 
         handleIncomingMessage(message);
@@ -127,7 +127,8 @@ public class PaymentBot extends TelegramLongPollingBot {
 
         if (valid) {
             addInGroup(userId);
-            ChatUtils.sendMessage(chatId, "Оплата подтверждена");
+            forwardMessageToHistory(message, "Добавлен в группу автопроверкой");
+            log.info("Автоматическая проверка подтвердила оплату");
         } else {
             validator.sendOuHumanValidation(message);
             ChatUtils.sendMessage(chatId, "Ваше подтверждение отправлено на проверку. Пожалуйста, подождите.\n \n" +
@@ -258,7 +259,19 @@ public class PaymentBot extends TelegramLongPollingBot {
         }
     }
 
-    private void forwardMessageToAdmin(Message message) {
+    private void forwardMessageToHistory(Message message, String text) {
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(ConfigUtils.getHistroyID());
+        sendMessage.setText(text);
+        forwardMessageToHistory(message);
+        try {
+            execute(sendMessage);
+        } catch (TelegramApiException e) {
+            log.error("Не удалось отправить сообщение в историю {}", e.getMessage());
+        }
+    }
+
+    private void forwardMessageToHistory(Message message) {
         log.info("Forwarding message to history");
         ForwardMessage forwardMessage = new ForwardMessage();
         forwardMessage.setChatId(ConfigUtils.getHistroyID());
