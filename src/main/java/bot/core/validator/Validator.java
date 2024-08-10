@@ -48,14 +48,14 @@ public class Validator {
 
         try {
             ForwardMessage forwardMessage = new ForwardMessage();
-            forwardMessage.setChatId(ConfigUtils.getAdminChatID());
+            forwardMessage.setChatId(ConfigUtils.getAdminID());
             forwardMessage.setFromChatId(message.getChatId());
             forwardMessage.setMessageId(message.getMessageId());
             Message forwardedMessage = Main.bot.execute(forwardMessage);
 
             // Отправляем сообщение с кнопками
             SendMessage sendMessage = new SendMessage();
-            sendMessage.setChatId(ConfigUtils.getAdminChatID());
+            sendMessage.setChatId(ConfigUtils.getAdminID());
             sendMessage.setText("Примите или отклоните пользователя");
             sendMessage.setReplyMarkup(ChatUtils.getValidationKeyboard(forwardedMessage.getMessageId(), userId));
             Main.bot.execute(sendMessage);

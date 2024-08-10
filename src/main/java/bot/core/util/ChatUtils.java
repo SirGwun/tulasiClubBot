@@ -4,11 +4,11 @@ import bot.core.Group;
 import bot.core.Main;
 import bot.core.PaymentBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class ChatUtils {
@@ -44,18 +44,27 @@ public class ChatUtils {
         return keyboard;
     }
 
-    public static InlineKeyboardMarkup getAllGroupKeyboard(long userId) {
+    public static InlineKeyboardMarkup getAllGroupKeyboard(long userId, String callBack) {
         Properties groupList = ConfigUtils.getGroupList();
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
 
         for (Map.Entry<Object, Object> group: groupList.entrySet()) {
-            List<InlineKeyboardButton> row = new ArrayList<>();
-            InlineKeyboardButton button = new InlineKeyboardButton();
-            button.setText(group.getKey().toString());
-            button.setCallbackData("setGroup_" + group.getValue());
-            System.out.println(button.getCallbackData());
-            row.add(button);
-            rows.add(row);
+            if (GroupUtils.isBotAdminInGroup(group.getValue().toString()) || userId == ConfigUtils.getAdminID()) {
+                List<InlineKeyboardButton> row = new ArrayList<>();
+                InlineKeyboardButton button = new InlineKeyboardButton();
+                if (GroupUtils.isBotAdminInGroup(group.getValue().toString()))
+                    button.setText(group.getKey().toString().replaceAll("-", " "));
+                else {
+                    button.setText("!" + group.getKey().toString().replaceAll("-", " "));
+                    ChatUtils.sendMessage(userId, "В группах, отмеченых знаком ! бот либо не состоит либо не являеться админстратором" +
+                            "\nРекомендуеться удалить эти группы при помощи команды /del");
+                }
+                button.setCallbackData(callBack + "_" + group.getValue().toString());
+                row.add(button);
+                rows.add(row);
+            } else {
+                Main.log.info("Бот не является администратором в группе {}", group.getValue().toString().replaceAll("-", " "));
+            }
         }
 
         InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup();
@@ -74,5 +83,17 @@ public class ChatUtils {
         rows.add(row);
         keyboaed.setKeyboard(rows);
         return keyboaed;
+    }
+
+    public static void deleteMessage(long chatId, int messageId) {
+        DeleteMessage deleteMessage = new DeleteMessage();
+        deleteMessage.setChatId(chatId);
+        deleteMessage.setMessageId(messageId);
+        try {
+            Main.bot.execute(deleteMessage);
+            Main.log.info("Deleted message {}", messageId);
+        } catch (TelegramApiException e) {
+            Main.log.error("Ошибка при удалении сообщения", e);
+        }
     }
 }

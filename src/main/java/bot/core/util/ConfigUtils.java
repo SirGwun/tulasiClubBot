@@ -5,6 +5,7 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.Properties;
 
 
@@ -12,7 +13,7 @@ public class ConfigUtils {
     private static String botName = "tulasiClubBot";
     private static String botToken;
     private static long adminChatID;
-    private static long groupID;
+    private static long mainGroupID;
     private static String info;
     private static String help;
     private static final Properties config = new Properties();
@@ -91,7 +92,7 @@ public class ConfigUtils {
             }
             config.load(configInput);
             adminChatID = Long.parseLong(config.getProperty("adminChatID"));
-            groupID = Long.parseLong(config.getProperty("groupID"));
+            mainGroupID = Long.parseLong(config.getProperty("groupID"));
         } catch (FileNotFoundException ex) {
             Main.log.error("Не удалось загрузить конфиг {}", ex.getMessage());
         } catch (IOException ex) {
@@ -173,12 +174,12 @@ public class ConfigUtils {
         }
     }
 
-    public static long getAdminChatID() {
+    public static long getAdminID() {
         return adminChatID;
     }
 
-    public static long getGroupID() {
-        return groupID;
+    public static long getMainGroupID() {
+        return mainGroupID;
     }
 
     public static String getBotName() {
@@ -251,5 +252,32 @@ public class ConfigUtils {
 
     public static String getHistroyID() {
         return (String) config.get("history");
+    }
+
+    public static void removeGroup(String groupId) {
+        boolean removed = false;
+        for (Map.Entry<Object, Object> group: groupList.entrySet()) {
+            if (group.getValue().equals(groupId)) {
+                groupList.remove(group.getKey());
+                removed = true;
+                break;
+            }
+        }
+        if (removed) {
+            Main.log.info("Группа {} удалена из списка", groupId);
+            saveGroupList();
+            loadGroupList();
+        } else {
+            Main.log.info("Группа {} не найдена в списке", groupId);
+        }
+    }
+
+    public static String getGroupName(long groupID) {
+        for (Map.Entry<Object, Object> group: groupList.entrySet()) {
+            if (group.getValue().equals(String.valueOf(groupID))) {
+                return group.getKey().toString().replace("-", " ");
+            }
+        }
+        return null;
     }
 }

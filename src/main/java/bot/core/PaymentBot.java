@@ -13,7 +13,6 @@ import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.CreateChatInviteLink;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeChat;
@@ -27,6 +26,7 @@ import java.util.*;
 public class PaymentBot extends TelegramLongPollingBot {
     private static final Logger log = LoggerFactory.getLogger(PaymentBot.class);
     Validator validator;
+    Map<Long, String> groupMap = new HashMap<>();
     public static String newGroupName = null;
     private static boolean newGroup = false;
     private static boolean editInfo = false;
@@ -115,9 +115,34 @@ public class PaymentBot extends TelegramLongPollingBot {
             case "/edit_help":
                 handleEditHelpCommand(userID);
                 break;
-            default:
-                handleUnknownCommand(userID);
+            case "/del":
+                handleDelCommand(userID);
                 break;
+            default:
+                handleUnknownCommand(userID, command);
+                break;
+        }
+    }
+
+    private void handleDelCommand(long userID) {
+        log.info("user {} get /del command", userID);
+        if (userID == ConfigUtils.getAdminID()) {
+            if (ConfigUtils.getGroupList().isEmpty()) {
+                ChatUtils.sendMessage(userID, "Нет доступных групп");
+                return;
+            }
+            InlineKeyboardMarkup allGroupKeyboard = ChatUtils.getAllGroupKeyboard(userID, "delGroup");
+            SendMessage sendMessage = new SendMessage();
+            sendMessage.setChatId(userID);
+            sendMessage.setText("Выберете группу для удаления");
+            sendMessage.setReplyMarkup(allGroupKeyboard);
+            try {
+                execute(sendMessage);
+            } catch (TelegramApiException e) {
+                log.error("Ошибка при отправке ответа на команду /del {}", e.getMessage());
+            }
+        } else {
+            ChatUtils.sendMessage(userID, "У вас нет прав на выполнение этой команды");
         }
     }
 
@@ -155,12 +180,25 @@ public class PaymentBot extends TelegramLongPollingBot {
             case "confirmAdmin":
                 handleConfirmAdminAction(callbackQuery, data, userID);
                 break;
+            case "delGroup":
+                handleDelGroupAction(callbackQuery, data, userID);
+        }
+    }
+
+    private void handleDelGroupAction(CallbackQuery callbackQuery, String[] data, long userID) {
+        String groupId = data[1];
+        if (ConfigUtils.getGroupList().containsValue(groupId)) {
+            ConfigUtils.removeGroup(groupId);
+            ChatUtils.sendMessage(userID, "Группа удалена");
+            ChatUtils.deleteMessage(userID, callbackQuery.getMessage().getMessageId());
+        } else {
+            ChatUtils.sendMessage(userID, "Группа не найдена");
         }
     }
 
 
     private boolean isCreatingNewGroup(Message message) {
-        return newGroup && message.getChatId() == ConfigUtils.getAdminChatID()
+        return newGroup && message.getChatId() == ConfigUtils.getAdminID()
                 && message.hasText() && !message.getText().equals("/cancel");
     }
 
@@ -202,7 +240,7 @@ public class PaymentBot extends TelegramLongPollingBot {
                                 break;
                             }
                         }
-                        ChatUtils.sendMessage(ConfigUtils.getAdminChatID(), "Группа уже есть в списке. Имя группы "
+                        ChatUtils.sendMessage(ConfigUtils.getAdminID(), "Группа уже есть в списке. Имя группы "
                                 + groupName + "\nПожалуйста, просто используйте уже добавленную группу с помощю команды /set_group");
                         newGroupName = null;
                         newGroup = false;
@@ -220,7 +258,7 @@ public class PaymentBot extends TelegramLongPollingBot {
 
     private void sendAdminConfirmationMessage(String groupName, InlineKeyboardMarkup keyboard) throws TelegramApiException {
         SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(ConfigUtils.getAdminChatID());
+        sendMessage.setChatId(ConfigUtils.getAdminID());
         sendMessage.setText("Дайте боту права администратора в " + groupName
                 + "\nПосле нажмите кнопку подтверждения");
         sendMessage.setReplyMarkup(keyboard);
@@ -228,7 +266,7 @@ public class PaymentBot extends TelegramLongPollingBot {
     }
 
     private boolean isEditingInfo(Message message) {
-        return editInfo && message.getChatId() == ConfigUtils.getAdminChatID();
+        return editInfo && message.getChatId() == ConfigUtils.getAdminID();
     }
 
     private void processInfoEditing(Message message) {
@@ -244,7 +282,7 @@ public class PaymentBot extends TelegramLongPollingBot {
     }
 
     private boolean isEditingHelp(Message message) {
-        return editHelp && message.getChatId() == ConfigUtils.getAdminChatID();
+        return editHelp && message.getChatId() == ConfigUtils.getAdminID();
     }
 
     private void processHelpEditing(Message message) {
@@ -291,34 +329,35 @@ public class PaymentBot extends TelegramLongPollingBot {
                 "Я бот, который помогает быстро и удобно обрабатывать подтверждения оплаты обучения в @Tulasikl. " +
                 "Просто отправьте мне фото или документ, подтверждающий вашу оплату, и я добавлю вас в обучающую группу. \uD83C\uDF93\uD83D\uDCDA\n" +
                 "\n" +
+                "По умолчанию я добавляю в группу \"" + ConfigUtils.getGroupName(ConfigUtils.getMainGroupID()) + "\" , но если вы хотите выбрать другую, " +
+                "воспользуйтесь меню слева от поля ввода и командой /set_group.\n" +
+                "\n" +
                 "Давайте начнем!");
+
     }
 
     private void handleSetGroupCommand(long userID) {
         log.info("User {} set group", userID);
-        if (userID == ConfigUtils.getAdminChatID()) {
-            if (ConfigUtils.getGroupList().isEmpty()) {
-                ChatUtils.sendMessage(userID, "Нет доступных групп");
-                return;
-            }
-            InlineKeyboardMarkup allGroupKeyboard = ChatUtils.getAllGroupKeyboard(userID);
-            SendMessage sendMessage = new SendMessage();
-            sendMessage.setChatId(userID);
-            sendMessage.setText("Выберите группу");
-            sendMessage.setReplyMarkup(allGroupKeyboard);
-            try {
-                execute(sendMessage);
-            } catch (TelegramApiException e) {
-                log.error("Ошибка при отправке ответа на команду /setGroup {}", e.getMessage());
-            }
-        } else {
-            ChatUtils.sendMessage(userID, "Данная команда доступна только администратору");
+
+        if (ConfigUtils.getGroupList().isEmpty()) {
+            ChatUtils.sendMessage(userID, "Нет доступных групп");
+            return;
+        }
+        InlineKeyboardMarkup allGroupKeyboard = ChatUtils.getAllGroupKeyboard(userID, "setGroup");
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(userID);
+        sendMessage.setText("Выберите группу");
+        sendMessage.setReplyMarkup(allGroupKeyboard);
+        try {
+            execute(sendMessage);
+        } catch (TelegramApiException e) {
+            log.error("Ошибка при отправке ответа на команду /setGroup {}", e.getMessage());
         }
     }
 
     private void handleNewGroupCommand(long userID) {
         log.info("User {} create new group", userID);
-        if (userID == ConfigUtils.getAdminChatID()) {
+        if (userID == ConfigUtils.getAdminID()) {
             ChatUtils.sendMessage(userID, "Введите название новой группы " +
                     "\nназвание не должно содержать пробелов или символов нижнего подчеркивания '_'!" +
                     "\nВместо пробелов используйте символ '-' (минус) \nНапример: 'group-name-12'");
@@ -330,7 +369,7 @@ public class PaymentBot extends TelegramLongPollingBot {
 
     private void handleCancelCommand(long userID) {
         log.info("User {} cancel command", userID);
-        if (userID == ConfigUtils.getAdminChatID()) {
+        if (userID == ConfigUtils.getAdminID()) {
             newGroup = false;
             newGroupName = null;
             ChatUtils.sendMessage(userID, "Режим работы над командой отменен");
@@ -349,7 +388,7 @@ public class PaymentBot extends TelegramLongPollingBot {
 
     private void handleEditInfoCommand(long userID) {
         log.info("User {} edit info", userID);
-        if (userID == ConfigUtils.getAdminChatID()) {
+        if (userID == ConfigUtils.getAdminID()) {
             editInfo = true;
             ChatUtils.sendMessage(userID, "Введите новое описание группы");
         } else {
@@ -359,7 +398,7 @@ public class PaymentBot extends TelegramLongPollingBot {
 
     private void handleEditHelpCommand(long userID) {
         log.info("User {} edit help", userID);
-        if (userID == ConfigUtils.getAdminChatID()) {
+        if (userID == ConfigUtils.getAdminID()) {
             editHelp = true;
             ChatUtils.sendMessage(userID, "Введите новое сообщение помощи");
         } else {
@@ -367,8 +406,8 @@ public class PaymentBot extends TelegramLongPollingBot {
         }
     }
 
-    private void handleUnknownCommand(long userID) {
-        log.info("User {} send unknown command", userID);
+    private void handleUnknownCommand(long userID, String message) {
+        log.info("User {} send unknown command {}", userID, message);
         ChatUtils.sendMessage(userID, "Неизвестная команда");
     }
 
@@ -376,8 +415,8 @@ public class PaymentBot extends TelegramLongPollingBot {
     private void handleConfirmAction(CallbackQuery callbackQuery, String[] data, long userID, int messageId) {
         log.info("User {} confirm {}", userID, data[2]);
         addInGroup(Long.parseLong(data[2]));
-        deleteMessage(userID, messageId);
-        deleteMessage(userID, Integer.parseInt(data[1]));
+        ChatUtils.deleteMessage(userID, messageId);
+        ChatUtils.deleteMessage(userID, Integer.parseInt(data[1]));
 
         try {
             AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery();
@@ -391,8 +430,8 @@ public class PaymentBot extends TelegramLongPollingBot {
     private void handleDeclineAction(CallbackQuery callbackQuery, String[] data, long userID, int messageId) {
         log.info("User {} decline {}", userID, data[2]);
         decline(Long.parseLong(data[2]));
-        deleteMessage(userID, messageId);
-        deleteMessage(userID, Integer.parseInt(data[1]));
+        ChatUtils.deleteMessage(userID, messageId);
+        ChatUtils.deleteMessage(userID, Integer.parseInt(data[1]));
 
         try {
             AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery();
@@ -404,36 +443,39 @@ public class PaymentBot extends TelegramLongPollingBot {
     }
 
     private void handleSetGroupAction(CallbackQuery callbackQuery, String[] data, long userID, int messageId) {
-        if (userID == ConfigUtils.getAdminChatID()) {
-            log.info("User {} set group {}", userID, data[1]);
-            Properties groupList = ConfigUtils.getGroupList();
-            if (!groupList.containsValue(data[1])) {
-                ChatUtils.sendMessage(userID, "Группа не найдена");
-                return;
+        log.info("User {} set group {}", userID, data[1]);
+        Properties groupList = ConfigUtils.getGroupList();
+        if (!groupList.containsValue(data[1])) {
+            ChatUtils.sendMessage(userID, "Группа не найдена");
+            return;
+        }
+        String groupID = data[1];
+        String groupName = "";
+        Set<Map.Entry<Object, Object>> entries = groupList.entrySet();
+        for (Map.Entry<Object, Object> entry : entries) {
+            if (entry.getValue().equals(data[1])) {
+                groupName = entry.getKey().toString();
+                break;
             }
-            String groupID = data[1];
-            if (GroupUtils.isBotAdminInGroup(groupID)) {
+        }
+
+        AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery();
+        answerCallbackQuery.setCallbackQueryId(callbackQuery.getId());
+
+        if (GroupUtils.isBotAdminInGroup(groupID)) {
+            if (userID == ConfigUtils.getAdminID()) {
                 ConfigUtils.updateConfig("groupID", groupID);
-                deleteMessage(userID, messageId);
-                Set<Map.Entry<Object, Object>> entries = groupList.entrySet();
-                String groupName = "";
-                for (Map.Entry<Object, Object> entry : entries) {
-                    if (entry.getValue().equals(data[1])) {
-                        groupName = entry.getKey().toString();
-                        break;
-                    }
-                }
-                ChatUtils.sendMessage(userID, "Группа для добавления изменена на " + groupName);
+                ChatUtils.deleteMessage(userID, messageId);
+                ChatUtils.sendMessage(userID, "Группа выбрана " + groupName.replaceAll("-", " "));
             } else {
-                ChatUtils.sendMessage(userID, "Бот не выходит в группу или не являеться в ней администратором");
+                groupMap.put(userID, groupID);
+                ChatUtils.sendMessage(userID, "Выбрана группа: " + groupName.replaceAll("-", " ") + "\nТеперь пришлите подтверждение оплаты");
             }
         } else {
-            ChatUtils.sendMessage(userID, "Данная команда доступна только администратору");
+            ChatUtils.sendMessage(userID, "Бот не выходит в группу или не являеться в ней администратором");
         }
 
         try {
-            AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery();
-            answerCallbackQuery.setCallbackQueryId(callbackQuery.getId());
             execute(answerCallbackQuery);
         } catch (TelegramApiException e) {
             log.error("Ошибка при отправке ответа на CallbackQuery", e);
@@ -458,7 +500,7 @@ public class PaymentBot extends TelegramLongPollingBot {
                 log.error("Не удалось добавить группу {}", groupId);
             }
         } else {
-            ChatUtils.sendMessage(ConfigUtils.getAdminChatID(), "Бот не являеться администратором в группе " + newGroupName);
+            ChatUtils.sendMessage(ConfigUtils.getAdminID(), "Бот не являеться администратором в группе " + newGroupName);
         }
 
         try {
@@ -470,31 +512,25 @@ public class PaymentBot extends TelegramLongPollingBot {
         }
     }
 
-    private void deleteMessage(long chatId, int messageId) {
-        DeleteMessage deleteMessage = new DeleteMessage();
-        deleteMessage.setChatId(chatId);
-        deleteMessage.setMessageId(messageId);
-        try {
-            execute(deleteMessage);
-            log.info("Deleted message {}", messageId);
-        } catch (TelegramApiException e) {
-            log.error("Ошибка при удалении сообщения", e);
-        }
-    }
-
     private void decline(long userId) {
         try {
-            log.info("Откланен запрос {} в группу {}", GroupUtils.getUserName(userId, ConfigUtils.getGroupID()),
-                    GroupUtils.getGroupName(ConfigUtils.getGroupID()));
+            log.info("Откланен запрос {} в группу {}", GroupUtils.getUserName(userId, ConfigUtils.getMainGroupID()),
+                    GroupUtils.getGroupName(ConfigUtils.getMainGroupID()));
             ChatUtils.sendMessage(userId, "Ваша заявка была отклонена, \n" +
                     "вы можете создать еще одну заявку или обратиться к администратору @Tulasikl");
         } catch (TelegramApiException e) {
-            log.error("Error decline user request {} to group {}", userId, ConfigUtils.getGroupID());
+            log.error("Error decline user request {} to group {}", userId, ConfigUtils.getMainGroupID());
         }
     }
 
     private void addInGroup(long userId) {
-        CreateChatInviteLink inviteLink = GroupUtils.createInviteLink(ConfigUtils.getGroupID());
+        CreateChatInviteLink inviteLink;
+        if (groupMap.containsKey(userId)) {
+            inviteLink = GroupUtils.createInviteLink(Long.parseLong(groupMap.get(userId)));
+            groupMap.remove(userId);
+        } else {
+            inviteLink = GroupUtils.createInviteLink(ConfigUtils.getMainGroupID());
+        }
 
         try {
             SendMessage message = new SendMessage();
@@ -512,22 +548,24 @@ public class PaymentBot extends TelegramLongPollingBot {
     private void setBotCommands() {
         // Команды для всех пользователей
         List<BotCommand> defaultCommands = new ArrayList<>();
-        defaultCommands.add(new BotCommand("/info", "Информация о группе, куда сейчас идет набор"));
-        defaultCommands.add(new BotCommand("/help", "Получить помощь"));
+        defaultCommands.add(new BotCommand("/set_group", "Выбрать группу"));
+        defaultCommands.add(new BotCommand("/info", "Информация о наборе"));
+        defaultCommands.add(new BotCommand("/help", "Помощь"));
 
         // Команды для администраторов
         List<BotCommand> adminCommands = new ArrayList<>();
-        adminCommands.add(new BotCommand("/set_group", "Установить группу, в которую бот будет добавлять после подтверждения"));
-        adminCommands.add(new BotCommand("/new_group", "Добавить новую группу"));
-        adminCommands.add(new BotCommand("/edit_info", "Изменить информацию о группе"));
-        adminCommands.add(new BotCommand("/edit_help", "Изменить сообщение помощи"));
-        adminCommands.add(new BotCommand("/cancel", "Отменить режим работы над командой"));
+        adminCommands.add(new BotCommand("/new_group", "Добавить группу"));
+        adminCommands.add(new BotCommand("/set_group", "Установить текущую группу"));
+        adminCommands.add(new BotCommand("/del", "Удалить группу"));
+        adminCommands.add(new BotCommand("/edit_info", "Изменить информацию"));
+        adminCommands.add(new BotCommand("/edit_help", "Изменить помощь"));
+        adminCommands.add(new BotCommand("/cancel", "Отменить действие"));
 
         try {
             // Установка команд для всех пользователей
             this.execute(new SetMyCommands(defaultCommands, new BotCommandScopeDefault(), null));
             // Установка команд для администраторов в конкретном чате (например, для группы или канала)
-            this.execute(new SetMyCommands(adminCommands, new BotCommandScopeChat(Long.toString(ConfigUtils.getAdminChatID())), null));
+            this.execute(new SetMyCommands(adminCommands, new BotCommandScopeChat(Long.toString(ConfigUtils.getAdminID())), null));
         } catch (Exception e) {
             log.error("Error setting bot commands {}", e.getMessage());
         }
