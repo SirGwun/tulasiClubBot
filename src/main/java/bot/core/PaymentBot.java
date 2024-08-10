@@ -210,12 +210,13 @@ public class PaymentBot extends TelegramLongPollingBot {
             return;
         }
         if (GroupUtils.isValidGroupName(name)) {
-            newGroupName = name;
+            newGroupName = name.replace(" ", "-");
+            newGroupName = newGroupName.replace("_", "-");
             newGroup = false;
-            ChatUtils.sendMessage(message.getChatId(), "Имя группы установленно на " + name
-                    + "\nТеперь добавьте бота в требуемую группу и дайте ему права администратора" +
-                    "\nПосле этого имя, которое вы ввели, будет присвоено группе, в которую вы добавили бота " +
-                    "(имя группы в телеграмме никак не изменится, только для внутренней логики бота)");
+            ChatUtils.sendMessage(message.getChatId(), "Имя группы установлено на \"" + name + "\".\n\n" +
+                    "Теперь добавьте бота в нужную группу и предоставьте ему права администратора.\n\n" +
+                    "После этого введённое вами имя будет присвоено группе, в которую добавлен бот. \n\n" +
+                    "Обратите внимание, что имя группы в Telegram останется прежним, изменения касаются только внутренней логики бота.");
         } else {
             ChatUtils.sendMessage(message.getChatId(), "Некорректное имя группы");
         }
@@ -230,7 +231,7 @@ public class PaymentBot extends TelegramLongPollingBot {
         for (User newMember : message.getNewChatMembers()) {
             try {
                 if (newMember.getId().equals(this.getMe().getId())) {
-                    log.info("Новая группа определена {}", newGroupName);
+                    log.info("Новая группа определена {}", newGroupName.replace("-", " "));
                     if (ConfigUtils.getGroupList().containsValue(message.getChatId().toString())) {
                         Set<Map.Entry<Object, Object>> entries = ConfigUtils.getGroupList().entrySet();
                         String groupName = "";
@@ -259,8 +260,8 @@ public class PaymentBot extends TelegramLongPollingBot {
     private void sendAdminConfirmationMessage(String groupName, InlineKeyboardMarkup keyboard) throws TelegramApiException {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(ConfigUtils.getAdminID());
-        sendMessage.setText("Дайте боту права администратора в " + groupName
-                + "\nПосле нажмите кнопку подтверждения");
+        sendMessage.setText("Дайте боту права администратора в \"" + groupName.replace("-", " ")
+                + "\"\n\nПосле нажмите кнопку подтверждения");
         sendMessage.setReplyMarkup(keyboard);
         execute(sendMessage);
     }
@@ -358,9 +359,7 @@ public class PaymentBot extends TelegramLongPollingBot {
     private void handleNewGroupCommand(long userID) {
         log.info("User {} create new group", userID);
         if (userID == ConfigUtils.getAdminID()) {
-            ChatUtils.sendMessage(userID, "Введите название новой группы " +
-                    "\nназвание не должно содержать пробелов или символов нижнего подчеркивания '_'!" +
-                    "\nВместо пробелов используйте символ '-' (минус) \nНапример: 'group-name-12'");
+            ChatUtils.sendMessage(userID, "Введите название новой группы ");
             newGroup = true;
         } else {
             ChatUtils.sendMessage(userID, "Данная команда доступна только администратору");

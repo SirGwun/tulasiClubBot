@@ -75,7 +75,7 @@ public class ChatUtils {
     public static InlineKeyboardMarkup getKonfirmAdminStatusKeyboard(Group group) {
         InlineKeyboardMarkup keyboaed = new InlineKeyboardMarkup();
         InlineKeyboardButton button = new InlineKeyboardButton();
-        button.setText("Подтверждаю, что бот - администратор в группе " + PaymentBot.getNewGroupName());
+        button.setText("Бот администратора в " + PaymentBot.getNewGroupName().replace("-", " "));
         button.setCallbackData("confirmAdmin_" + group.getId());
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
         List<InlineKeyboardButton> row = new ArrayList<>();
