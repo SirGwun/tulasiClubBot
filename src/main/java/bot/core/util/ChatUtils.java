@@ -74,9 +74,9 @@ public class ChatUtils {
         buttons.sort(Comparator.comparing(InlineKeyboardButton::getText));
 
         int columnCount;
-        if (buttons.size() <= 20) {
+        if (buttons.size() <= 10) {
             columnCount = 1;
-        } else if (buttons.size() <= 40) {
+        } else if (buttons.size() <= 20) {
             columnCount = 2;
         } else {
             columnCount = 3;
