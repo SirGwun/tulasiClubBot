@@ -68,7 +68,7 @@ public class PaymentBot extends TelegramLongPollingBot {
             return;
         }
 
-        if (!Main.isTest) {
+        if (!Main.isTest && !message.getChat().getType().equals("group") && !message.getChat().getType().equals("supergroup")) {
             forwardMessageToHistory(message);
         }
 
