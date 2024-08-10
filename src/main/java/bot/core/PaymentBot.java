@@ -43,35 +43,36 @@ public class PaymentBot extends TelegramLongPollingBot {
     }
 
     private void handleIncomingUpdate(Message message) {
-        if (message.hasText() && message.getText().startsWith("/") && !message.getChat().getType().equals("group") && !message.getChat().getType().equals("supergroup")) {
-            handleCommand(message.getText(), message.getChatId());
-            return;
-        }
+        if (!message.getChat().getType().equals("group") && !message.getChat().getType().equals("supergroup")) {
+            if (message.hasText() && message.getText().startsWith("/")) {
+                handleCommand(message.getText(), message.getChatId());
+                return;
+            }
 
-        if (isCreatingNewGroup(message)) {
-            processNewGroupCreation(message);
-            return;
-        }
+            if (isCreatingNewGroup(message)) {
+                processNewGroupCreation(message);
+                return;
+            }
 
-        if (isNewGroupMember(message)) {
-            processNewGroupMember(message);
-            return;
-        }
+            if (isEditingInfo(message)) {
+                processInfoEditing(message);
+                return;
+            }
 
-        if (isEditingInfo(message)) {
-            processInfoEditing(message);
-            return;
-        }
+            if (isEditingHelp(message)) {
+                processHelpEditing(message);
+                return;
+            }
 
-        if (isEditingHelp(message)) {
-            processHelpEditing(message);
-            return;
+            if (!Main.isTest) {
+                forwardMessageToHistory(message);
+            }
+        } else {
+            if (isNewGroupMember(message)) {
+                processNewGroupMember(message);
+                return;
+            }
         }
-
-        if (!Main.isTest && !message.getChat().getType().equals("group") && !message.getChat().getType().equals("supergroup")) {
-            forwardMessageToHistory(message);
-        }
-
         handleIncomingMessage(message);
     }
 
@@ -560,12 +561,13 @@ public class PaymentBot extends TelegramLongPollingBot {
         adminCommands.add(new BotCommand("/edit_info", "Изменить информацию"));
         adminCommands.add(new BotCommand("/edit_help", "Изменить помощь"));
         adminCommands.add(new BotCommand("/cancel", "Отменить действие"));
-
         try {
-            // Установка команд для всех пользователей
-            this.execute(new SetMyCommands(defaultCommands, new BotCommandScopeAllPrivateChats(), null));
+            // Установка команд для всех пользователей только в личных чатах
+            execute(new SetMyCommands(defaultCommands, new BotCommandScopeAllPrivateChats(), null));
             // Установка команд для администраторов в конкретном чате (например, для группы или канала)
-            this.execute(new SetMyCommands(adminCommands, new BotCommandScopeChat(Long.toString(ConfigUtils.getAdminID())), null));
+            // Здесь предполагается, что у вас есть метод для получения ID администраторской группы
+            long adminChatId = ConfigUtils.getAdminID();
+            execute(new SetMyCommands(adminCommands, new BotCommandScopeChat(Long.toString(ConfigUtils.getAdminID())), null));
         } catch (Exception e) {
             log.error("Error setting bot commands {}", e.getMessage());
         }
