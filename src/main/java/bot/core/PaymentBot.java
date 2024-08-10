@@ -15,6 +15,7 @@ import org.telegram.telegrambots.meta.api.methods.groupadministration.CreateChat
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
+import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeAllPrivateChats;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeChat;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -42,7 +43,7 @@ public class PaymentBot extends TelegramLongPollingBot {
     }
 
     private void handleIncomingUpdate(Message message) {
-        if (message.hasText() && message.getText().startsWith("/")) {
+        if (message.hasText() && message.getText().startsWith("/") && !message.getChat().getType().equals("group") && !message.getChat().getType().equals("supergroup")) {
             handleCommand(message.getText(), message.getChatId());
             return;
         }
@@ -562,7 +563,7 @@ public class PaymentBot extends TelegramLongPollingBot {
 
         try {
             // Установка команд для всех пользователей
-            this.execute(new SetMyCommands(defaultCommands, new BotCommandScopeDefault(), null));
+            this.execute(new SetMyCommands(defaultCommands, new BotCommandScopeAllPrivateChats(), null));
             // Установка команд для администраторов в конкретном чате (например, для группы или канала)
             this.execute(new SetMyCommands(adminCommands, new BotCommandScopeChat(Long.toString(ConfigUtils.getAdminID())), null));
         } catch (Exception e) {
