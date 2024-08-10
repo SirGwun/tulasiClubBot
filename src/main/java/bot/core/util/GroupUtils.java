@@ -64,7 +64,7 @@ public class GroupUtils {
                 }
             }
         } catch (TelegramApiException e) {
-            Main.log.info("Попытка добавить бота в несуществующую группу {}", e.getMessage());
+            Main.log.info("Бот не адмистратор в группе {}", groupId);
         }
         return false; // Группа не существует или бот не является администратором
     }

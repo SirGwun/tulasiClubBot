@@ -19,6 +19,7 @@ import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScope
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeChat;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 
@@ -347,6 +348,17 @@ public class PaymentBot extends TelegramLongPollingBot {
             return;
         }
         InlineKeyboardMarkup allGroupKeyboard = ChatUtils.getAllGroupKeyboard(userID, "setGroup");
+        boolean hasGroupException = false;
+        for (List<InlineKeyboardButton> row : allGroupKeyboard.getKeyboard()) {
+            for (InlineKeyboardButton button : row) {
+                if (button.getText().startsWith("!")) {
+                    hasGroupException = true;
+                }
+            }
+        }
+        if (hasGroupException) {
+            ChatUtils.sendMessage(userID, "Группы помеченые \"!\" либо не существуют, либо бот не являеться в них админом\n\nРекомендую их удалить");
+        }
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(userID);
         sendMessage.setText("Выберите группу");

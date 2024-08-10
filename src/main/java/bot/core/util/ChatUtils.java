@@ -46,25 +46,55 @@ public class ChatUtils {
 
     public static InlineKeyboardMarkup getAllGroupKeyboard(long userId, String callBack) {
         Properties groupList = ConfigUtils.getGroupList();
-        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
 
-        for (Map.Entry<Object, Object> group: groupList.entrySet()) {
-            if (GroupUtils.isBotAdminInGroup(group.getValue().toString()) || userId == ConfigUtils.getAdminID()) {
-                List<InlineKeyboardButton> row = new ArrayList<>();
+        List<InlineKeyboardButton> buttons = new ArrayList<>();
+
+        for (Map.Entry<Object, Object> group : groupList.entrySet()) {
+            if (userId == ConfigUtils.getAdminID()) {
                 InlineKeyboardButton button = new InlineKeyboardButton();
-                if (GroupUtils.isBotAdminInGroup(group.getValue().toString()))
-                    button.setText(group.getKey().toString().replaceAll("-", " "));
-                else {
-                    button.setText("!" + group.getKey().toString().replaceAll("-", " "));
-                    ChatUtils.sendMessage(userId, "В группах, отмеченых знаком ! бот либо не состоит либо не являеться админстратором" +
-                            "\nРекомендуеться удалить эти группы при помощи команды /del");
+                String groupName = group.getKey().toString().replaceAll("-", " ");
+                if (GroupUtils.isBotAdminInGroup(group.getValue().toString())) {
+                    button.setText(groupName);
+                } else {
+                    button.setText("!" + groupName);
                 }
                 button.setCallbackData(callBack + "_" + group.getValue().toString());
-                row.add(button);
-                rows.add(row);
-            } else {
-                Main.log.info("Бот не является администратором в группе {}", group.getValue().toString().replaceAll("-", " "));
+                buttons.add(button);
+            } else if (GroupUtils.isBotAdminInGroup(group.getValue().toString())) {
+                InlineKeyboardButton button = new InlineKeyboardButton();
+                String groupName = group.getKey().toString().replaceAll("-", " ");
+                button.setText(groupName);
+                button.setCallbackData(callBack + "_" + group.getValue().toString());
+                buttons.add(button);
             }
+
+        }
+
+        // Сортировка кнопок по имени
+        buttons.sort(Comparator.comparing(InlineKeyboardButton::getText));
+
+        int columnCount;
+        if (buttons.size() <= 20) {
+            columnCount = 1;
+        } else if (buttons.size() <= 40) {
+            columnCount = 2;
+        } else {
+            columnCount = 3;
+        }
+        // Формирование строк для клавиатуры
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+
+        // Разбиение кнопок на столбцы и строки
+        int totalRows = (int) Math.ceil((double) buttons.size() / columnCount);
+        for (int rowIndex = 0; rowIndex < totalRows; rowIndex++) {
+            List<InlineKeyboardButton> row = new ArrayList<>();
+            for (int colIndex = 0; colIndex < columnCount; colIndex++) {
+                int buttonIndex = rowIndex + colIndex * totalRows;
+                if (buttonIndex < buttons.size()) {
+                    row.add(buttons.get(buttonIndex));
+                }
+            }
+            rows.add(row);
         }
 
         InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup();
