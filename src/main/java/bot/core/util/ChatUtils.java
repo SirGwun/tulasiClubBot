@@ -45,12 +45,12 @@ public class ChatUtils {
     }
 
     public static InlineKeyboardMarkup getAllGroupKeyboard(long userId, String callBack) {
-        Properties groupList = ConfigUtils.getGroupList();
+        Properties groupList = DataUtils.getGroupList();
 
         List<InlineKeyboardButton> buttons = new ArrayList<>();
 
         for (Map.Entry<Object, Object> group : groupList.entrySet()) {
-            if (userId == ConfigUtils.getAdminID()) {
+            if (userId == DataUtils.getAdminID()) {
                 InlineKeyboardButton button = new InlineKeyboardButton();
                 String groupName = group.getKey().toString().replaceAll("-", " ");
                 if (GroupUtils.isBotAdminInGroup(group.getValue().toString())) {

@@ -2,7 +2,7 @@ package bot.core.validator;
 
 import bot.core.Main;
 import bot.core.util.ChatUtils;
-import bot.core.util.ConfigUtils;
+import bot.core.util.DataUtils;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
-import static bot.core.util.ConfigUtils.getBotToken;
+import static bot.core.util.DataUtils.getBotToken;
 
 public class Validator {
     public boolean isValidPayment(Message message) {
@@ -48,14 +48,14 @@ public class Validator {
 
         try {
             ForwardMessage forwardMessage = new ForwardMessage();
-            forwardMessage.setChatId(ConfigUtils.getAdminID());
+            forwardMessage.setChatId(DataUtils.getAdminID());
             forwardMessage.setFromChatId(message.getChatId());
             forwardMessage.setMessageId(message.getMessageId());
             Message forwardedMessage = Main.bot.execute(forwardMessage);
 
             // Отправляем сообщение с кнопками
             SendMessage sendMessage = new SendMessage();
-            sendMessage.setChatId(ConfigUtils.getAdminID());
+            sendMessage.setChatId(DataUtils.getAdminID());
             sendMessage.setText("Примите или отклоните пользователя");
             sendMessage.setReplyMarkup(ChatUtils.getValidationKeyboard(forwardedMessage.getMessageId(), userId));
             Main.bot.execute(sendMessage);

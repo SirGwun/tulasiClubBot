@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Properties;
 
 
-public class ConfigUtils {
+public class DataUtils {
     private static String botName = "tulasiClubBot";
     private static String botToken;
     private static long adminChatID;
@@ -25,7 +25,7 @@ public class ConfigUtils {
             System.out.println("Загружен токен");
             System.out.println("AMVERA");
         } else {
-            try (InputStream secretInput = ConfigUtils.class.getClassLoader().getResourceAsStream("secret.properties")) {
+            try (InputStream secretInput = DataUtils.class.getClassLoader().getResourceAsStream("secret.properties")) {
                 if (secretInput == null) {
                     throw new FileNotFoundException("secret.properties not found");
                 }
@@ -166,7 +166,7 @@ public class ConfigUtils {
     public static void testMode() {
         setBotName("harmoniousNutritionBot");
         Properties secretProperties = new Properties();
-        try (InputStream input = ConfigUtils.class.getClassLoader().getResourceAsStream("secret.properties")) {
+        try (InputStream input = DataUtils.class.getClassLoader().getResourceAsStream("secret.properties")) {
             secretProperties.load(input);
             botToken = secretProperties.getProperty("testBotToken");
         } catch (IOException ex) {
@@ -187,7 +187,7 @@ public class ConfigUtils {
     }
 
     public static void setBotName(String botName) {
-        ConfigUtils.botName = botName;
+        DataUtils.botName = botName;
     }
 
     public static String getHelp() {
@@ -208,7 +208,7 @@ public class ConfigUtils {
     }
 
     public static void setHelp(String help) {
-        ConfigUtils.help = help;
+        DataUtils.help = help;
 
         String filePath = (System.getenv("AMVERA") != null && System.getenv("AMVERA").equals("1"))
                 ? "/data/help.txt"
@@ -238,7 +238,7 @@ public class ConfigUtils {
     }
 
     public static void setInfo(String info) {
-        ConfigUtils.info = info;
+        DataUtils.info = info;
 
         String filePath = (System.getenv("AMVERA") != null && System.getenv("AMVERA").equals("1"))
                 ? "/data/info.txt"

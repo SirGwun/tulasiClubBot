@@ -1,7 +1,6 @@
 package bot.core;
 
-import bot.core.util.ConfigUtils;
-import bot.core.validator.Validator;
+import bot.core.util.DataUtils;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -30,7 +29,7 @@ public class Main {
         try {
             if (isTest) {
                 log.info("Тестовый режим");
-                ConfigUtils.testMode();
+                DataUtils.testMode();
             } else {
                 //во избежание работы 2 инстенсов на продакшене и ошибок, с этим связаных
                 try {
