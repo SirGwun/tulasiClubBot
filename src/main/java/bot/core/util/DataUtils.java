@@ -280,4 +280,21 @@ public class DataUtils {
         }
         return null;
     }
+
+    public static String getCatalog() {
+        try {
+            InputStream catalogInput = null;
+            if (System.getenv("AMVERA") != null && System.getenv("AMVERA").equals("1")) {
+                catalogInput = new FileInputStream("/data/catalog.txt");
+            } else {
+                catalogInput = new FileInputStream("data/catalog.txt");
+            }
+            return IOUtils.toString(catalogInput, StandardCharsets.UTF_8);
+        } catch (FileNotFoundException ex) {
+            Main.log.error("Не удалось загрузить каталог {}", ex.getMessage());
+        } catch (IOException ex) {
+            Main.log.error("Unable to read каталог file : {}", ex.getMessage());
+        }
+        return null;
+    }
 }

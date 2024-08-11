@@ -131,7 +131,44 @@ public class PaymentBot extends TelegramLongPollingBot {
 
     private void handleCatalogCommand(long userID) {
         log.info("user {} get /catalog command", userID);
+        String catalog = DataUtils.getCatalog();
+        if (catalog != null) {
+            // Разбиваем каталог на части, каждая из которых не превышает 4096 символов
+            List<String> messages = splitMessage(catalog, 4096);
+            for (String message : messages) {
+                ChatUtils.sendMessage(userID, message);
+            }
+        } else {
+            ChatUtils.sendMessage(userID, "Каталог пока пуст");
+            log.info("Ошибка при чтении каталога");
+        }
+    }
 
+    // Метод для разбиения строки на части заданной длины, не разрывая слова
+    private List<String> splitMessage(String text, int maxLength) {
+        List<String> messages = new ArrayList<>();
+        int start = 0;
+        while (start < text.length()) {
+            int end = Math.min(start + maxLength, text.length());
+            // Проверяем, что не разрываем слово
+            if (end < text.length() && !Character.isWhitespace(text.charAt(end))) {
+                // Ищем последний пробел или перенос строки перед end
+                int lastSpace = text.lastIndexOf(' ', end);
+                int lastNewLine = text.lastIndexOf('\n', end);
+                int breakPoint = Math.max(lastSpace, lastNewLine);
+                if (breakPoint > start) {
+                    end = breakPoint;
+                }
+            }
+            messages.add(text.substring(start, end));
+            start = end;
+
+            // Пропускаем пробелы в начале следующего сегмента
+            while (start < text.length() && Character.isWhitespace(text.charAt(start))) {
+                start++;
+            }
+        }
+        return messages;
     }
 
     private void handleDelCommand(long userID) {
