@@ -97,7 +97,8 @@ public class Validator {
             return false;
         } else {
             boolean hasCheck = textFromDocument.contains("Чек");
-            boolean hasName = textFromDocument.contains("Елена Алексеевна");
+            boolean hasName = textFromDocument.contains("Елена Алексеевна")
+                    || textFromDocument.contains("Елена C.");
             boolean hasSum = textFromDocument.contains("Сумма");
             return hasCheck && hasName && hasSum;
         }

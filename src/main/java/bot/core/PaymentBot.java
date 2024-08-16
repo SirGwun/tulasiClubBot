@@ -199,7 +199,7 @@ public class PaymentBot extends TelegramLongPollingBot {
 
         if (valid) {
             addInGroup(userId);
-            forwardMessageToHistory(message, "Добавлен в группу автопроверкой");
+            ChatUtils.sendMessage(Long.parseLong(DataUtils.getHistroyID()), "Добавлен в группу автопроверкой");
             log.info("Автоматическая проверка подтвердила оплату");
         } else {
             validator.sendOuHumanValidation(message);
@@ -345,18 +345,6 @@ public class PaymentBot extends TelegramLongPollingBot {
         }
     }
 
-    private void forwardMessageToHistory(Message message, String text) {
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(DataUtils.getHistroyID());
-        sendMessage.setText(text);
-        forwardMessageToHistory(message);
-        try {
-            execute(sendMessage);
-        } catch (TelegramApiException e) {
-            log.error("Не удалось отправить сообщение в историю {}", e.getMessage());
-        }
-    }
-
     private void forwardMessageToHistory(Message message) {
         log.info("Forwarding message to history");
         ForwardMessage forwardMessage = new ForwardMessage();
@@ -379,6 +367,7 @@ public class PaymentBot extends TelegramLongPollingBot {
                 "\n" +
                 "По умолчанию я добавляю в группу \"" + DataUtils.getGroupName(DataUtils.getMainGroupID()) + "\" , но если вы хотите выбрать другую, " +
                 "воспользуйтесь меню слева от поля ввода и командой /set_group.\n" +
+                "чтобы посмотреть описание лекций в меню доступна команда /catalog\n" +
                 "\n" +
                 "Давайте начнем!");
 
