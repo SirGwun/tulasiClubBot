@@ -12,8 +12,10 @@ import org.telegram.telegrambots.meta.api.methods.ForwardMessage;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.CreateChatInviteLink;
+import org.telegram.telegrambots.meta.api.methods.groupadministration.RevokeChatInviteLink;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.*;
+import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeAllPrivateChats;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeChat;
@@ -37,13 +39,61 @@ public class PaymentBot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         if (update.hasMessage()) {
             handleIncomingUpdate(update.getMessage());
+        } else if (update.hasMyChatMember()) {
+            handleMyChatMemberUpdate(update.getMyChatMember());
         } else if (update.hasCallbackQuery()) {
             handleCallbackQuery(update.getCallbackQuery());
         }
     }
 
+    private void handleMyChatMemberUpdate(ChatMemberUpdated chatMemberUpdated) {
+        try {
+            Chat chat = chatMemberUpdated.getChat();
+            ChatMember oldStatus = chatMemberUpdated.getOldChatMember();
+            ChatMember newStatus = chatMemberUpdated.getNewChatMember();
+
+            Long chatId = chat.getId();
+            String chatType = chat.getType();
+            boolean wasMember = oldStatus.getStatus().equals("member") || oldStatus.getStatus().equals("administrator");
+            boolean isMemberNow = newStatus.getStatus().equals("member") || newStatus.getStatus().equals("administrator");
+
+            // Бот добавлен в чат (группу/канал)
+            if (!wasMember && isMemberNow && newStatus.getUser().getId().equals(this.getMe().getId())) {
+                log.info("Bot added to {} {}", chatType, chatId);
+
+                if (DataUtils.getGroupList().containsValue(chatId.toString())) {
+                    String existingName = "";
+                    for (Map.Entry<Object, Object> entry : DataUtils.getGroupList().entrySet()) {
+                        if (entry.getValue().equals(chatId.toString())) {
+                            existingName = entry.getKey().toString();
+                            break;
+                        }
+                    }
+                    ChatUtils.sendMessage(DataUtils.getAdminID(),
+                            (chatType.equals("channel") ? "Канал" : "Группа") + " уже есть в списке. Имя: " + existingName +
+                                    "\nПожалуйста, используйте уже добавленный чат с помощью команды /set_group");
+                    newGroupName = null;
+                    newGroup = false;
+                    return;
+                }
+
+                InlineKeyboardMarkup keyboard = ChatUtils.getKonfirmAdminStatusKeyboard(new Group(newGroupName, chatId));
+                sendAdminConfirmationMessage(newGroupName, keyboard);
+            }
+
+            // Бот удалён из чата
+            if (wasMember && !isMemberNow && newStatus.getUser().getId().equals(this.getMe().getId())) {
+                log.info("Bot removed from {} {}", chatType, chatId);
+                // Можно добавить очистку или логику при удалении бота из группы/канала
+            }
+        } catch (TelegramApiException e) {
+            log.error("Error handling chat member update", e);
+        }
+    }
+
+
     private void handleIncomingUpdate(Message message) {
-        if (!message.getChat().getType().equals("group") && !message.getChat().getType().equals("supergroup")) {
+        if (!message.getChat().getType().equals("group") && !message.getChat().getType().equals("supergroup") && !message.getChat().isChannelChat()) {
             if (message.hasText() && message.getText().startsWith("/")) {
                 handleCommand(message.getText(), message.getChatId());
                 return;
@@ -270,38 +320,72 @@ public class PaymentBot extends TelegramLongPollingBot {
     }
 
     private boolean isNewGroupMember(Message message) {
-        return newGroupName != null && message.getNewChatMembers() != null;
+        if (newGroupName == null) return false;
+
+        if (message.isGroupMessage() && message.getNewChatMembers() != null) {
+            for (User user : message.getNewChatMembers()) {
+                try {
+                    if (user.getId().equals(getMe().getId())) {
+                        return true;
+                    }
+                } catch (TelegramApiException e) {
+                    log.error(e.getMessage());
+                }
+            }
+            return false;
+        }
+
+        return message.isChannelMessage(); // бот получил сообщение из канала, этого достаточно
     }
 
     private void processNewGroupMember(Message message) {
-        log.info("Bot added to new group");
-        for (User newMember : message.getNewChatMembers()) {
-            try {
-                if (newMember.getId().equals(this.getMe().getId())) {
-                    log.info("Новая группа определена {}", newGroupName.replace("-", " "));
-                    if (DataUtils.getGroupList().containsValue(message.getChatId().toString())) {
-                        Set<Map.Entry<Object, Object>> entries = DataUtils.getGroupList().entrySet();
-                        String groupName = "";
-                        for (Map.Entry<Object, Object> entry : entries) {
-                            if (entry.getValue().equals(message.getChatId().toString())) {
-                                groupName = entry.getKey().toString();
-                                break;
-                            }
-                        }
-                        ChatUtils.sendMessage(DataUtils.getAdminID(), "Группа уже есть в списке. Имя группы "
-                                + groupName + "\nПожалуйста, просто используйте уже добавленную группу с помощю команды /set_group");
-                        newGroupName = null;
-                        newGroup = false;
-                        return;
+        Long chatId = message.getChatId();
+        boolean isChannel = message.getChat().isChannelChat();
+
+        boolean isBotAddedToGroup = false;
+        if (message.getNewChatMembers() != null) {
+            for (User u : message.getNewChatMembers()) {
+                try {
+                    if (u.getId().equals(this.getMe().getId())) {
+                        isBotAddedToGroup = true;
+                        break;
                     }
-                    InlineKeyboardMarkup keyboard = ChatUtils.getKonfirmAdminStatusKeyboard(new Group(newGroupName, message.getChatId()));
-                    sendAdminConfirmationMessage(newGroupName, keyboard);
-                    return;
+                } catch (TelegramApiException e) {
+                    log.error(e.getMessage());
                 }
-            } catch (TelegramApiException e) {
-                log.error("Error add new group {}", newGroupName, e);
             }
         }
+
+        if (!isChannel && !isBotAddedToGroup) return;
+
+        log.info("Bot added to new {}", isChannel ? "channel" : "group");
+
+        try {
+            if (DataUtils.getGroupList().containsValue(chatId.toString())) {
+                Set<Map.Entry<Object, Object>> entries = DataUtils.getGroupList().entrySet();
+                String name = "";
+                for (Map.Entry<Object, Object> entry : entries) {
+                    if (entry.getValue().equals(chatId.toString())) {
+                        name = entry.getKey().toString();
+                        break;
+                    }
+                }
+                ChatUtils.sendMessage(DataUtils.getAdminID(), (isChannel ? "Канал" : "Группа") + " уже есть в списке. Имя: "
+                        + name + "\nПожалуйста, просто используйте уже добавленный чат с помощью команды /set_group");
+                newGroupName = null;
+                newGroup = false;
+                return;
+            }
+
+            InlineKeyboardMarkup keyboard = ChatUtils.getKonfirmAdminStatusKeyboard(
+                    new Group(newGroupName, chatId)
+            );
+
+            sendAdminConfirmationMessage(newGroupName, keyboard);
+        } catch (TelegramApiException e) {
+            log.error("Error adding new {} {}", isChannel ? "channel" : "group", newGroupName, e);
+        }
+
     }
 
     private void sendAdminConfirmationMessage(String groupName, InlineKeyboardMarkup keyboard) throws TelegramApiException {
@@ -360,16 +444,20 @@ public class PaymentBot extends TelegramLongPollingBot {
 
     private void handleStartCommand(long userID) {
         log.info("User {} started bot", userID);
-        ChatUtils.sendMessage(userID, "Привет! \uD83D\uDC4B\n" +
-                "\n" +
-                "Я бот, который помогает быстро и удобно обрабатывать подтверждения оплаты обучения в @Tulasikl. " +
-                "Просто отправьте мне фото или документ, подтверждающий вашу оплату, и я добавлю вас в обучающую группу. \uD83C\uDF93\uD83D\uDCDA\n" +
-                "\n" +
-                "По умолчанию я добавляю в группу \"" + DataUtils.getGroupName(DataUtils.getMainGroupID()) + "\" , но если вы хотите выбрать другую, " +
-                "воспользуйтесь меню слева от поля ввода и командой /set_group.\n" +
-                "чтобы посмотреть описание лекций в меню доступна команда /catalog\n" +
-                "\n" +
-                "Давайте начнем!");
+        ChatUtils.sendMessage(userID, "Привет! 👋\n\n" +
+                "Вы находитесь на курсе *«Омоложение. Основы Аюрведы»* (второй поток) — это глубокая 6-месячная программа, включающая лекции профессора, практики, медитации и эссе. 📚🧘‍♀️\n\n" +
+                "🔹 *Форматы участия:*\n" +
+                "1. МАКСИМУМ — все материалы курса, практики и бонусы (35 000₽)\n" +
+                "2. МИНИМУМ — только лекции профессора:\n" +
+                "   • по одному занятию (600₽)\n" +
+                "   • по месяцам (от 2400₽ до 3000₽)\n" +
+                "   • за полгода (16 200₽)\n" +
+                "3. ДОПОЛНИТЕЛЬНО — практики приобретаются отдельно\n\n" +
+                "🧪 Практики: Виречана, Омоложение лица, Аюрведическая кулинария и др. \nПодробнее: https://t.me/+FiUhZoAKWbU5Nzky\n\n" +
+                "✉ Просто отправьте фото или документ, подтверждающий оплату, и я добавлю вас в обучающую группу «" + DataUtils.getGroupName(DataUtils.getMainGroupID()) + "».\n\n" +
+                "📌 Хотите выбрать другую группу? Используйте /set_group\n📖 Описание лекций — /catalog\n\n" +
+                "Готовы начать путь к омоложению? Начнём!\n\n" +
+                "*Обратите внимание: сейчас я могу добавлять только в одну группу за раз. Если вы оплатили сразу несколько, просто отправьте тот же чек повторно для каждой из них. Мы работаем над улучшением этого процесса и приносим извинения за временные неудобства.");
 
     }
 
@@ -636,7 +724,6 @@ public class PaymentBot extends TelegramLongPollingBot {
     public static String getNewGroupName() {
         return newGroupName;
     }
-
 
     @Override
     public void onRegister() {

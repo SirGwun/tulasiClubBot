@@ -14,14 +14,6 @@ public class GroupUtils {
         CreateChatInviteLink inviteLink = new CreateChatInviteLink();
         inviteLink.setChatId(groupID);
         inviteLink.setName("Добро пожаловать на курс!");
-
-        long nowSeconds = Instant.now().getEpochSecond();
-        long expireSeconds = nowSeconds + (24 * 60 * 60);
-        if (expireSeconds > Integer.MAX_VALUE || expireSeconds < Integer.MIN_VALUE) {
-            throw new ArithmeticException("Unix timestamp выходит за пределы диапазона Integer");
-        }
-        Integer expireDate = (int) expireSeconds;
-        inviteLink.setExpireDate(expireDate);
         inviteLink.setMemberLimit(1);
 
         return inviteLink;
