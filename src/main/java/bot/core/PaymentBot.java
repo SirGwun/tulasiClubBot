@@ -1,4 +1,4 @@
-﻿package bot.core;
+package bot.core;
 
 import bot.core.util.ChatUtils;
 import bot.core.util.DataUtils;
