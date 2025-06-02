@@ -1,6 +1,7 @@
 package bot.core;
 
 import bot.core.control.CommandHandler;
+import bot.core.control.EditingSessionState;
 import bot.core.util.ChatUtils;
 import bot.core.util.DataUtils;
 import bot.core.util.GroupUtils;
@@ -30,6 +31,7 @@ public class PaymentBot extends TelegramLongPollingBot {
     CommandHandler handler;
     Validator validator;
     Map<Long, String> groupMap = new HashMap<>();
+    EditingSessionState editingSession = new EditingSessionState();
     public static String newGroupName = null;
     private static boolean newGroup = false;
     private static boolean editInfo = false;
@@ -72,8 +74,8 @@ public class PaymentBot extends TelegramLongPollingBot {
                     ChatUtils.sendMessage(DataUtils.getAdminID(),
                             (chatType.equals("channel") ? "Канал" : "Группа") + " уже есть в списке. Имя: " + existingName +
                                     "\nПожалуйста, используйте уже добавленный чат с помощью команды /set_group");
-                    newGroupName = null;
-                    newGroup = false;
+                    editingSession.setPendingGroupName(null);
+                    editingSession.setAddingGroup(false);
                     return;
                 }
 
@@ -99,17 +101,17 @@ public class PaymentBot extends TelegramLongPollingBot {
                 return;
             }
 
-            if (isCreatingNewGroup(message)) {
+            if (editingSession.isCreatingNewGroup(message)) {
                 processNewGroupCreation(message);
                 return;
             }
 
-            if (isEditingInfo(message)) {
+            if (editingSession.isEditingInfo(message)) {
                 processInfoEditing(message);
                 return;
             }
 
-            if (isEditingHelp(message)) {
+            if (editingSession.isEditingHelp(message)) {
                 processHelpEditing(message);
                 return;
             }
@@ -118,7 +120,7 @@ public class PaymentBot extends TelegramLongPollingBot {
                 forwardMessageToHistory(message);
             }
         } else {
-            if (isNewGroupMember(message)) {
+            if (editingSession.isNewGroupMember(message)) {
                 processNewGroupMember(message);
                 return;
             }
@@ -213,11 +215,6 @@ public class PaymentBot extends TelegramLongPollingBot {
     }
 
 
-    private boolean isCreatingNewGroup(Message message) {
-        return newGroup && message.getChatId() == DataUtils.getAdminID()
-                && message.hasText() && !message.getText().equals("/cancel");
-    }
-
     private void processNewGroupCreation(Message message) {
         log.info("New group started");
         String name = message.getText();
@@ -236,25 +233,6 @@ public class PaymentBot extends TelegramLongPollingBot {
         } else {
             ChatUtils.sendMessage(message.getChatId(), "Некорректное имя группы");
         }
-    }
-
-    private boolean isNewGroupMember(Message message) {
-        if (newGroupName == null) return false;
-
-        if (message.isGroupMessage() && message.getNewChatMembers() != null) {
-            for (User user : message.getNewChatMembers()) {
-                try {
-                    if (user.getId().equals(getMe().getId())) {
-                        return true;
-                    }
-                } catch (TelegramApiException e) {
-                    log.error(e.getMessage());
-                }
-            }
-            return false;
-        }
-
-        return message.isChannelMessage(); // бот получил сообщение из канала, этого достаточно
     }
 
     private void processNewGroupMember(Message message) {
@@ -316,10 +294,6 @@ public class PaymentBot extends TelegramLongPollingBot {
         execute(sendMessage);
     }
 
-    private boolean isEditingInfo(Message message) {
-        return editInfo && message.getChatId() == DataUtils.getAdminID();
-    }
-
     private void processInfoEditing(Message message) {
         log.info("Editing info");
         if (message.hasText() && message.getText().equals("/cancel")) {
@@ -330,10 +304,6 @@ public class PaymentBot extends TelegramLongPollingBot {
             editInfo = false;
             ChatUtils.sendMessage(message.getChatId(), "Информация изменена");
         }
-    }
-
-    private boolean isEditingHelp(Message message) {
-        return editHelp && message.getChatId() == DataUtils.getAdminID();
     }
 
     private void processHelpEditing(Message message) {
