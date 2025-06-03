@@ -174,6 +174,7 @@ public class DataUtils {
         }
     }
 
+    //todo передeлать чтобы возвращала список
     public static long getAdminID() {
         return adminChatID;
     }

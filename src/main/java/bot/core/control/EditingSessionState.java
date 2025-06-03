@@ -1,26 +1,21 @@
 package bot.core.control;
 
 import bot.core.Main;
-import bot.core.PaymentBot;
 import bot.core.util.DataUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.User;
-import org.telegram.telegrambots.meta.bots.AbsSender;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 public class EditingSessionState {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     public String pendingGroupName = null;
-    private boolean addingGroup = false;
+    private boolean waitingGroupName = false;
     private boolean editingInfo = false;
     private boolean editingHelp = false;
 
-    public boolean isCreatingNewGroup(Message message) {
-        return isAddingGroup() && message.getChatId() == DataUtils.getAdminID()
-                && message.hasText() && !message.getText().equals("/cancel");
-    }
+
 
     public boolean isEditingInfo(Message message) {
         return editingInfo && message.getChatId() == DataUtils.getAdminID();
@@ -57,12 +52,12 @@ public class EditingSessionState {
         this.pendingGroupName = pendingGroupName;
     }
 
-    public boolean isAddingGroup() {
-        return addingGroup;
+    public boolean isWaitingGroupName() {
+        return waitingGroupName;
     }
 
-    public void setAddingGroup(boolean addingGroup) {
-        this.addingGroup = addingGroup;
+    public void setWaitingGroupName(boolean waitingGroupName) {
+        this.waitingGroupName = waitingGroupName;
     }
 
     public boolean isEditingInfo() {

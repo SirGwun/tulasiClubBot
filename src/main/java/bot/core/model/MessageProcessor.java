@@ -1,8 +1,7 @@
 package bot.core.model;
 
-import org.telegram.telegrambots.meta.api.objects.Message;
 
 public interface MessageProcessor {
-    public boolean canProcess(Message message);
-    public void process(Message message);
+    public boolean canProcess(MessageContext message);
+    public void process(MessageContext message);
 }

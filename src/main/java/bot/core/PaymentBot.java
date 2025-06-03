@@ -26,12 +26,14 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class PaymentBot extends TelegramLongPollingBot {
     private static final Logger log = LoggerFactory.getLogger(PaymentBot.class);
     CommandHandler handler;
     Validator validator;
     Map<Long, String> groupMap = new HashMap<>();
+    Map<Long, EditingSessionState> sessionByUser = new ConcurrentHashMap<>();
     EditingSessionState editingSession = new EditingSessionState();
     public static String newGroupName = null;
     private static boolean newGroup = false;
@@ -76,7 +78,7 @@ public class PaymentBot extends TelegramLongPollingBot {
                             (chatType.equals("channel") ? "Канал" : "Группа") + " уже есть в списке. Имя: " + existingName +
                                     "\nПожалуйста, используйте уже добавленный чат с помощью команды /set_group");
                     editingSession.setPendingGroupName(null);
-                    editingSession.setAddingGroup(false);
+                    editingSession.setWaitingGroupName(false);
                     return;
                 }
 
