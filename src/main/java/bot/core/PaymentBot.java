@@ -2,6 +2,7 @@ package bot.core;
 
 import bot.core.control.CommandHandler;
 import bot.core.control.EditingSessionState;
+import bot.core.model.Group;
 import bot.core.util.ChatUtils;
 import bot.core.util.DataUtils;
 import bot.core.util.GroupUtils;

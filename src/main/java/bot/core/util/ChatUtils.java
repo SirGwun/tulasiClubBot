@@ -1,6 +1,6 @@
 package bot.core.util;
 
-import bot.core.Group;
+import bot.core.model.Group;
 import bot.core.Main;
 import bot.core.PaymentBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
