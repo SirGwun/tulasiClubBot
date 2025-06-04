@@ -5,6 +5,7 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
@@ -256,9 +257,11 @@ public class DataUtils {
 
     public static void removeGroup(String groupId) {
         boolean removed = false;
-        for (Map.Entry<Object, Object> group: groupList.entrySet()) {
+        Iterator<Map.Entry<Object, Object>> iterator = groupList.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<Object, Object> group = iterator.next();
             if (group.getValue().equals(groupId)) {
-                groupList.remove(group.getKey());
+                iterator.remove();
                 removed = true;
                 break;
             }
