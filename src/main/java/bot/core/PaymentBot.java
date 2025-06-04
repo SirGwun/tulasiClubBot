@@ -1,7 +1,7 @@
 package bot.core;
 
 import bot.core.control.CommandHandler;
-import bot.core.control.EditingSessionState;
+import bot.core.control.SessionState;
 import bot.core.model.Group;
 import bot.core.model.MessageContext;
 import bot.core.util.ChatUtils;
@@ -34,8 +34,8 @@ public class PaymentBot extends TelegramLongPollingBot {
     CommandHandler handler;
     Validator validator;
     Map<Long, String> groupMap = new HashMap<>();
-    Map<Long, EditingSessionState> sessionByUser = new ConcurrentHashMap<>();
-    EditingSessionState editingSession = new EditingSessionState();
+    Map<Long, SessionState> sessionByUser = new ConcurrentHashMap<>();
+    SessionState editingSession = new SessionState();
     public static String newGroupName = null;
     private static boolean newGroup = false;
     private static boolean editInfo = false;

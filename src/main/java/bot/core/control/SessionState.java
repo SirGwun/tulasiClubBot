@@ -1,6 +1,7 @@
 package bot.core.control;
 
 import bot.core.Main;
+import bot.core.model.EditingActions;
 import bot.core.util.DataUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,16 +9,10 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-public class EditingSessionState {
+public class SessionState {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     public String pendingGroupName = null;
-    private boolean waitingGroupName = false;
-    private boolean editingInfo = false;
-    private boolean editingHelp = false;
-
-
-
-
+    EditingActions action;
 
     public boolean isEditingHelp(Message message) {
         return editingHelp && message.getChatId() == DataUtils.getAdminID();
@@ -45,32 +40,34 @@ public class EditingSessionState {
     public String getPendingGroupName() {
         return pendingGroupName;
     }
-
     public void setPendingGroupName(String pendingGroupName) {
         this.pendingGroupName = pendingGroupName;
     }
 
     public boolean isWaitingGroupName() {
-        return waitingGroupName;
+        return action == EditingActions.ADD_GROUP;
     }
-
-    public void setWaitingGroupName(boolean waitingGroupName) {
-        this.waitingGroupName = waitingGroupName;
+    public void waitGroupName() {
+        action = EditingActions.ADD_GROUP;
     }
 
     public boolean isEditingInfo() {
-        return editingInfo;
+        return action == EditingActions.EDIT_INFO;
     }
-
-    public void setEditingInfo(boolean editingInfo) {
-        this.editingInfo = editingInfo;
+    public void editInfo() {
+        action = EditingActions.EDIT_INFO;
     }
 
     public boolean isEditingHelp() {
-        return editingHelp;
+        return action == EditingActions.EDIT_HELP;
+    }
+    public void editHelp(boolean editingHelp) {
+        action = EditingActions.EDIT_HELP;
     }
 
-    public void setEditingHelp(boolean editingHelp) {
-        this.editingHelp = editingHelp;
+    public EditingActions cansel() {
+        EditingActions currentAction = action;
+        action = EditingActions.NONE;
+        return currentAction;
     }
 }

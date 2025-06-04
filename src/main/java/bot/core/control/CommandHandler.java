@@ -1,49 +1,23 @@
 package bot.core.control;
 
-import bot.core.Main;
 import bot.core.PaymentBot;
+import bot.core.model.EditingActions;
 import bot.core.model.MessageContext;
 import bot.core.util.ChatUtils;
 import bot.core.util.DataUtils;
 import bot.core.util.MessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.List;
 
 public class CommandHandler {
     private static final Logger log = LoggerFactory.getLogger(CommandHandler.class);
-    private EditingSessionState state;
+    private SessionState state;
     private long userId;
 
-    private final String START_MESSAGE = """
-                Здравствуйте!
-                
-                Вас приветствует, бот-помощник.
-                
-                Прошу вас сделать пожертвование за участие в лекции на карту:
-                
-                2202203650939848 (руб) Сбербанк получатель Милана Дмитриевна С.\s
-                4400430384625882 (теньге) KASPI получатель Darshan Singkh
-                
-                Обязательно получите чек и далее действуйте по инструкции:
-               
-                Инструкция
-                
-                1. Нажимаете Меню
-                2. Выбрать группу (/set_group)
-                3. Выбираете интересующую вас лекцию.
-                4. Отправляете чек об оплате (документ или скриншот, фото).
-                5. Как только пройдёт проверка, получаете ссылку на доступ к лекции (проверка занимает до одного дня, но мы стараемся как можно скорее)
-                
-                🔹 Чеки в формате PDF проверяются автоматически — доступ в большинстве случаев открывается мгновенно.
-                """;
-
-    public CommandHandler(EditingSessionState state, long userId) {
+    public CommandHandler(SessionState state, long userId) {
         this.state = state;
         this.userId = userId;
     }
@@ -91,25 +65,47 @@ public class CommandHandler {
                 handleCatalogCommand();
                 break;
             default:
-                handleUnknownCommand();
+                handleUnknownCommand(command);
                 break;
         }
     }
 
-    private void handleStartCommand(long userID) {
-        log.info("User {} started bot", userID);
-        ChatUtils.sendMessage(userID, START_MESSAGE);
+    private void handleStartCommand() {
+        log.info("User {} started bot", userId);
+        String START_MESSAGE = """
+                Здравствуйте!
+                                
+                Вас приветствует, бот-помощник.
+                                
+                Прошу вас сделать пожертвование за участие в лекции на карту:
+                                
+                2202203650939848 (руб) Сбербанк получатель Милана Дмитриевна С.\s
+                4400430384625882 (теньге) KASPI получатель Darshan Singkh
+                                
+                Обязательно получите чек и далее действуйте по инструкции:
+                               
+                Инструкция
+                                
+                1. Нажимаете Меню
+                2. Выбрать группу (/set_group)
+                3. Выбираете интересующую вас лекцию.
+                4. Отправляете чек об оплате (документ или скриншот, фото).
+                5. Как только пройдёт проверка, получаете ссылку на доступ к лекции (проверка занимает до одного дня, но мы стараемся как можно скорее)
+                                
+                🔹 Чеки в формате PDF проверяются автоматически — доступ в большинстве случаев открывается мгновенно.
+                """;
+        ChatUtils.sendMessage(userId, START_MESSAGE);
     }
 
     private void handleSetGroupCommand() {
         log.info("User {} set group", userId);
 
         if (DataUtils.getGroupList().isEmpty()) {
-            ChatUtils.sendMessage(userId "Нет доступных групп");
+            ChatUtils.sendMessage(userId, "Нет доступных групп");
             return;
         }
 
-        InlineKeyboardMarkup allGroupKeyboard = ChatUtils.getAllGroupKeyboard(userID, "setGroup");
+        InlineKeyboardMarkup allGroupKeyboard = ChatUtils.getAllGroupKeyboard(userId, "setGroup");
         if (MessageUtils.hasExceptedGroup(allGroupKeyboard)) {
             ChatUtils.sendMessage(userId, "Группы помеченные \"!\" либо не существуют, либо бот не является в них админом\n\nРекомендую их удалить");
         }
@@ -137,53 +133,56 @@ public class CommandHandler {
         log.info("User {} create new group", userId);
         if (userId == DataUtils.getAdminID()) {
             ChatUtils.sendMessage(userId, "Введите название новой группы");
-            state.setWaitingGroupName(true);
+            state.waitGroupName();
         } else {
             ChatUtils.sendMessage(userId, "Данная команда доступна только администратору");
         }
     }
 
-    private void handleCancelCommand(long userID) {
-        log.info("User {} cancel command", userID);
-        if (userID == DataUtils.getAdminID()) {
-            PaymentBot.newGroup = false;
-            PaymentBot.newGroupName = null;
-            ChatUtils.sendMessage(userID, "Режим работы над командой отменен");
+    private void handleCancelCommand() {
+        log.info("User used {} cancel command", userId);
+        if (userId == DataUtils.getAdminID()) {
+            EditingActions action = state.cansel();
+            ChatUtils.sendMessage(userId, "Режим работы над командой" + action.toString() + "отменен");
         } else {
-            ChatUtils.sendMessage(userID, "Данная команда доступна только администратору");
+            ChatUtils.sendMessage(userId, "Данная команда доступна только администратору");
         }
     }
 
-    private void handleInfoCommand(long userID) {
-        ChatUtils.sendMessage(userID, DataUtils.getInfo());
+    private void handleDelCommand() {
+
     }
 
-    private void handleHelpCommand(long userID) {
-        ChatUtils.sendMessage(userID, DataUtils.getHelp());
+    private void handleInfoCommand() {
+        ChatUtils.sendMessage(userId, DataUtils.getInfo());
     }
 
-    private void handleEditInfoCommand(long userID) {
-        log.info("User {} edit info", userID);
-        if (userID == DataUtils.getAdminID()) {
-            PaymentBot.editInfo = true;
-            ChatUtils.sendMessage(userID, "Введите новое описание группы");
+    private void handleHelpCommand() {
+        ChatUtils.sendMessage(userId, DataUtils.getHelp());
+    }
+
+    private void handleEditInfoCommand() {
+        log.info("User {} edit info", userId);
+        if (userId == DataUtils.getAdminID()) {
+            state.editInfo();
+            ChatUtils.sendMessage(userId, "Введите новое описание группы");
         } else {
-            ChatUtils.sendMessage(userID, "Данная команда доступна только администратору");
+            ChatUtils.sendMessage(userId, "Данная команда доступна только администратору");
         }
     }
 
-    private void handleEditHelpCommand(long userID) {
-        log.info("User {} edit help", userID);
-        if (userID == DataUtils.getAdminID()) {
-            PaymentBot.editHelp = true;
-            ChatUtils.sendMessage(userID, "Введите новое сообщение помощи");
+    private void handleEditHelpCommand() {
+        log.info("User {} edit help", userId);
+        if (userId == DataUtils.getAdminID()) {
+            state.editInfo();
+            ChatUtils.sendMessage(userId, "Введите новое сообщение помощи");
         } else {
-            ChatUtils.sendMessage(userID, "Данная команда доступна только администратору");
+            ChatUtils.sendMessage(userId, "Данная команда доступна только администратору");
         }
     }
 
-    private void handleUnknownCommand(long userID, String message) {
-        log.info("User {} send unknown command {}", userID, message);
-        ChatUtils.sendMessage(userID, "Неизвестная команда");
+    private void handleUnknownCommand(String message) {
+        log.info("User {} send unknown command {}", userId, message);
+        ChatUtils.sendMessage(userId, "Неизвестная команда");
     }
 }

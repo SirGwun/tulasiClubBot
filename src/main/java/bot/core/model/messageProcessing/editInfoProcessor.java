@@ -1,6 +1,6 @@
 package bot.core.model.messageProcessing;
 
-import bot.core.control.EditingSessionState;
+import bot.core.control.SessionState;
 import bot.core.model.MessageContext;
 import bot.core.util.ChatUtils;
 import bot.core.util.DataUtils;
@@ -9,9 +9,9 @@ import org.slf4j.LoggerFactory;
 
 public class editInfoProcessor implements MessageProcessor {
     private static final Logger log = LoggerFactory.getLogger(editInfoProcessor.class);
-    private final EditingSessionState state;
+    private final SessionState state;
 
-    public editInfoProcessor(EditingSessionState session) {
+    public editInfoProcessor(SessionState session) {
         this.state = session;
     }
 
@@ -24,7 +24,7 @@ public class editInfoProcessor implements MessageProcessor {
     public void process(MessageContext message) {
         log.info("Editing info for chatId={}", message.getChatId());
         DataUtils.setInfo(message.getText());
-        state.setEditingInfo(false);
+        state.editInfo(false);
         ChatUtils.sendMessage(message.getChatId(), "Информация изменена");
     }
 }

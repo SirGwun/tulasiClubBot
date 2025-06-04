@@ -1,6 +1,6 @@
 package bot.core.model.messageProcessing;
 
-import bot.core.control.EditingSessionState;
+import bot.core.control.SessionState;
 import bot.core.model.MessageContext;
 import bot.core.util.ChatUtils;
 import bot.core.util.GroupUtils;
@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class setGroupNameProcessor implements MessageProcessor {
-    private final EditingSessionState state;
+    private final SessionState state;
     private static final Logger log = LoggerFactory.getLogger(setGroupNameProcessor.class);
 
     public static final String GROUP_NAME_SETUP_INSTRUCTION = """
@@ -20,7 +20,7 @@ public class setGroupNameProcessor implements MessageProcessor {
     Учтите, что название группы в Telegram останется без изменений — имя используется только во внутренней логике бота.
     """;
 
-    public setGroupNameProcessor(EditingSessionState state) {
+    public setGroupNameProcessor(SessionState state) {
         this.state = state;
     }
 

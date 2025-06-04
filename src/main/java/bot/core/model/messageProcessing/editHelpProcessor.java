@@ -1,6 +1,6 @@
 package bot.core.model.messageProcessing;
 
-import bot.core.control.EditingSessionState;
+import bot.core.control.SessionState;
 import bot.core.model.MessageContext;
 import bot.core.util.ChatUtils;
 import bot.core.util.DataUtils;
@@ -9,9 +9,9 @@ import org.slf4j.LoggerFactory;
 
 public class editHelpProcessor implements MessageProcessor {
     private static final Logger log = LoggerFactory.getLogger(editInfoProcessor.class);
-    private final EditingSessionState state;
+    private final SessionState state;
 
-    public editHelpProcessor(EditingSessionState session) {
+    public editHelpProcessor(SessionState session) {
         this.state = session;
     }
 
