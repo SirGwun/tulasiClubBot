@@ -1,6 +1,7 @@
-package bot.core.model;
+package bot.core.model.messageProcessing;
 
 import bot.core.control.EditingSessionState;
+import bot.core.model.MessageContext;
 import bot.core.util.ChatUtils;
 import bot.core.util.GroupUtils;
 import org.slf4j.Logger;
@@ -31,7 +32,7 @@ public class setGroupNameProcessor implements MessageProcessor {
     @Override
     public void process(MessageContext ctx) {
         String name = ctx.getText();
-        long chatId = ctx.getChatID();
+        long chatId = ctx.getChatId();
 
         log.info("New group name input received: '{}'", name);
 
@@ -48,6 +49,6 @@ public class setGroupNameProcessor implements MessageProcessor {
         state.pendingGroupName = name.replace(" ", "-").replace("_", "-");
         state.setWaitingGroupName(false);
 
-        ChatUtils.sendMessage(ctx.getChatID(), String.format(GROUP_NAME_SETUP_INSTRUCTION, state.pendingGroupName));
+        ChatUtils.sendMessage(ctx.getChatId(), String.format(GROUP_NAME_SETUP_INSTRUCTION, state.pendingGroupName));
     }
 }

@@ -3,6 +3,7 @@ package bot.core;
 import bot.core.control.CommandHandler;
 import bot.core.control.EditingSessionState;
 import bot.core.model.Group;
+import bot.core.model.MessageContext;
 import bot.core.util.ChatUtils;
 import bot.core.util.DataUtils;
 import bot.core.util.GroupUtils;
@@ -98,8 +99,9 @@ public class PaymentBot extends TelegramLongPollingBot {
 
 
     private void handleIncomingUpdate(Message message) {
-        if (!message.getChat().getType().equals("group") && !message.getChat().getType().equals("supergroup") && !message.getChat().isChannelChat()) {
-            if (message.hasText() && message.getText().startsWith("/")) {
+        MessageContext ctx = new MessageContext(message);
+        if (!ctx.isFromGroup()) {
+            if (ctx.isCommand()) {
                 handler.handleCommand(message.getText(), message.getChatId(), this);
                 return;
             }
@@ -217,26 +219,6 @@ public class PaymentBot extends TelegramLongPollingBot {
         }
     }
 
-
-    private void processNewGroupCreation(Message message) {
-        log.info("New group started");
-        String name = message.getText();
-        if (name.length() > 128) {
-            ChatUtils.sendMessage(message.getChatId(), "Слишком длинное имя группы, пожалуйста, используйте не более 128 символов");
-            return;
-        }
-        if (GroupUtils.isValidGroupName(name)) {
-            newGroupName = name.replace(" ", "-");
-            newGroupName = newGroupName.replace("_", "-");
-            newGroup = false;
-            ChatUtils.sendMessage(message.getChatId(), "Имя группы установлено на \"" + name + "\".\n\n" +
-                    "Теперь добавьте бота в нужную группу и предоставьте ему права администратора.\n\n" +
-                    "После этого введённое вами имя будет присвоено группе, в которую добавлен бот. \n\n" +
-                    "Обратите внимание, что имя группы в Telegram останется прежним, изменения касаются только внутренней логики бота.");
-        } else {
-            ChatUtils.sendMessage(message.getChatId(), "Некорректное имя группы");
-        }
-    }
 
     private void processNewGroupMember(Message message) {
         Long chatId = message.getChatId();

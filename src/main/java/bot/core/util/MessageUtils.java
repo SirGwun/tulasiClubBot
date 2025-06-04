@@ -1,5 +1,8 @@
 package bot.core.util;
 
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,5 +30,17 @@ public class MessageUtils {
             }
         }
         return messages;
+    }
+
+    public static boolean hasExceptedGroup(InlineKeyboardMarkup allGroupKeyboard) {
+        boolean hasGroupException = false;
+        for (List<InlineKeyboardButton> row : allGroupKeyboard.getKeyboard()) {
+            for (InlineKeyboardButton button : row) {
+                if (button.getText().startsWith("!")) {
+                    hasGroupException = true;
+                }
+            }
+        }
+        return hasGroupException;
     }
 }

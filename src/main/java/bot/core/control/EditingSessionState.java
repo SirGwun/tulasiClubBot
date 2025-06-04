@@ -17,9 +17,7 @@ public class EditingSessionState {
 
 
 
-    public boolean isEditingInfo(Message message) {
-        return editingInfo && message.getChatId() == DataUtils.getAdminID();
-    }
+
 
     public boolean isEditingHelp(Message message) {
         return editingHelp && message.getChatId() == DataUtils.getAdminID();

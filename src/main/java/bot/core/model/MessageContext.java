@@ -6,11 +6,11 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 public class MessageContext  {
     private final Message message;
 
-    private final long chatID;
+    private final long chatId;
 
     public MessageContext(Message message) {
         this.message = message;
-        this.chatID = message.getChatId();
+        this.chatId = message.getChatId();
     }
 
     public boolean isFromAdmin() {
@@ -21,9 +21,9 @@ public class MessageContext  {
         return message.hasText() && message.getText().startsWith("/");
     }
 
-    public boolean isGroup() {
+    public boolean isFromGroup() {
         String type = message.getChat().getType();
-        return type.equals("group") || type.equals("supergroup");
+        return type.equals("group") || type.equals("supergroup") || message.getChat().isChannelChat();
     }
 
     public String getText() {
@@ -38,7 +38,7 @@ public class MessageContext  {
         return message.hasText();
     }
 
-    public long getChatID() {
-        return chatID;
+    public long getChatId() {
+        return chatId;
     }
 }
