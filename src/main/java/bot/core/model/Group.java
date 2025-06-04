@@ -1,4 +1,4 @@
-package bot.core;
+package bot.core.model;
 
 public class Group {
     long id;

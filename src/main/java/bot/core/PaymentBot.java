@@ -1,5 +1,9 @@
 package bot.core;
 
+import bot.core.control.CommandHandler;
+import bot.core.control.SessionState;
+import bot.core.model.Group;
+import bot.core.model.MessageContext;
 import bot.core.util.ChatUtils;
 import bot.core.util.DataUtils;
 import bot.core.util.GroupUtils;
@@ -12,7 +16,6 @@ import org.telegram.telegrambots.meta.api.methods.ForwardMessage;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.CreateChatInviteLink;
-import org.telegram.telegrambots.meta.api.methods.groupadministration.RevokeChatInviteLink;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
@@ -20,16 +23,19 @@ import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeAllPrivateChats;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeChat;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class PaymentBot extends TelegramLongPollingBot {
     private static final Logger log = LoggerFactory.getLogger(PaymentBot.class);
+    CommandHandler handler;
     Validator validator;
     Map<Long, String> groupMap = new HashMap<>();
+    Map<Long, SessionState> sessionByUser = new ConcurrentHashMap<>();
+    SessionState editingSession = new SessionState();
     public static String newGroupName = null;
     private static boolean newGroup = false;
     private static boolean editInfo = false;
@@ -72,8 +78,8 @@ public class PaymentBot extends TelegramLongPollingBot {
                     ChatUtils.sendMessage(DataUtils.getAdminID(),
                             (chatType.equals("channel") ? "Канал" : "Группа") + " уже есть в списке. Имя: " + existingName +
                                     "\nПожалуйста, используйте уже добавленный чат с помощью команды /set_group");
-                    newGroupName = null;
-                    newGroup = false;
+                    editingSession.setPendingGroupName(null);
+                    editingSession.setWaitingGroupName(false);
                     return;
                 }
 
@@ -93,23 +99,24 @@ public class PaymentBot extends TelegramLongPollingBot {
 
 
     private void handleIncomingUpdate(Message message) {
-        if (!message.getChat().getType().equals("group") && !message.getChat().getType().equals("supergroup") && !message.getChat().isChannelChat()) {
-            if (message.hasText() && message.getText().startsWith("/")) {
-                handleCommand(message.getText(), message.getChatId());
+        MessageContext ctx = new MessageContext(message);
+        if (!ctx.isFromGroup()) {
+            if (ctx.isCommand()) {
+                handler.handleCommand(message.getText(), message.getChatId(), this);
                 return;
             }
 
-            if (isCreatingNewGroup(message)) {
+            if (editingSession.isCreatingNewGroup(message)) {
                 processNewGroupCreation(message);
                 return;
             }
 
-            if (isEditingInfo(message)) {
+            if (editingSession.isEditingInfo(message)) {
                 processInfoEditing(message);
                 return;
             }
 
-            if (isEditingHelp(message)) {
+            if (editingSession.isEditingHelp(message)) {
                 processHelpEditing(message);
                 return;
             }
@@ -118,7 +125,7 @@ public class PaymentBot extends TelegramLongPollingBot {
                 forwardMessageToHistory(message);
             }
         } else {
-            if (isNewGroupMember(message)) {
+            if (editingSession.isNewGroupMember(message)) {
                 processNewGroupMember(message);
                 return;
             }
@@ -139,87 +146,6 @@ public class PaymentBot extends TelegramLongPollingBot {
         }
     }
 
-    private void handleCommand(String command, long userID) {
-        log.info("New command {}", command);
-        String[] data = command.split(" ");
-        switch (data[0]) {
-            case "/start":
-                handleStartCommand(userID);
-                break;
-            case "/set_group":
-                handleSetGroupCommand(userID);
-                break;
-            case "/new_group":
-                handleNewGroupCommand(userID);
-                break;
-            case "/cancel":
-                handleCancelCommand(userID);
-                break;
-            case "/info":
-                handleInfoCommand(userID);
-                break;
-            case "/help":
-                handleHelpCommand(userID);
-                break;
-            case "/edit_info":
-                handleEditInfoCommand(userID);
-                break;
-            case "/edit_help":
-                handleEditHelpCommand(userID);
-                break;
-            case "/del":
-                handleDelCommand(userID);
-                break;
-            case "/catalog":
-                handleCatalogCommand(userID);
-                break;
-            default:
-                handleUnknownCommand(userID, command);
-                break;
-        }
-    }
-
-    private void handleCatalogCommand(long userID) {
-        log.info("user {} get /catalog command", userID);
-        String catalog = DataUtils.getCatalog();
-        if (catalog != null) {
-            // Разбиваем каталог на части, каждая из которых не превышает 4096 символов
-            List<String> messages = splitMessage(catalog, 4096);
-            for (String message : messages) {
-                ChatUtils.sendMessage(userID, message);
-            }
-        } else {
-            ChatUtils.sendMessage(userID, "Каталог пока пуст");
-            log.info("Ошибка при чтении каталога");
-        }
-    }
-
-    // Метод для разбиения строки на части заданной длины, не разрывая слова
-    private List<String> splitMessage(String text, int maxLength) {
-        List<String> messages = new ArrayList<>();
-        int start = 0;
-        while (start < text.length()) {
-            int end = Math.min(start + maxLength, text.length());
-            // Проверяем, что не разрываем слово
-            if (end < text.length() && !Character.isWhitespace(text.charAt(end))) {
-                // Ищем последний пробел или перенос строки перед end
-                int lastSpace = text.lastIndexOf(' ', end);
-                int lastNewLine = text.lastIndexOf('\n', end);
-                int breakPoint = Math.max(lastSpace, lastNewLine);
-                if (breakPoint > start) {
-                    end = breakPoint;
-                }
-            }
-            messages.add(text.substring(start, end));
-            start = end;
-
-            // Пропускаем пробелы в начале следующего сегмента
-            while (start < text.length() && Character.isWhitespace(text.charAt(start))) {
-                start++;
-            }
-        }
-        return messages;
-    }
 
     private void handleDelCommand(long userID) {
         log.info("user {} get /del command", userID);
@@ -294,50 +220,6 @@ public class PaymentBot extends TelegramLongPollingBot {
     }
 
 
-    private boolean isCreatingNewGroup(Message message) {
-        return newGroup && message.getChatId() == DataUtils.getAdminID()
-                && message.hasText() && !message.getText().equals("/cancel");
-    }
-
-    private void processNewGroupCreation(Message message) {
-        log.info("New group started");
-        String name = message.getText();
-        if (name.length() > 128) {
-            ChatUtils.sendMessage(message.getChatId(), "Слишком длинное имя группы, пожалуйста, используйте не более 128 символов");
-            return;
-        }
-        if (GroupUtils.isValidGroupName(name)) {
-            newGroupName = name.replace(" ", "-");
-            newGroupName = newGroupName.replace("_", "-");
-            newGroup = false;
-            ChatUtils.sendMessage(message.getChatId(), "Имя группы установлено на \"" + name + "\".\n\n" +
-                    "Теперь добавьте бота в нужную группу и предоставьте ему права администратора.\n\n" +
-                    "После этого введённое вами имя будет присвоено группе, в которую добавлен бот. \n\n" +
-                    "Обратите внимание, что имя группы в Telegram останется прежним, изменения касаются только внутренней логики бота.");
-        } else {
-            ChatUtils.sendMessage(message.getChatId(), "Некорректное имя группы");
-        }
-    }
-
-    private boolean isNewGroupMember(Message message) {
-        if (newGroupName == null) return false;
-
-        if (message.isGroupMessage() && message.getNewChatMembers() != null) {
-            for (User user : message.getNewChatMembers()) {
-                try {
-                    if (user.getId().equals(getMe().getId())) {
-                        return true;
-                    }
-                } catch (TelegramApiException e) {
-                    log.error(e.getMessage());
-                }
-            }
-            return false;
-        }
-
-        return message.isChannelMessage(); // бот получил сообщение из канала, этого достаточно
-    }
-
     private void processNewGroupMember(Message message) {
         Long chatId = message.getChatId();
         boolean isChannel = message.getChat().isChannelChat();
@@ -397,10 +279,6 @@ public class PaymentBot extends TelegramLongPollingBot {
         execute(sendMessage);
     }
 
-    private boolean isEditingInfo(Message message) {
-        return editInfo && message.getChatId() == DataUtils.getAdminID();
-    }
-
     private void processInfoEditing(Message message) {
         log.info("Editing info");
         if (message.hasText() && message.getText().equals("/cancel")) {
@@ -411,10 +289,6 @@ public class PaymentBot extends TelegramLongPollingBot {
             editInfo = false;
             ChatUtils.sendMessage(message.getChatId(), "Информация изменена");
         }
-    }
-
-    private boolean isEditingHelp(Message message) {
-        return editHelp && message.getChatId() == DataUtils.getAdminID();
     }
 
     private void processHelpEditing(Message message) {
@@ -441,110 +315,6 @@ public class PaymentBot extends TelegramLongPollingBot {
             log.error("Не пересылаемое сообщение");
         }
     }
-
-    private void handleStartCommand(long userID) {
-        log.info("User {} started bot", userID);
-        ChatUtils.sendMessage(userID, "Привет! 👋\n\n" +
-                "Вы находитесь на курсе *«Омоложение. Основы Аюрведы»* (второй поток) — это глубокая 6-месячная программа, включающая лекции профессора, практики, медитации и эссе. 📚🧘‍♀️\n\n" +
-                "🔹 *Форматы участия:*\n" +
-                "1. МАКСИМУМ — все материалы курса, практики и бонусы (35 000₽)\n" +
-                "2. МИНИМУМ — только лекции профессора:\n" +
-                "   • по одному занятию (600₽)\n" +
-                "   • по месяцам (от 2400₽ до 3000₽)\n" +
-                "   • за полгода (16 200₽)\n" +
-                "3. ДОПОЛНИТЕЛЬНО — практики приобретаются отдельно\n\n" +
-                "🧪 Практики: Виречана, Омоложение лица, Аюрведическая кулинария и др. \nПодробнее: https://t.me/+FiUhZoAKWbU5Nzky\n\n" +
-                "✉ Просто отправьте фото или документ, подтверждающий оплату, и я добавлю вас в обучающую группу «" + DataUtils.getGroupName(DataUtils.getMainGroupID()) + "».\n\n" +
-                "📌 Хотите выбрать другую группу? Используйте /set_group\n📖 Описание лекций — /catalog\n\n" +
-                "Готовы начать путь к омоложению? Начнём!\n\n" +
-                "*Обратите внимание: сейчас я могу добавлять только в одну группу за раз. Если вы оплатили сразу несколько, просто отправьте тот же чек повторно для каждой из них. Мы работаем над улучшением этого процесса и приносим извинения за временные неудобства.");
-
-    }
-
-    private void handleSetGroupCommand(long userID) {
-        log.info("User {} set group", userID);
-
-        if (DataUtils.getGroupList().isEmpty()) {
-            ChatUtils.sendMessage(userID, "Нет доступных групп");
-            return;
-        }
-        InlineKeyboardMarkup allGroupKeyboard = ChatUtils.getAllGroupKeyboard(userID, "setGroup");
-        boolean hasGroupException = false;
-        for (List<InlineKeyboardButton> row : allGroupKeyboard.getKeyboard()) {
-            for (InlineKeyboardButton button : row) {
-                if (button.getText().startsWith("!")) {
-                    hasGroupException = true;
-                }
-            }
-        }
-        if (hasGroupException) {
-            ChatUtils.sendMessage(userID, "Группы помеченые \"!\" либо не существуют, либо бот не являеться в них админом\n\nРекомендую их удалить");
-        }
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(userID);
-        sendMessage.setText("Выберите группу");
-        sendMessage.setReplyMarkup(allGroupKeyboard);
-        try {
-            execute(sendMessage);
-        } catch (TelegramApiException e) {
-            log.error("Ошибка при отправке ответа на команду /setGroup {}", e.getMessage());
-        }
-    }
-
-    private void handleNewGroupCommand(long userID) {
-        log.info("User {} create new group", userID);
-        if (userID == DataUtils.getAdminID()) {
-            ChatUtils.sendMessage(userID, "Введите название новой группы ");
-            newGroup = true;
-        } else {
-            ChatUtils.sendMessage(userID, "Данная команда доступна только администратору");
-        }
-    }
-
-    private void handleCancelCommand(long userID) {
-        log.info("User {} cancel command", userID);
-        if (userID == DataUtils.getAdminID()) {
-            newGroup = false;
-            newGroupName = null;
-            ChatUtils.sendMessage(userID, "Режим работы над командой отменен");
-        } else {
-            ChatUtils.sendMessage(userID, "Данная команда доступна только администратору");
-        }
-    }
-
-    private void handleInfoCommand(long userID) {
-        ChatUtils.sendMessage(userID, DataUtils.getInfo());
-    }
-
-    private void handleHelpCommand(long userID) {
-        ChatUtils.sendMessage(userID, DataUtils.getHelp());
-    }
-
-    private void handleEditInfoCommand(long userID) {
-        log.info("User {} edit info", userID);
-        if (userID == DataUtils.getAdminID()) {
-            editInfo = true;
-            ChatUtils.sendMessage(userID, "Введите новое описание группы");
-        } else {
-            ChatUtils.sendMessage(userID, "Данная команда доступна только администратору");
-        }
-    }
-
-    private void handleEditHelpCommand(long userID) {
-        log.info("User {} edit help", userID);
-        if (userID == DataUtils.getAdminID()) {
-            editHelp = true;
-            ChatUtils.sendMessage(userID, "Введите новое сообщение помощи");
-        } else {
-            ChatUtils.sendMessage(userID, "Данная команда доступна только администратору");
-        }
-    }
-
-    private void handleUnknownCommand(long userID, String message) {
-        log.info("User {} send unknown command {}", userID, message);
-        ChatUtils.sendMessage(userID, "Неизвестная команда");
-    }
-
 
     private void handleConfirmAction(CallbackQuery callbackQuery, String[] data, long userID, int messageId) {
         log.info("User {} confirm {}", userID, data[2]);
@@ -575,7 +345,7 @@ public class PaymentBot extends TelegramLongPollingBot {
             log.error("Ошибка при отправке ответа на CallbackQuery", e);
         }
     }
-
+    //todo !!!не защищено от паралельного выполнения, очень опасно!
     private void handleSetGroupAction(CallbackQuery callbackQuery, String[] data, long userID, int messageId) {
         log.info("User {} set group {}", userID, data[1]);
         Properties groupList = DataUtils.getGroupList();

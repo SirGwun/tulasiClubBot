@@ -1,8 +1,10 @@
 package bot.core.util;
 
-import bot.core.Group;
+import bot.core.model.Group;
 import bot.core.Main;
 import bot.core.PaymentBot;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -12,6 +14,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.util.*;
 
 public class ChatUtils {
+    private static final Logger log = LoggerFactory.getLogger(ChatUtils.class);
 
     public static void sendMessage(long chatId, String message) {
         SendMessage sendMessage = new SendMessage();
@@ -23,6 +26,20 @@ public class ChatUtils {
         }
         catch (TelegramApiException e) {
             Main.log.error("Ошибка при отправке сообщения {}", e.getMessage());
+        }
+    }
+
+    public static void sendInlineKeyboard(long chatId, String message, InlineKeyboardMarkup keyboard) {
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(chatId);
+        sendMessage.setText(message);
+        sendMessage.setReplyMarkup(keyboard);
+        try {
+            Main.bot.execute(sendMessage);
+            log.info("Отправлено сообщение для {}", sendMessage.getChatId());
+        }
+        catch (TelegramApiException e) {
+           log.error("Ошибка при отправке сообщения {}", e.getMessage());
         }
     }
 
