@@ -13,11 +13,11 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.Map;
 
-public class groupMessageProcessor implements MessageProcessor {
-    Logger log = LoggerFactory.getLogger(groupMessageProcessor.class);
+public class GroupMessageProcessor implements MessageProcessor {
+    Logger log = LoggerFactory.getLogger(GroupMessageProcessor.class);
     SessionState state;
 
-    public groupMessageProcessor(SessionState state) {
+    public GroupMessageProcessor(SessionState state) {
         this.state = state;
     }
 

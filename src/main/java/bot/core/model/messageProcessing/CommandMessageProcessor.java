@@ -6,11 +6,11 @@ import bot.core.model.MessageContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class commandMessageProcessor implements MessageProcessor {
-    private static final Logger log = LoggerFactory.getLogger(editInfoProcessor.class);
+public class CommandMessageProcessor implements MessageProcessor {
+    private static final Logger log = LoggerFactory.getLogger(EditInfoProcessor.class);
     private final SessionState state;
 
-    public commandMessageProcessor(SessionState state) {
+    public CommandMessageProcessor(SessionState state) {
         this.state = state;
     }
 

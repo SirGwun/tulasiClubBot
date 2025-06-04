@@ -7,11 +7,11 @@ import bot.core.util.DataUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class editHelpProcessor implements MessageProcessor {
-    private static final Logger log = LoggerFactory.getLogger(editInfoProcessor.class);
+public class EditHelpProcessor implements MessageProcessor {
+    private static final Logger log = LoggerFactory.getLogger(EditInfoProcessor.class);
     private final SessionState state;
 
-    public editHelpProcessor(SessionState session) {
+    public EditHelpProcessor(SessionState session) {
         this.state = session;
     }
 
