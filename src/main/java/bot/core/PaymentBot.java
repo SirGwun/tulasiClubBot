@@ -198,65 +198,6 @@ public class PaymentBot extends TelegramLongPollingBot {
     }
 
 
-    private void processNewGroupMember(Message message) {
-        Long chatId = message.getChatId();
-        boolean isChannel = message.getChat().isChannelChat();
-
-        boolean isBotAddedToGroup = false;
-        if (message.getNewChatMembers() != null) {
-            for (User u : message.getNewChatMembers()) {
-                try {
-                    if (u.getId().equals(this.getMe().getId())) {
-                        isBotAddedToGroup = true;
-                        break;
-                    }
-                } catch (TelegramApiException e) {
-                    log.error(e.getMessage());
-                }
-            }
-        }
-
-        if (!isChannel && !isBotAddedToGroup) return;
-
-        log.info("Bot added to new {}", isChannel ? "channel" : "group");
-
-        try {
-            if (DataUtils.getGroupList().containsValue(chatId.toString())) {
-                Set<Map.Entry<Object, Object>> entries = DataUtils.getGroupList().entrySet();
-                String name = "";
-                for (Map.Entry<Object, Object> entry : entries) {
-                    if (entry.getValue().equals(chatId.toString())) {
-                        name = entry.getKey().toString();
-                        break;
-                    }
-                }
-                ChatUtils.sendMessage(DataUtils.getAdminID(), (isChannel ? "Канал" : "Группа") + " уже есть в списке. Имя: "
-                        + name + "\nПожалуйста, просто используйте уже добавленный чат с помощью команды /set_group");
-                newGroupName = null;
-                newGroup = false;
-                return;
-            }
-
-            InlineKeyboardMarkup keyboard = ChatUtils.getKonfirmAdminStatusKeyboard(
-                    new Group(newGroupName, chatId)
-            );
-
-            sendAdminConfirmationMessage(newGroupName, keyboard);
-        } catch (TelegramApiException e) {
-            log.error("Error adding new {} {}", isChannel ? "channel" : "group", newGroupName, e);
-        }
-
-    }
-
-    private void sendAdminConfirmationMessage(String groupName, InlineKeyboardMarkup keyboard) throws TelegramApiException {
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(DataUtils.getAdminID());
-        sendMessage.setText("Дайте боту права администратора в \"" + groupName.replace("-", " ")
-                + "\"\n\nПосле нажмите кнопку подтверждения");
-        sendMessage.setReplyMarkup(keyboard);
-        execute(sendMessage);
-    }
-
     private void processInfoEditing(Message message) {
         log.info("Editing info");
         if (message.hasText() && message.getText().equals("/cancel")) {

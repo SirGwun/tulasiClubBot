@@ -47,7 +47,7 @@ public class setGroupNameProcessor implements MessageProcessor {
         }
 
         state.pendingGroupName = name.replace(" ", "-").replace("_", "-");
-        state.setWaitingGroupName(false);
+        state.waitGroupName();
 
         ChatUtils.sendMessage(ctx.getChatId(), String.format(GROUP_NAME_SETUP_INSTRUCTION, state.pendingGroupName));
     }

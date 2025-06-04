@@ -41,4 +41,8 @@ public class MessageContext  {
     public long getChatId() {
         return chatId;
     }
+
+    public Message getMessage() {
+        return message;
+    }
 }

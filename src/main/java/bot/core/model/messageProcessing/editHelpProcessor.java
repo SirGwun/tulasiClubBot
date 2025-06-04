@@ -24,7 +24,7 @@ public class editHelpProcessor implements MessageProcessor {
     public void process(MessageContext message) {
         log.info("Editing help for chatId={}", message.getChatId());
         DataUtils.setInfo(message.getText());
-        state.setEditingHelp(false);
+        state.editHelp();
         ChatUtils.sendMessage(message.getChatId(), "Инструкция для пользователей изменена");
     }
 }

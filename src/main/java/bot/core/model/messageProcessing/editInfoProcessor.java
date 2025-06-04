@@ -24,7 +24,7 @@ public class editInfoProcessor implements MessageProcessor {
     public void process(MessageContext message) {
         log.info("Editing info for chatId={}", message.getChatId());
         DataUtils.setInfo(message.getText());
-        state.editInfo(false);
+        state.editInfo();
         ChatUtils.sendMessage(message.getChatId(), "Информация изменена");
     }
 }
