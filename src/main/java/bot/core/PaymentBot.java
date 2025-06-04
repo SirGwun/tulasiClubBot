@@ -147,28 +147,6 @@ public class PaymentBot extends TelegramLongPollingBot {
     }
 
 
-    private void handleDelCommand(long userID) {
-        log.info("user {} get /del command", userID);
-        if (userID == DataUtils.getAdminID()) {
-            if (DataUtils.getGroupList().isEmpty()) {
-                ChatUtils.sendMessage(userID, "Нет доступных групп");
-                return;
-            }
-            InlineKeyboardMarkup allGroupKeyboard = ChatUtils.getAllGroupKeyboard(userID, "delGroup");
-            SendMessage sendMessage = new SendMessage();
-            sendMessage.setChatId(userID);
-            sendMessage.setText("Выберете группу для удаления");
-            sendMessage.setReplyMarkup(allGroupKeyboard);
-            try {
-                execute(sendMessage);
-            } catch (TelegramApiException e) {
-                log.error("Ошибка при отправке ответа на команду /del {}", e.getMessage());
-            }
-        } else {
-            ChatUtils.sendMessage(userID, "У вас нет прав на выполнение этой команды");
-        }
-    }
-
     private void handlePayment(Message message, long chatId, long userId) {
         log.info("New payment from {}", userId);
         boolean valid = validator.isValidPayment(message);
