@@ -1,18 +1,16 @@
 package bot.core;
 
 import bot.core.control.CallbackHandler;
-import bot.core.control.SessionState;
+import bot.core.control.Session;
 import bot.core.model.Group;
 import bot.core.model.MessageContext;
 import bot.core.model.messageProcessing.*;
 import bot.core.util.ChatUtils;
 import bot.core.util.DataUtils;
-import bot.core.util.GroupUtils;
 import bot.core.validator.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
@@ -24,34 +22,46 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class PaymentBot extends TelegramLongPollingBot {
     private static final Logger log = LoggerFactory.getLogger(PaymentBot.class);
     CallbackHandler callbackHandler = new CallbackHandler();
     Validator validator;
-    Map<Long, SessionState> sessionByUser = new ConcurrentHashMap<>();
+    HistoryForwardProcessor historyForwardProcessor  = new HistoryForwardProcessor();
     List<MessageProcessor> processors = Arrays.asList(
             new CommandMessageProcessor(),
             new SetGroupNameProcessor(),
             new EditInfoProcessor(),
             new EditHelpProcessor(),
-            new GroupMessageProcessor(),
-            new HistoryForwardProcessor(),
+            new AddingInGroupMessageProcessor(),
             new CommonMessageProcessor()
     );
-
-
 
 
     @Override
     public void onUpdateReceived(Update update) {
         if (update.hasMessage()) {
-            handleIncomingUpdate(update.getMessage());
+            handleIncomingMessage(update.getMessage());
         } else if (update.hasMyChatMember()) {
             handleMyChatMemberUpdate(update.getMyChatMember());
         } else if (update.hasCallbackQuery()) {
+            long userId = update.getCallbackQuery().getFrom().getId();
             callbackHandler.handleCallbackQuery(update.getCallbackQuery());
+        }
+    }
+
+    private void handleIncomingMessage(Message message) {
+        long chatId = message.getChatId();
+
+        Session session = Main.getSessionByUser().computeIfAbsent(chatId, id -> new Session(chatId));
+
+        MessageContext ctx = new MessageContext(message);
+
+        if (historyForwardProcessor.canProcess(ctx, session.getState())) historyForwardProcessor.process(ctx, session.getState());
+        for (MessageProcessor processor : processors) {
+            if (processor.canProcess(ctx, session.getState())) {
+                processor.process(ctx, session.getState());
+            }
         }
     }
 
@@ -101,23 +111,19 @@ public class PaymentBot extends TelegramLongPollingBot {
     }
 
 
-    private void handleIncomingUpdate(Message message) {
-        long chatId = message.getChatId();
-        SessionState state = sessionByUser.computeIfAbsent(chatId, id -> new SessionState());
-
-        MessageContext ctx = new MessageContext(message);
-
-        for (MessageProcessor processor : processors) {
-            if (processor.canProcess(ctx, state)) {
-                processor.process(ctx, state);
-            }
-        }
+    @Override
+    public String getBotUsername() {
+        return DataUtils.getBotName();
     }
 
+    @Override
+    public void onRegister() {
+        super.onRegister();
+        setBotCommands();
+        validator = new Validator();
+    }
 
     private void setBotCommands() {
-        //todo разобраться, как убрать / в чатах групп
-
         // Команды для всех пользователей
         List<BotCommand> defaultCommands = new ArrayList<>();
         defaultCommands.add(new BotCommand("/set_group", "Выбрать группу"));
@@ -135,36 +141,9 @@ public class PaymentBot extends TelegramLongPollingBot {
         adminCommands.add(new BotCommand("/cancel", "Отменить действие"));
         try {
             execute(new SetMyCommands(defaultCommands, new BotCommandScopeAllPrivateChats(), null));
-            long adminChatId = DataUtils.getAdminID();
             execute(new SetMyCommands(adminCommands, new BotCommandScopeChat(Long.toString(DataUtils.getAdminID())), null));
         } catch (Exception e) {
             log.error("Error setting bot commands {}", e.getMessage());
         }
-    }
-
-    @Override
-    public void clearWebhook() throws TelegramApiRequestException {
-
-    }
-
-    @Override
-    public String getBotToken() {
-        return DataUtils.getBotToken();
-    }
-
-    @Override
-    public String getBotUsername() {
-        return DataUtils.getBotName();
-    }
-
-    public static String getNewGroupName() {
-        return newGroupName;
-    }
-
-    @Override
-    public void onRegister() {
-        super.onRegister();
-        setBotCommands();
-        validator = new Validator();
     }
 }

@@ -143,7 +143,7 @@ public final class ChatUtils {
      */
     private static InlineKeyboardButton createConfirmAdminButton(Group group) {
         return createButton(
-                "Бот администратора в " + PaymentBot.getNewGroupName().replace("-", " "),
+                "Бот администратор в " + group.getName().replace("-", " "),
                 "confirmAdmin_" + group.getId()
         );
     }

@@ -13,19 +13,16 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.Map;
 
-public class GroupMessageProcessor implements MessageProcessor {
-    Logger log = LoggerFactory.getLogger(GroupMessageProcessor.class);
+public class AddingInGroupMessageProcessor implements MessageProcessor {
+    Logger log = LoggerFactory.getLogger(AddingInGroupMessageProcessor.class);
 
+
+    //Когда бота добавили в группу
     @Override
     public boolean canProcess(MessageContext ctx, SessionState state) {
         if (state.pendingGroupName == null) return false;
 
-        if (ctx.isFromGroup()) {
-            return isBotAddedToGroup(ctx);
-        }
-
-        //todo проверить не нужно ли это удалить
-        return ctx.getMessage().isChannelMessage();
+        return ctx.isFromGroup() && isBotAddedToGroup(ctx);
     }
 
     private boolean isBotAddedToGroup(MessageContext ctx) {

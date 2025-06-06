@@ -1,7 +1,8 @@
 package bot.core.util;
 
 import bot.core.Main;
-import bot.core.PaymentBot;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.*;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -9,11 +10,10 @@ import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 
 public class GroupUtils {
+    private static final Logger log = LoggerFactory.getLogger(GroupUtils.class);
     public static CreateChatInviteLink createInviteLink(String groupID) {
         CreateChatInviteLink inviteLink = new CreateChatInviteLink();
         inviteLink.setChatId(groupID);
@@ -52,7 +52,7 @@ public class GroupUtils {
                 List<ChatMember> admins = Main.bot.execute(getChatAdministrators);
 
                 // Проверяем, есть ли бот среди администраторов
-                String botUsername = Main.bot.getBotUsername();
+                String botUsername = DataUtils.getBotName();
                 for (ChatMember admin : admins) {
                     if (admin.getUser().getUserName().equals(botUsername)) {
                         return true; // Бот является администратором в группе
@@ -71,12 +71,12 @@ public class GroupUtils {
 
     private void decline(long userId) {
         try {
-            log.info("Откланен запрос {} в группу {}", GroupUtils.getUserName(userId, DataUtils.getMainGroupID()),
-                    GroupUtils.getGroupName(DataUtils.getMainGroupID()));
+            log.info("Откланен запрос {} в группу {}", GroupUtils.getUserName(userId, DataUtils.getMainGroupId()),
+                    GroupUtils.getGroupName(DataUtils.getMainGroupId()));
             ChatUtils.sendMessage(userId, "Ваша заявка была отклонена, \n" +
                     "вы можете создать еще одну заявку или обратиться к администратору @Tulasikl");
         } catch (TelegramApiException e) {
-            log.error("Error decline user request {} to group {}", userId, DataUtils.getMainGroupID());
+            log.error("Error decline user request {} to group {}", userId, DataUtils.getMainGroupId());
         }
     }
 
@@ -93,7 +93,7 @@ public class GroupUtils {
             message.setParseMode(ParseMode.HTML);
             Main.bot.execute(message);
         } catch (TelegramApiException e) {
-            PaymentBot.log.error("Ошибка при добавлении пользователя в группу \n {}", e.getMessage());
+            log.error("Ошибка при добавлении пользователя в группу \n {}", e.getMessage());
         }
     }
 }

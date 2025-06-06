@@ -180,7 +180,7 @@ public class DataUtils {
         return adminChatID;
     }
 
-    public static long getMainGroupID() {
+    public static long getMainGroupId() {
         return mainGroupID;
     }
 

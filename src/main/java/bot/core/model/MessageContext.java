@@ -23,7 +23,7 @@ public class MessageContext  {
 
     public boolean isFromGroup() {
         String type = message.getChat().getType();
-        return type.equals("group") || type.equals("supergroup") || message.getChat().isChannelChat();
+        return type.equals("group") || type.equals("supergroup") || message.getChat().isChannelChat() || message.isChannelMessage();
     }
 
     public String getText() {
