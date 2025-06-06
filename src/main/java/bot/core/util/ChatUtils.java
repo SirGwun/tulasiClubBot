@@ -5,8 +5,10 @@ import bot.core.Main;
 import bot.core.PaymentBot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.telegram.telegrambots.meta.api.methods.ForwardMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -141,6 +143,19 @@ public class ChatUtils {
             Main.log.info("Deleted message {}", messageId);
         } catch (TelegramApiException e) {
             Main.log.error("Ошибка при удалении сообщения", e);
+        }
+    }
+
+    public static void forwardMessageToHistory(Message message) {
+        log.info("Forwarding message to history");
+        ForwardMessage forwardMessage = new ForwardMessage();
+        forwardMessage.setChatId(DataUtils.getHistroyID());
+        forwardMessage.setMessageId(message.getMessageId());
+        forwardMessage.setFromChatId(message.getChatId());
+        try {
+            Main.bot.execute(forwardMessage);
+        } catch (TelegramApiException e) {
+            log.error("Не пересылаемое сообщение");
         }
     }
 }
