@@ -26,43 +26,55 @@ public class CallbackHandler {
         int messageId = callbackQuery.getMessage().getMessageId();
 
         switch (action) {
-            case "confirm":
-                handleConfirmAction(callbackQuery, data, userID, messageId);
+            case "confirm": {
+                int originMessageId = Integer.parseInt(data[1]);
+                long targetUserId = Long.parseLong(data[2]);
+                handleConfirmAction(callbackQuery, originMessageId, targetUserId, userID, messageId);
                 break;
-            case "decline":
-                handleDeclineAction(callbackQuery, data, userID, messageId);
+            }
+            case "decline": {
+                int originMessageId = Integer.parseInt(data[1]);
+                long targetUserId = Long.parseLong(data[2]);
+                handleDeclineAction(callbackQuery, originMessageId, targetUserId, userID, messageId);
                 break;
-            case "setGroup":
-                handleSetGroupAction(callbackQuery, data, userID, messageId);
+            }
+            case "setGroup": {
+                String groupId = data[1];
+                handleSetGroupAction(callbackQuery, groupId, userID, messageId);
                 break;
-            case "confirmAdmin":
-                handleConfirmAdminAction(callbackQuery, data, userID);
+            }
+            case "confirmAdmin": {
+                String groupId = data[1];
+                handleConfirmAdminAction(callbackQuery, groupId, userID);
                 break;
-            case "delGroup":
-                handleDelGroupAction(callbackQuery, data, userID);
+            }
+            case "delGroup": {
+                String groupId = data[1];
+                handleDelGroupAction(userID, messageId, groupId);
+                break;
+            }
         }
     }
 
 
 
-    private void handleDelGroupAction(CallbackQuery callbackQuery, String[] data, long userID) {
-        String groupId = data[1];
+    private void handleDelGroupAction(long userID, int messageId, String groupId) {
         if (DataUtils.getGroupList().containsValue(groupId)) {
             DataUtils.removeGroup(groupId);
             ChatUtils.sendMessage(userID, "Группа удалена");
-            ChatUtils.deleteMessage(userID, callbackQuery.getMessage().getMessageId());
+            ChatUtils.deleteMessage(userID, messageId);
         } else {
             ChatUtils.sendMessage(userID, "Группа не найдена");
         }
     }
 
 
-    private void handleConfirmAction(CallbackQuery callbackQuery, String[] data, long userID, int messageId) {
-        log.info("User {} confirm {}", userID, data[2]);
-        lon
-        GroupUtils.addInGroup(Long.parseLong(data[2]), groupMap);
+    private void handleConfirmAction(CallbackQuery callbackQuery, int originalMessageId,
+                                     long targetUserId, long userID, int messageId) {
+        log.info("User {} confirm {}", userID, targetUserId);
+        GroupUtils.addInGroup(targetUserId, groupMap);
         ChatUtils.deleteMessage(userID, messageId);
-        ChatUtils.deleteMessage(userID, Integer.parseInt(data[1]));
+        ChatUtils.deleteMessage(userID, originalMessageId);
 
         try {
             AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery();
@@ -73,11 +85,12 @@ public class CallbackHandler {
         }
     }
 
-    private void handleDeclineAction(CallbackQuery callbackQuery, String[] data, long userID, int messageId) {
-        log.info("User {} decline {}", userID, data[2]);
-        decline(Long.parseLong(data[2]));
+    private void handleDeclineAction(CallbackQuery callbackQuery, int originalMessageId,
+                                    long targetUserId, long userID, int messageId) {
+        log.info("User {} decline {}", userID, targetUserId);
+        decline(targetUserId);
         ChatUtils.deleteMessage(userID, messageId);
-        ChatUtils.deleteMessage(userID, Integer.parseInt(data[1]));
+        ChatUtils.deleteMessage(userID, originalMessageId);
 
         try {
             AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery();
@@ -88,18 +101,18 @@ public class CallbackHandler {
         }
     }
     //todo !!!не защищено от паралельного выполнения, очень опасно!
-    private void handleSetGroupAction(CallbackQuery callbackQuery, String[] data, long userID, int messageId) {
-        log.info("User {} set group {}", userID, data[1]);
+    private void handleSetGroupAction(CallbackQuery callbackQuery, String groupId, long userID, int messageId) {
+        log.info("User {} set group {}", userID, groupId);
         Properties groupList = DataUtils.getGroupList();
-        if (!groupList.containsValue(data[1])) {
+        if (!groupList.containsValue(groupId)) {
             ChatUtils.sendMessage(userID, "Группа не найдена");
             return;
         }
-        String groupID = data[1];
+        String groupID = groupId;
         String groupName = "";
         Set<Map.Entry<Object, Object>> entries = groupList.entrySet();
         for (Map.Entry<Object, Object> entry : entries) {
-            if (entry.getValue().equals(data[1])) {
+            if (entry.getValue().equals(groupId)) {
                 groupName = entry.getKey().toString();
                 break;
             }
@@ -128,11 +141,10 @@ public class CallbackHandler {
         }
     }
 
-    private void handleConfirmAdminAction(CallbackQuery callbackQuery, String[] data, long userID) {
-        log.info("User {} confirm admin {}", userID, data[1]);
+    private void handleConfirmAdminAction(CallbackQuery callbackQuery, String groupId, long userID) {
+        log.info("User {} confirm admin {}", userID, groupId);
 
         // Обработка запроса
-        String groupId = data[1];
         if (GroupUtils.isBotAdminInGroup(groupId)) {
             if (newGroupName == null) {
                 ChatUtils.sendMessage(userID, "Имя группы пусто");

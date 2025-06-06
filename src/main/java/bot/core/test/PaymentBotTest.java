@@ -127,28 +127,28 @@ public class PaymentBotTest {/*
     public void testHandleCallbackQuery_confirm() {
         when(callbackQuery.getData()).thenReturn("confirm_12345_67890");
         paymentBot.handleCallbackQuery(callbackQuery);
-        verify(paymentBot, times(1)).handleConfirmAction(any(), anyLong(), anyInt());
+        verify(paymentBot, times(1)).handleConfirmAction(any(), anyInt(), anyLong(), anyLong(), anyInt());
     }
 
     @Test
     public void testHandleCallbackQuery_decline() {
         when(callbackQuery.getData()).thenReturn("decline_12345_67890");
         paymentBot.handleCallbackQuery(callbackQuery);
-        verify(paymentBot, times(1)).handleDeclineAction(any(), anyLong(), anyInt());
+        verify(paymentBot, times(1)).handleDeclineAction(any(), anyInt(), anyLong(), anyLong(), anyInt());
     }
 
     @Test
     public void testHandleCallbackQuery_setGroup() {
         when(callbackQuery.getData()).thenReturn("setGroup_12345_67890");
         paymentBot.handleCallbackQuery(callbackQuery);
-        verify(paymentBot, times(1)).handleSetGroupAction(any(), anyLong(), anyInt());
+        verify(paymentBot, times(1)).handleSetGroupAction(any(), anyString(), anyLong(), anyInt());
     }
 
     @Test
     public void testHandleCallbackQuery_confirmAdmin() {
         when(callbackQuery.getData()).thenReturn("confirmAdmin_12345_67890");
         paymentBot.handleCallbackQuery(callbackQuery);
-        verify(paymentBot, times(1)).handleConfirmAdminAction(any(), anyLong());
+        verify(paymentBot, times(1)).handleConfirmAdminAction(any(), anyString(), anyLong());
     }
 
     @Test
