@@ -73,7 +73,7 @@ public class GroupMessageProcessor implements MessageProcessor {
         ChatUtils.sendInlineKeyboard(
                 chatId,
                 "Дайте боту права администратора в " + state.pendingGroupName + ".\nПосле нажмите кнопку подтверждения",
-                ChatUtils.getKonfirmAdminStatusKeyboard(new Group(state.pendingGroupName, chatId))
+                ChatUtils.getConfirmAdminStatusKeyboard(new Group(state.pendingGroupName, chatId))
         );
     }
 }
