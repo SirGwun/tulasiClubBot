@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SetGroupNameProcessor implements MessageProcessor {
-    private final SessionState state;
     private static final Logger log = LoggerFactory.getLogger(SetGroupNameProcessor.class);
 
     public static final String GROUP_NAME_SETUP_INSTRUCTION = """
@@ -20,17 +19,14 @@ public class SetGroupNameProcessor implements MessageProcessor {
     Учтите, что название группы в Telegram останется без изменений — имя используется только во внутренней логике бота.
     """;
 
-    public SetGroupNameProcessor(SessionState state) {
-        this.state = state;
-    }
 
     @Override
-    public boolean canProcess(MessageContext ctx) {
+    public boolean canProcess(MessageContext ctx, SessionState state) {
         return state.isWaitingGroupName() && ctx.isFromAdmin() && !ctx.getText().equals("/cancel");
     }
 
     @Override
-    public void process(MessageContext ctx) {
+    public void process(MessageContext ctx, SessionState state) {
         String name = ctx.getText();
         long chatId = ctx.getChatId();
 
