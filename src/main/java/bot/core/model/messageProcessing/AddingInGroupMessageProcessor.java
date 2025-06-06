@@ -1,7 +1,7 @@
 package bot.core.model.messageProcessing;
 
 import bot.core.Main;
-import bot.core.control.SessionState;
+import bot.core.control.Session;
 import bot.core.model.Group;
 import bot.core.model.MessageContext;
 import bot.core.util.ChatUtils;
@@ -19,8 +19,8 @@ public class AddingInGroupMessageProcessor implements MessageProcessor {
 
     //Когда бота добавили в группу
     @Override
-    public boolean canProcess(MessageContext ctx, SessionState state) {
-        if (state.pendingGroupName == null) return false;
+    public boolean canProcess(MessageContext ctx, Session session) {
+        if (session.getState().pendingGroupName == null) return false;
 
         return ctx.isFromGroup() && isBotAddedToGroup(ctx);
     }
@@ -41,7 +41,7 @@ public class AddingInGroupMessageProcessor implements MessageProcessor {
 
 
     @Override
-    public void process(MessageContext ctx, SessionState state) {
+    public void process(MessageContext ctx, Session session) {
         long chatId = ctx.getChatId();
         log.info("Bot added to new group");
 
@@ -63,14 +63,14 @@ public class AddingInGroupMessageProcessor implements MessageProcessor {
                             "\nПожалуйста, просто используйте уже добавленный чат с помощью команды /set_group"
             );
 
-            state.cansel();
+            session.getState().cansel();
             return;
         }
 
         ChatUtils.sendInlineKeyboard(
                 chatId,
-                "Дайте боту права администратора в " + state.pendingGroupName + ".\nПосле нажмите кнопку подтверждения",
-                ChatUtils.getConfirmAdminStatusKeyboard(new Group(state.pendingGroupName, chatId))
+                "Дайте боту права администратора в " + session.getState().pendingGroupName + ".\nПосле нажмите кнопку подтверждения",
+                ChatUtils.getConfirmAdminStatusKeyboard(new Group(session.getState().pendingGroupName, chatId))
         );
     }
 }
