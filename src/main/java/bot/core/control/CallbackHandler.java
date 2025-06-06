@@ -27,7 +27,7 @@ public class CallbackHandler {
 
         switch (action) {
             case "confirm":
-                handleConfirmAction(callbackQuery, data, userID, messageId);
+                handleConfirmInGroupAction(callbackQuery, data, userID, messageId);
                 break;
             case "decline":
                 handleDeclineAction(callbackQuery, data, userID, messageId);
@@ -57,12 +57,21 @@ public class CallbackHandler {
     }
 
 
-    private void handleConfirmAction(CallbackQuery callbackQuery, String[] data, long userID, int messageId) {
-        log.info("User {} confirm {}", userID, data[2]);
-        lon
-        GroupUtils.addInGroup(Long.parseLong(data[2]), groupMap);
-        ChatUtils.deleteMessage(userID, messageId);
-        ChatUtils.deleteMessage(userID, Integer.parseInt(data[1]));
+    private void handleConfirmInGroupAction(CallbackQuery callbackQuery, String[] data, long userId, int messageId) {
+
+        log.info("User {} confirm {}", userId, data[2]);
+
+
+        if (groupMap.containsKey(userId)) {
+            GroupUtils.addInGroup(Long.parseLong(data[2]), groupMap.get(userId));
+            groupMap.remove(userId);
+        } else {
+            GroupUtils.addInGroup(DataUtils.getMainGroupID(), groupMap.get(userId));
+        }
+
+
+        ChatUtils.deleteMessage(userId, messageId);
+        ChatUtils.deleteMessage(userId, Integer.parseInt(data[1]));
 
         try {
             AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery();
@@ -73,11 +82,11 @@ public class CallbackHandler {
         }
     }
 
-    private void handleDeclineAction(CallbackQuery callbackQuery, String[] data, long userID, int messageId) {
-        log.info("User {} decline {}", userID, data[2]);
+    private void handleDeclineAction(CallbackQuery callbackQuery, String[] data, long userId, int messageId) {
+        log.info("User {} decline {}", userId, data[2]);
         decline(Long.parseLong(data[2]));
-        ChatUtils.deleteMessage(userID, messageId);
-        ChatUtils.deleteMessage(userID, Integer.parseInt(data[1]));
+        ChatUtils.deleteMessage(userId, messageId);
+        ChatUtils.deleteMessage(userId, Integer.parseInt(data[1]));
 
         try {
             AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery();
