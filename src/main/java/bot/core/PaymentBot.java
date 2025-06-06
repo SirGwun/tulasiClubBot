@@ -86,7 +86,7 @@ public class PaymentBot extends TelegramLongPollingBot {
                     return;
                 }
 
-                InlineKeyboardMarkup keyboard = ChatUtils.getKonfirmAdminStatusKeyboard(new Group(newGroupName, chatId));
+                InlineKeyboardMarkup keyboard = ChatUtils.getConfirmAdminStatusKeyboard(new Group(newGroupName, chatId));
                 sendAdminConfirmationMessage(newGroupName, keyboard);
             }
 

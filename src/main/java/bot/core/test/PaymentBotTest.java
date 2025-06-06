@@ -176,7 +176,7 @@ public class PaymentBotTest {/*
         when(message.getNewChatMembers()).thenReturn(Collections.singletonList(user));
         paymentBot.processNewGroupMember(message);
         verifyStatic(ChatUtils.class, times(1));
-        ChatUtils.getKonfirmAdminStatusKeyboard(any(Group.class));
+        ChatUtils.getConfirmAdminStatusKeyboard(any(Group.class));
     }
 
     @Test
