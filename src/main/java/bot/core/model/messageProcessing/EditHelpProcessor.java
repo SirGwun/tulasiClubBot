@@ -1,6 +1,6 @@
 package bot.core.model.messageProcessing;
 
-import bot.core.control.SessionState;
+import bot.core.control.Session;
 import bot.core.model.MessageContext;
 import bot.core.util.ChatUtils;
 import bot.core.util.DataUtils;
@@ -11,15 +11,15 @@ public class EditHelpProcessor implements MessageProcessor {
     private static final Logger log = LoggerFactory.getLogger(EditInfoProcessor.class);
 
     @Override
-    public boolean canProcess(MessageContext message, SessionState state) {
-        return state.isEditingHelp() && message.isFromAdmin() && !message.getText().equals("/cancel");
+    public boolean canProcess(MessageContext message, Session session) {
+        return session.getState().isEditingHelp() && message.isFromAdmin() && !message.getText().equals("/cancel");
     }
 
     @Override
-    public void process(MessageContext message, SessionState state) {
+    public void process(MessageContext message, Session session) {
         log.info("Editing help for chatId={}", message.getChatId());
         DataUtils.setInfo(message.getText());
-        state.editHelp();
+        session.getState().editHelp();
         ChatUtils.sendMessage(message.getChatId(), "Инструкция для пользователей изменена");
     }
 }

@@ -55,10 +55,10 @@ public class PaymentBot extends TelegramLongPollingBot {
 
         MessageContext ctx = new MessageContext(message);
 
-        if (historyForwardProcessor.canProcess(ctx, session.getState())) historyForwardProcessor.process(ctx, session.getState());
+        if (historyForwardProcessor.canProcess(ctx, session)) historyForwardProcessor.process(ctx, session);
         for (MessageProcessor processor : processors) {
-            if (processor.canProcess(ctx, session.getState())) {
-                processor.process(ctx, session.getState());
+            if (processor.canProcess(ctx, session)) {
+                processor.process(ctx, session);
             }
         }
     }

@@ -1,6 +1,6 @@
 package bot.core.model.messageProcessing;
 
-import bot.core.control.SessionState;
+import bot.core.control.Session;
 import bot.core.model.MessageContext;
 import bot.core.util.ChatUtils;
 import bot.core.util.DataUtils;
@@ -15,23 +15,23 @@ public class CommonMessageProcessor implements MessageProcessor {
     Validator validator;
 
     @Override
-    public boolean canProcess(MessageContext ctx, SessionState state) {
+    public boolean canProcess(MessageContext ctx, Session session) {
         return !ctx.isFromGroup();
     }
 
     @Override
-    public void process(MessageContext ctx, SessionState state) {
+    public void process(MessageContext ctx, Session session) {
         long userId = ctx.getChatId();
         log.info("New message from {}", userId);
 
         if (ctx.hasPayment()) {
-            handlePayment(ctx);
+            handlePayment(ctx, session);
         } else {
             ChatUtils.sendMessage(userId, "Пожалуйста приложите документ или фото платежа");
         }
     }
 
-    private void handlePayment(MessageContext ctx, SessionState state) {
+    private void handlePayment(MessageContext ctx, Session session) {
         long userId = ctx.getChatId();
         log.info("New payment from {}", userId);
 

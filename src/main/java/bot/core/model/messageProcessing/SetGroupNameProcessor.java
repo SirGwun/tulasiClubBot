@@ -1,6 +1,6 @@
 package bot.core.model.messageProcessing;
 
-import bot.core.control.SessionState;
+import bot.core.control.Session;
 import bot.core.model.MessageContext;
 import bot.core.util.ChatUtils;
 import bot.core.util.GroupUtils;
@@ -21,12 +21,12 @@ public class SetGroupNameProcessor implements MessageProcessor {
 
 
     @Override
-    public boolean canProcess(MessageContext ctx, SessionState state) {
-        return state.isWaitingGroupName() && ctx.isFromAdmin() && !ctx.getText().equals("/cancel");
+    public boolean canProcess(MessageContext ctx, Session session) {
+        return session.getState().isWaitingGroupName() && ctx.isFromAdmin() && !ctx.getText().equals("/cancel");
     }
 
     @Override
-    public void process(MessageContext ctx, SessionState state) {
+    public void process(MessageContext ctx, Session session) {
         String name = ctx.getText();
         long chatId = ctx.getChatId();
 
@@ -42,9 +42,9 @@ public class SetGroupNameProcessor implements MessageProcessor {
             return;
         }
 
-        state.pendingGroupName = name.replace(" ", "-").replace("_", "-");
-        state.waitGroupName();
+        session.getState().pendingGroupName = name.replace(" ", "-").replace("_", "-");
+        session.getState().waitGroupName();
 
-        ChatUtils.sendMessage(ctx.getChatId(), String.format(GROUP_NAME_SETUP_INSTRUCTION, state.pendingGroupName));
+        ChatUtils.sendMessage(ctx.getChatId(), String.format(GROUP_NAME_SETUP_INSTRUCTION, session.getState().pendingGroupName));
     }
 }

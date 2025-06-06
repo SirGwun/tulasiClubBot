@@ -1,16 +1,16 @@
 package bot.core.model.messageProcessing;
 
-import bot.core.control.SessionState;
+import bot.core.control.Session;
 import bot.core.model.MessageContext;
 
 public class HistoryForwardProcessor implements MessageProcessor {
     @Override
-    public boolean canProcess(MessageContext message, SessionState state) {
+    public boolean canProcess(MessageContext message, Session session) {
         return false;
     }
 
     @Override
-    public void process(MessageContext message, SessionState state) {
+    public void process(MessageContext message, Session session) {
 
     }
 }
