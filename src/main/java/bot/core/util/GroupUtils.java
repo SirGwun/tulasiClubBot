@@ -69,17 +69,6 @@ public class GroupUtils {
         return groupName != null && !groupName.isEmpty() && !groupName.contains("_") && groupName.length() < 128;
     }
 
-    private void decline(long userId) {
-        try {
-            log.info("Откланен запрос {} в группу {}", GroupUtils.getUserName(userId, DataUtils.getMainGroupId()),
-                    GroupUtils.getGroupName(DataUtils.getMainGroupId()));
-            ChatUtils.sendMessage(userId, "Ваша заявка была отклонена, \n" +
-                    "вы можете создать еще одну заявку или обратиться к администратору @Tulasikl");
-        } catch (TelegramApiException e) {
-            log.error("Error decline user request {} to group {}", userId, DataUtils.getMainGroupId());
-        }
-    }
-
     public static void addInGroup(long userId, String groupName) {
         CreateChatInviteLink inviteLink;
         inviteLink = createInviteLink(groupName);

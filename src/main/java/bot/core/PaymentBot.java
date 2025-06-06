@@ -37,6 +37,9 @@ public class PaymentBot extends TelegramLongPollingBot {
             new CommonMessageProcessor()
     );
 
+    public PaymentBot(String botToken) {
+        super(botToken);
+    }
 
     @Override
     public void onUpdateReceived(Update update) {
@@ -50,6 +53,7 @@ public class PaymentBot extends TelegramLongPollingBot {
 
     private void handleIncomingMessage(Message message) {
         long chatId = message.getChatId();
+        log.info("Получено новое сообщение от {}", chatId);
 
         Session session = Main.getSessionByUser().computeIfAbsent(chatId, id -> new Session(chatId));
 
@@ -59,6 +63,7 @@ public class PaymentBot extends TelegramLongPollingBot {
         for (MessageProcessor processor : processors) {
             if (processor.canProcess(ctx, session)) {
                 processor.process(ctx, session);
+                return;
             }
         }
     }

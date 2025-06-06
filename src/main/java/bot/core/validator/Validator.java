@@ -1,6 +1,7 @@
 package bot.core.validator;
 
 import bot.core.Main;
+import bot.core.model.MessageContext;
 import bot.core.util.ChatUtils;
 import bot.core.util.DataUtils;
 import org.apache.pdfbox.Loader;
@@ -43,14 +44,14 @@ public class Validator {
         return false;
     }
 
-    public void sendOuHumanValidation(Message message) {
-        long userId = message.getFrom().getId();
+    public void sendOuHumanValidation(MessageContext ctx) {
+        long userId = ctx.getChatId();
 
         try {
             ForwardMessage forwardMessage = new ForwardMessage();
             forwardMessage.setChatId(DataUtils.getAdminID());
-            forwardMessage.setFromChatId(message.getChatId());
-            forwardMessage.setMessageId(message.getMessageId());
+            forwardMessage.setFromChatId(ctx.getChatId());
+            forwardMessage.setMessageId(ctx.getMessage().getMessageId());
             Message forwardedMessage = Main.bot.execute(forwardMessage);
 
             // Отправляем сообщение с кнопками

@@ -26,12 +26,11 @@ public class Main {
                 break;
             }
         }
-        bot = new PaymentBot();
-        init(bot);
+        init();
         log.info("Бот запущен");
     }
 
-    public static void init(LongPollingBot bot) {
+    public static void init() {
         try {
             if (isTest) {
                 log.info("Тестовый режим");
@@ -44,10 +43,12 @@ public class Main {
                     log.error("Error sleep {}", e.getMessage());
                 }
             }
+            bot = new PaymentBot(DataUtils.getBotToken());
             TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
             telegramBotsApi.registerBot(bot);
         } catch (TelegramApiException e) {
             log.error("Ошибка при инициализации бота {}", e.getMessage());
+            e.printStackTrace();
         }
     }
 

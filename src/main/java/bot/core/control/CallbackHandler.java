@@ -43,8 +43,11 @@ public class CallbackHandler {
             }
             case "decline": {
                 int originMessageId = Integer.parseInt(data[1]);
+                ChatUtils.deleteMessage(userClickedButtonId, messageId);
+                ChatUtils.deleteMessage(userClickedButtonId, originMessageId);
+
                 long targetUserId = Long.parseLong(data[2]);
-                handleDeclineAction(originMessageId, targetUserId, userClickedButtonId, messageId);
+                handleDeclineAction(targetUserId);
                 break;
             }
             case "setGroup": {
@@ -82,15 +85,14 @@ public class CallbackHandler {
 
 
 
-    private void handleDeclineAction(CallbackQuery callbackQuery, int originalMessageId,
-                                    long targetUserId, long userID, int messageId) {
-        log.info("User {} decline {}", userID, targetUserId);
-        decline(targetUserId);
-        ChatUtils.deleteMessage(userID, messageId);
-        ChatUtils.deleteMessage(userID, originalMessageId);
+    private void handleDeclineAction(long targetUserId) {
+        log.info("decline {}", targetUserId);
+
+        ChatUtils.sendMessage(targetUserId, "Ваша заявка была отклонена, \n" +
+                "вы можете создать еще одну заявку или обратиться к администратору @Tulasikl");
     }
 
-    //todo !!!не защищено от паралельного выполнения, очень опасно!
+
     private void handleSetGroupAction(String selectedGroupId, long selectingUserId, int callbackMessageId) {
         log.info("User {} set group {}", selectingUserId, selectedGroupId);
         Properties groupList = DataUtils.getGroupList();
@@ -124,25 +126,25 @@ public class CallbackHandler {
     private void handleConfirmAction(long targetUserId, long userCLickedButtonId) {
         log.info("Admin {} confirm {}", userCLickedButtonId, targetUserId);
         String groupId = Main.getSessionByUser().get(targetUserId).getGroupId();
-        if (groupId == null) groupId = String.valueOf(DataUtils.getMainGroupId());
 
         GroupUtils.addInGroup(targetUserId, groupId);
     }
 
-    private void handleConfirmAdminAction(String groupId, long userID) {
-        log.info("User {} confirm that bot is admin {}", userID, groupId);
+    private void handleConfirmAdminAction(String groupId, long userId) {
+        log.info("User {} confirm that bot is admin {}", userId, groupId);
+        SessionState state = Main.getSessionByUser().get(userId).getState();
+        String newGroupName = Main.getSessionByUser().get(userId).getState().getPendingGroupName();
 
         // Обработка запроса
         if (GroupUtils.isBotAdminInGroup(groupId)) {
             if (newGroupName == null) {
-                ChatUtils.sendMessage(userID, "Имя группы пусто");
+                ChatUtils.sendMessage(userId, "Имя группы пусто");
                 log.error("Имя группы пусто");
             } else if (DataUtils.addNewGroup(newGroupName, Long.parseLong(groupId))) {
-                ChatUtils.sendMessage(userID, "Группа добавлена");
-                newGroupName = null;
-                newGroup = false;
+                ChatUtils.sendMessage(userId, "Группа добавлена");
+                state.cansel();
             } else {
-                ChatUtils.sendMessage(userID, "Не удалось добавить группу");
+                ChatUtils.sendMessage(userId, "Не удалось добавить группу");
                 log.error("Не удалось добавить группу {}", groupId);
             }
         } else {

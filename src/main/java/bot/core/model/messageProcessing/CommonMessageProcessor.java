@@ -40,7 +40,7 @@ public class CommonMessageProcessor implements MessageProcessor {
         boolean valid = validator.isValidPayment(ctx.getMessage());
 
         if (valid) {
-            GroupUtils.addInGroup(userId, );
+            GroupUtils.addInGroup(userId, session.getGroupId());
             ChatUtils.sendMessage(Long.parseLong(DataUtils.getHistroyID()), "Добавлен в группу автопроверкой");
             log.info("Автоматическая проверка подтвердила оплату");
         } else {
