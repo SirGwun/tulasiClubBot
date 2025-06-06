@@ -42,8 +42,6 @@ public class PaymentBot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         if (update.hasMessage()) {
             handleIncomingMessage(update.getMessage());
-        } else if (update.hasMyChatMember()) {
-            handleMyChatMemberUpdate(update.getMyChatMember());
         } else if (update.hasCallbackQuery()) {
             long userId = update.getCallbackQuery().getFrom().getId();
             callbackHandler.handleCallbackQuery(update.getCallbackQuery());
@@ -62,51 +60,6 @@ public class PaymentBot extends TelegramLongPollingBot {
             if (processor.canProcess(ctx, session.getState())) {
                 processor.process(ctx, session.getState());
             }
-        }
-    }
-
-    private void handleMyChatMemberUpdate(ChatMemberUpdated chatMemberUpdated) {
-        try {
-            Chat chat = chatMemberUpdated.getChat();
-            ChatMember oldStatus = chatMemberUpdated.getOldChatMember();
-            ChatMember newStatus = chatMemberUpdated.getNewChatMember();
-
-            Long chatId = chat.getId();
-            String chatType = chat.getType();
-            boolean wasMember = oldStatus.getStatus().equals("member") || oldStatus.getStatus().equals("administrator");
-            boolean isMemberNow = newStatus.getStatus().equals("member") || newStatus.getStatus().equals("administrator");
-
-            // Бот добавлен в чат (группу/канал)
-            if (!wasMember && isMemberNow && newStatus.getUser().getId().equals(this.getMe().getId())) {
-                log.info("Bot added to {} {}", chatType, chatId);
-
-                if (DataUtils.getGroupList().containsValue(chatId.toString())) {
-                    String existingName = "";
-                    for (Map.Entry<Object, Object> entry : DataUtils.getGroupList().entrySet()) {
-                        if (entry.getValue().equals(chatId.toString())) {
-                            existingName = entry.getKey().toString();
-                            break;
-                        }
-                    }
-                    ChatUtils.sendMessage(DataUtils.getAdminID(),
-                            (chatType.equals("channel") ? "Канал" : "Группа") + " уже есть в списке. Имя: " + existingName +
-                                    "\nПожалуйста, используйте уже добавленный чат с помощью команды /set_group");
-                    editingSession.setPendingGroupName(null);
-                    editingSession.setWaitingGroupName(false);
-                    return;
-                }
-
-                InlineKeyboardMarkup keyboard = ChatUtils.getConfirmAdminStatusKeyboard(new Group(newGroupName, chatId));
-                sendAdminConfirmationMessage(newGroupName, keyboard);
-            }
-
-            // Бот удалён из чата
-            if (wasMember && !isMemberNow && newStatus.getUser().getId().equals(this.getMe().getId())) {
-                log.info("Bot removed from {} {}", chatType, chatId);
-                // Можно добавить очистку или логику при удалении бота из группы/канала
-            }
-        } catch (TelegramApiException e) {
-            log.error("Error handling chat member update", e);
         }
     }
 
