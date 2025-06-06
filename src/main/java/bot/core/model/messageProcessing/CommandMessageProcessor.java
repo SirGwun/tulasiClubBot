@@ -8,19 +8,14 @@ import org.slf4j.LoggerFactory;
 
 public class CommandMessageProcessor implements MessageProcessor {
     private static final Logger log = LoggerFactory.getLogger(EditInfoProcessor.class);
-    private final SessionState state;
-
-    public CommandMessageProcessor(SessionState state) {
-        this.state = state;
-    }
 
     @Override
-    public boolean canProcess(MessageContext message) {
+    public boolean canProcess(MessageContext message, SessionState state) {
         return message.isCommand();
     }
 
     @Override
-    public void process(MessageContext message) {
+    public void process(MessageContext message, SessionState state) {
         CommandHandler handler = new CommandHandler(state, message.getChatId());
         handler.handle(message);
     }

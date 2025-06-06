@@ -15,14 +15,9 @@ import java.util.Map;
 
 public class GroupMessageProcessor implements MessageProcessor {
     Logger log = LoggerFactory.getLogger(GroupMessageProcessor.class);
-    SessionState state;
-
-    public GroupMessageProcessor(SessionState state) {
-        this.state = state;
-    }
 
     @Override
-    public boolean canProcess(MessageContext ctx) {
+    public boolean canProcess(MessageContext ctx, SessionState state) {
         if (state.pendingGroupName == null) return false;
 
         if (ctx.isFromGroup()) {
@@ -49,7 +44,7 @@ public class GroupMessageProcessor implements MessageProcessor {
 
 
     @Override
-    public void process(MessageContext ctx) {
+    public void process(MessageContext ctx, SessionState state) {
         long chatId = ctx.getChatId();
         log.info("Bot added to new group");
 
