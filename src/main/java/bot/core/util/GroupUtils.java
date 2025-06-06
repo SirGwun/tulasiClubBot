@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 public class GroupUtils {
-    public static CreateChatInviteLink createInviteLink(long groupID) {
+    public static CreateChatInviteLink createInviteLink(String groupID) {
         CreateChatInviteLink inviteLink = new CreateChatInviteLink();
         inviteLink.setChatId(groupID);
         inviteLink.setName("Добро пожаловать на курс!");
@@ -80,14 +80,9 @@ public class GroupUtils {
         }
     }
 
-    public static void addInGroup(long userId, Map<Long, String> groupMap) {
+    public static void addInGroup(long userId, String groupName) {
         CreateChatInviteLink inviteLink;
-        if (groupMap.containsKey(userId)) {
-            inviteLink = createInviteLink(Long.parseLong(groupMap.get(userId)));
-            groupMap.remove(userId);
-        } else {
-            inviteLink = createInviteLink(DataUtils.getMainGroupID());
-        }
+        inviteLink = createInviteLink(groupName);
 
         try {
             SendMessage message = new SendMessage();
