@@ -46,7 +46,6 @@ public class PaymentBot extends TelegramLongPollingBot {
         if (update.hasMessage()) {
             handleIncomingMessage(update.getMessage());
         } else if (update.hasCallbackQuery()) {
-            long userId = update.getCallbackQuery().getFrom().getId();
             callbackHandler.handleCallbackQuery(update.getCallbackQuery());
         }
     }

@@ -128,17 +128,16 @@ public class CommandHandler {
 
     private void handleSetGroupCommand() {
         log.info("User {} set group", userId);
+        InlineKeyboardMarkup allGroupKeyboard = ChatUtils.getAllGroupKeyboard(userId, "setGroup");
 
-        if (DataUtils.getGroupList().isEmpty()) {
+        if (allGroupKeyboard.getKeyboard().isEmpty()) {
             ChatUtils.sendMessage(userId, "Нет доступных групп");
             return;
         }
 
-        InlineKeyboardMarkup allGroupKeyboard = ChatUtils.getAllGroupKeyboard(userId, "setGroup");
         if (MessageUtils.hasExceptedGroup(allGroupKeyboard)) {
             ChatUtils.sendMessage(userId, "Группы помеченные \"!\" либо не существуют, либо бот не является в них админом\n\nРекомендую их удалить");
         }
-
         ChatUtils.sendInlineKeyboard(userId, "Выберите группу", allGroupKeyboard);
     }
 
