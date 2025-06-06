@@ -14,29 +14,6 @@ public class SessionState {
     public String pendingGroupName = null;
     EditingActions action;
 
-    public boolean isEditingHelp(Message message) {
-        return editingHelp && message.getChatId() == DataUtils.getAdminID();
-    }
-
-    public boolean isNewGroupMember(Message message) {
-        if (pendingGroupName == null) return false;
-
-        if (message.isGroupMessage() && message.getNewChatMembers() != null) {
-            for (User user : message.getNewChatMembers()) {
-                try {
-                    if (user.getId().equals(Main.bot.getMe().getId())) {
-                        return true;
-                    }
-                } catch (TelegramApiException e) {
-                    log.error(e.getMessage());
-                }
-            }
-            return false;
-        }
-
-        return message.isChannelMessage(); // бот получил сообщение из канала, этого достаточно
-    }
-
     public String getPendingGroupName() {
         return pendingGroupName;
     }
@@ -61,13 +38,14 @@ public class SessionState {
     public boolean isEditingHelp() {
         return action == EditingActions.EDIT_HELP;
     }
-    public void editHelp(boolean editingHelp) {
+    public void editHelp() {
         action = EditingActions.EDIT_HELP;
     }
 
     public EditingActions cansel() {
         EditingActions currentAction = action;
         action = EditingActions.NONE;
+        pendingGroupName = null;
         return currentAction;
     }
 }

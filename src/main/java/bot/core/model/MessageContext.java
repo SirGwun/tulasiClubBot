@@ -34,11 +34,19 @@ public class MessageContext  {
         }
     }
 
+    public boolean hasPayment() {
+        return message.hasDocument() || message.hasPhoto();
+    }
+
     public boolean hasText() {
         return message.hasText();
     }
 
     public long getChatId() {
         return chatId;
+    }
+
+    public Message getMessage() {
+        return message;
     }
 }

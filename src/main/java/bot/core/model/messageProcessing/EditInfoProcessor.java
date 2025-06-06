@@ -7,24 +7,19 @@ import bot.core.util.DataUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class editInfoProcessor implements MessageProcessor {
-    private static final Logger log = LoggerFactory.getLogger(editInfoProcessor.class);
-    private final SessionState state;
-
-    public editInfoProcessor(SessionState session) {
-        this.state = session;
-    }
+public class EditInfoProcessor implements MessageProcessor {
+    private static final Logger log = LoggerFactory.getLogger(EditInfoProcessor.class);
 
     @Override
-    public boolean canProcess(MessageContext message) {
+    public boolean canProcess(MessageContext message, SessionState state) {
         return state.isEditingInfo() && message.isFromAdmin() && !message.getText().equals("/cancel");
     }
 
     @Override
-    public void process(MessageContext message) {
+    public void process(MessageContext message, SessionState state) {
         log.info("Editing info for chatId={}", message.getChatId());
         DataUtils.setInfo(message.getText());
-        state.editInfo(false);
+        state.editInfo();
         ChatUtils.sendMessage(message.getChatId(), "Информация изменена");
     }
 }

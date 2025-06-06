@@ -1,6 +1,5 @@
 package bot.core.control;
 
-import bot.core.PaymentBot;
 import bot.core.model.EditingActions;
 import bot.core.model.MessageContext;
 import bot.core.util.ChatUtils;
@@ -14,8 +13,8 @@ import java.util.List;
 
 public class CommandHandler {
     private static final Logger log = LoggerFactory.getLogger(CommandHandler.class);
-    private SessionState state;
-    private long userId;
+    private final SessionState state;
+    private final long userId;
 
     public CommandHandler(SessionState state, long userId) {
         this.state = state;
@@ -33,6 +32,14 @@ public class CommandHandler {
     }
 
     public void handleCommand(String command) {
+        if (userId == DataUtils.getAdminID()) {
+            handleAdminCommand(command);
+        } else {
+           handleUserCommand(command);
+        }
+    }
+
+    private void handleAdminCommand(String command) {
         switch (command) {
             case "/start":
                 handleStartCommand();
@@ -40,17 +47,20 @@ public class CommandHandler {
             case "/set_group":
                 handleSetGroupCommand();
                 break;
-            case "/new_group":
-                handleNewGroupCommand();
-                break;
-            case "/cancel":
-                handleCancelCommand();
-                break;
             case "/info":
                 handleInfoCommand();
                 break;
             case "/help":
                 handleHelpCommand();
+            case "/catalog":
+                handleCatalogCommand();
+                break;
+            //***************
+            case "/new_group":
+                handleNewGroupCommand();
+                break;
+            case "/cancel":
+                handleCancelCommand();
                 break;
             case "/edit_info":
                 handleEditInfoCommand();
@@ -61,6 +71,25 @@ public class CommandHandler {
             case "/del":
                 handleDelCommand();
                 break;
+            default:
+                handleUnknownCommand(command);
+                break;
+        }
+    }
+
+    private void handleUserCommand(String command) {
+        switch (command) {
+            case "/start":
+                handleStartCommand();
+                break;
+            case "/set_group":
+                handleSetGroupCommand();
+                break;
+            case "/info":
+                handleInfoCommand();
+                break;
+            case "/help":
+                handleHelpCommand();
             case "/catalog":
                 handleCatalogCommand();
                 break;
@@ -131,26 +160,26 @@ public class CommandHandler {
 
     private void handleNewGroupCommand() {
         log.info("User {} create new group", userId);
-        if (userId == DataUtils.getAdminID()) {
-            ChatUtils.sendMessage(userId, "Введите название новой группы");
-            state.waitGroupName();
-        } else {
-            ChatUtils.sendMessage(userId, "Данная команда доступна только администратору");
-        }
+        ChatUtils.sendMessage(userId, "Введите название новой группы");
+        state.waitGroupName();
     }
 
     private void handleCancelCommand() {
         log.info("User used {} cancel command", userId);
-        if (userId == DataUtils.getAdminID()) {
-            EditingActions action = state.cansel();
-            ChatUtils.sendMessage(userId, "Режим работы над командой" + action.toString() + "отменен");
-        } else {
-            ChatUtils.sendMessage(userId, "Данная команда доступна только администратору");
-        }
+        EditingActions action = state.cansel();
+        ChatUtils.sendMessage(userId, "Режим работы над командой" + action.toString() + "отменен");
     }
 
     private void handleDelCommand() {
+        log.info("user {} get /del command", userId);
 
+        if (DataUtils.getGroupList().isEmpty()) {
+            ChatUtils.sendMessage(userId, "Не найдено ни одной группы");
+            return;
+        }
+
+        InlineKeyboardMarkup allGroupKeyboard = ChatUtils.getAllGroupKeyboard(userId, "delGroup");
+        ChatUtils.sendInlineKeyboard(userId, "Выберете группу для удаления", allGroupKeyboard);
     }
 
     private void handleInfoCommand() {
@@ -163,22 +192,14 @@ public class CommandHandler {
 
     private void handleEditInfoCommand() {
         log.info("User {} edit info", userId);
-        if (userId == DataUtils.getAdminID()) {
-            state.editInfo();
-            ChatUtils.sendMessage(userId, "Введите новое описание группы");
-        } else {
-            ChatUtils.sendMessage(userId, "Данная команда доступна только администратору");
-        }
+        state.editInfo();
+        ChatUtils.sendMessage(userId, "Введите новое описание группы");
     }
 
     private void handleEditHelpCommand() {
         log.info("User {} edit help", userId);
-        if (userId == DataUtils.getAdminID()) {
-            state.editInfo();
-            ChatUtils.sendMessage(userId, "Введите новое сообщение помощи");
-        } else {
-            ChatUtils.sendMessage(userId, "Данная команда доступна только администратору");
-        }
+        state.editInfo();
+        ChatUtils.sendMessage(userId, "Введите новое сообщение помощи");
     }
 
     private void handleUnknownCommand(String message) {

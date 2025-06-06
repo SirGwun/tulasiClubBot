@@ -7,24 +7,19 @@ import bot.core.util.DataUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class editHelpProcessor implements MessageProcessor {
-    private static final Logger log = LoggerFactory.getLogger(editInfoProcessor.class);
-    private final SessionState state;
-
-    public editHelpProcessor(SessionState session) {
-        this.state = session;
-    }
+public class EditHelpProcessor implements MessageProcessor {
+    private static final Logger log = LoggerFactory.getLogger(EditInfoProcessor.class);
 
     @Override
-    public boolean canProcess(MessageContext message) {
+    public boolean canProcess(MessageContext message, SessionState state) {
         return state.isEditingHelp() && message.isFromAdmin() && !message.getText().equals("/cancel");
     }
 
     @Override
-    public void process(MessageContext message) {
+    public void process(MessageContext message, SessionState state) {
         log.info("Editing help for chatId={}", message.getChatId());
         DataUtils.setInfo(message.getText());
-        state.setEditingHelp(false);
+        state.editHelp();
         ChatUtils.sendMessage(message.getChatId(), "Инструкция для пользователей изменена");
     }
 }
