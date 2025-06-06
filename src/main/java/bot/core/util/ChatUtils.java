@@ -57,11 +57,11 @@ public final class ChatUtils {
     }
 
     /**
-     * Keyboard with confirmation/decline buttons.
+     * Keyboard with confirmation/decline buttons for payment check.
      */
     public static InlineKeyboardMarkup getValidationKeyboard(int messageId, long userId) {
-        InlineKeyboardButton confirm = createButton("Принимаю", "confirm_" + messageId + "_" + userId);
-        InlineKeyboardButton decline = createButton("Отказываю", "decline_" + messageId + "_" + userId);
+        InlineKeyboardButton confirm = createConfirmButton(messageId, userId);
+        InlineKeyboardButton decline = createDeclineButton(messageId, userId);
 
         InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup();
         keyboard.setKeyboard(Collections.singletonList(Arrays.asList(confirm, decline)));
@@ -79,7 +79,12 @@ public final class ChatUtils {
             String groupId = group.getValue().toString();
             boolean botIsAdmin = GroupUtils.isBotAdminInGroup(groupId);
             if (userId == DataUtils.getAdminID() || botIsAdmin) {
-                buttons.add(createGroupButton(group.getKey().toString(), groupId, callBack, botIsAdmin));
+                String groupName = group.getKey().toString();
+                switch (callBack) {
+                    case "setGroup" -> buttons.add(createSetGroupButton(groupName, groupId, botIsAdmin));
+                    case "delGroup" -> buttons.add(createDeleteGroupButton(groupName, groupId, botIsAdmin));
+                    default -> buttons.add(createGroupButton(groupName, groupId, callBack, botIsAdmin));
+                }
             }
         }
 
@@ -98,6 +103,49 @@ public final class ChatUtils {
         button.setText(text);
         button.setCallbackData(callback);
         return button;
+    }
+
+    /**
+     * Create button used to confirm forwarded payment.
+     * Callback format: {@code confirm_<messageId>_<userId>}.
+     */
+    private static InlineKeyboardButton createConfirmButton(int messageId, long userId) {
+        return createButton("Принимаю", "confirm_" + messageId + "_" + userId);
+    }
+
+    /**
+     * Create button used to decline forwarded payment.
+     * Callback format: {@code decline_<messageId>_<userId>}.
+     */
+    private static InlineKeyboardButton createDeclineButton(int messageId, long userId) {
+        return createButton("Отказываю", "decline_" + messageId + "_" + userId);
+    }
+
+    /**
+     * Create button to choose a group for /set_group command.
+     * Callback format: {@code setGroup_<groupId>}.
+     */
+    private static InlineKeyboardButton createSetGroupButton(String name, String id, boolean isAdmin) {
+        return createGroupButton(name, id, "setGroup", isAdmin);
+    }
+
+    /**
+     * Create button to remove a group with /del command.
+     * Callback format: {@code delGroup_<groupId>}.
+     */
+    private static InlineKeyboardButton createDeleteGroupButton(String name, String id, boolean isAdmin) {
+        return createGroupButton(name, id, "delGroup", isAdmin);
+    }
+
+    /**
+     * Create button for confirming admin rights of the bot in a group.
+     * Callback format: {@code confirmAdmin_<groupId>}.
+     */
+    private static InlineKeyboardButton createConfirmAdminButton(Group group) {
+        return createButton(
+                "Бот администратора в " + PaymentBot.getNewGroupName().replace("-", " "),
+                "confirmAdmin_" + group.getId()
+        );
     }
 
     private static InlineKeyboardButton createGroupButton(String name, String id, String callBack, boolean isAdmin) {
@@ -135,10 +183,7 @@ public final class ChatUtils {
      * Keyboard to confirm admin rights of bot in group.
      */
     public static InlineKeyboardMarkup getConfirmAdminStatusKeyboard(Group group) {
-        InlineKeyboardButton button = createButton(
-                "Бот администратора в " + PaymentBot.getNewGroupName().replace("-", " "),
-                "confirmAdmin_" + group.getId()
-        );
+        InlineKeyboardButton button = createConfirmAdminButton(group);
 
         InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup();
         keyboard.setKeyboard(Collections.singletonList(Collections.singletonList(button)));
