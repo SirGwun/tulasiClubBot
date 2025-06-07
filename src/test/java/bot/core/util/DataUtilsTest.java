@@ -12,7 +12,7 @@ import java.lang.reflect.Field;
 import static org.junit.Assert.*;
 
 public class DataUtilsTest {
-    private static final Path DATA_DIR = Paths.get("data");
+    private static final Path DATA_DIR = Paths.get("test", "testData");
 
     @BeforeClass
     public static void setUpClass() throws Exception {
