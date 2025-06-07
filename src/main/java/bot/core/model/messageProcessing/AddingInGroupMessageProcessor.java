@@ -1,6 +1,5 @@
 package bot.core.model.messageProcessing;
 
-import bot.core.Main;
 import bot.core.control.Session;
 import bot.core.model.Group;
 import bot.core.model.MessageContext;
@@ -9,7 +8,6 @@ import bot.core.util.DataUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.objects.User;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.List;
 import java.util.Map;

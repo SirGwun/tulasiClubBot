@@ -2,10 +2,8 @@ package bot.core;
 
 import bot.core.control.CallbackHandler;
 import bot.core.control.Session;
-import bot.core.model.Group;
 import bot.core.model.MessageContext;
 import bot.core.model.messageProcessing.*;
-import bot.core.util.ChatUtils;
 import bot.core.util.DataUtils;
 import bot.core.validator.Validator;
 import org.slf4j.Logger;
@@ -13,13 +11,9 @@ import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.objects.*;
-import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeAllPrivateChats;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeChat;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 
 import java.util.*;
 

@@ -8,7 +8,6 @@ import bot.core.util.GroupUtils;
 import bot.core.validator.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.telegram.telegrambots.meta.api.objects.Message;
 
 public class CommonMessageProcessor implements MessageProcessor {
     private static final Logger log = LoggerFactory.getLogger(CommonMessageProcessor.class);

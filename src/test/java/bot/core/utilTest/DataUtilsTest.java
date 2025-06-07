@@ -1,5 +1,7 @@
-package bot.core.util;
+package bot.core.utilTest;
 
+import bot.core.DataSincroniser;
+import bot.core.util.DataUtils;
 import org.junit.*;
 
 import java.io.IOException;
@@ -12,10 +14,11 @@ import java.lang.reflect.Field;
 import static org.junit.Assert.*;
 
 public class DataUtilsTest {
-    private static final Path DATA_DIR = Paths.get("test", "testData");
+    private static final Path DATA_DIR = Paths.get("src","test", "testData");
 
     @BeforeClass
     public static void setUpClass() throws Exception {
+        DataSincroniser.sincronise();
         Files.createDirectories(DATA_DIR);
 
         Properties config = new Properties();
