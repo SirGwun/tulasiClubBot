@@ -204,18 +204,5 @@ public final class ChatUtils {
             Main.log.error("Ошибка при удалении сообщения", e);
         }
     }
-
-    public static void forwardMessageToHistory(Message message) {
-        log.info("Forwarding message to history");
-        ForwardMessage forwardMessage = new ForwardMessage();
-        forwardMessage.setChatId(DataUtils.getHistroyID());
-        forwardMessage.setMessageId(message.getMessageId());
-        forwardMessage.setFromChatId(message.getChatId());
-        try {
-            Main.bot.execute(forwardMessage);
-        } catch (TelegramApiException e) {
-            log.error("Не пересылаемое сообщение");
-        }
-    }
 }
 
