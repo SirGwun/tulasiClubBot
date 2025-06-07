@@ -43,7 +43,8 @@ public class PaymentBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        if (update.hasMessage()) {
+        log.info(update.toString());
+        if (update.hasMessage() || update.hasChatMember()) {
             handleIncomingMessage(update.getMessage());
         } else if (update.hasCallbackQuery()) {
             callbackHandler.handleCallbackQuery(update.getCallbackQuery());

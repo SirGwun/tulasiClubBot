@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.util.List;
 import java.util.Map;
 
 public class AddingInGroupMessageProcessor implements MessageProcessor {
@@ -26,15 +27,15 @@ public class AddingInGroupMessageProcessor implements MessageProcessor {
     }
 
     private boolean isBotAddedToGroup(MessageContext ctx) {
-        try {
-            Long botId = Main.bot.getMe().getId();
-            for (User user : ctx.getMessage().getNewChatMembers()) {
-                if (user.getId().equals(botId)) {
-                    return true;
-                }
+        List<User> newMembers = ctx.getMessage().getNewChatMembers();
+        if (newMembers == null || newMembers.isEmpty()) return false;
+
+        String botUsername = DataUtils.getBotName();
+
+        for (User user : newMembers) {
+            if (Boolean.TRUE.equals(user.getIsBot()) && botUsername.equalsIgnoreCase(user.getUserName())) {
+                return true;
             }
-        } catch (TelegramApiException e) {
-            log.error(e.getMessage());
         }
         return false;
     }
