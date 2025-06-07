@@ -52,7 +52,7 @@ public class GroupUtils {
                 List<ChatMember> admins = Main.bot.execute(getChatAdministrators);
 
                 // Проверяем, есть ли бот среди администраторов
-                String botUsername = DataUtils.getBotName();
+                String botUsername = Main.dataUtils.getBotName();
                 for (ChatMember admin : admins) {
                     if (admin.getUser().getUserName().equals(botUsername)) {
                         return true; // Бот является администратором в группе

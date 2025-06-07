@@ -1,6 +1,6 @@
 package bot.core.control;
 
-import bot.core.util.DataUtils;
+import bot.core.Main;
 
 public class Session {
     long userId;
@@ -14,7 +14,7 @@ public class Session {
 
     public String getGroupId() {
         if (groupId == null)
-            return String.valueOf(DataUtils.getMainGroupId());
+            return String.valueOf(Main.dataUtils.getMainGroupId());
         return groupId;
     }
 

@@ -5,7 +5,7 @@ import bot.core.control.Session;
 import bot.core.model.Group;
 import bot.core.model.MessageContext;
 import bot.core.util.ChatUtils;
-import bot.core.util.DataUtils;
+import bot.core.Main;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.objects.User;
@@ -30,7 +30,7 @@ public class AddingInGroupMessageProcessor implements MessageProcessor {
         List<User> newMembers = ctx.getMessage().getNewChatMembers();
         if (newMembers == null || newMembers.isEmpty()) return false;
 
-        String botUsername = DataUtils.getBotName();
+        String botUsername = Main.dataUtils.getBotName();
 
         for (User user : newMembers) {
             if (Boolean.TRUE.equals(user.getIsBot()) && botUsername.equalsIgnoreCase(user.getUserName())) {
@@ -46,7 +46,7 @@ public class AddingInGroupMessageProcessor implements MessageProcessor {
         long chatId = ctx.getChatId();
         log.info("Bot added to new group");
 
-        Map<Object, Object> groups = DataUtils.getGroupList();
+        Map<Object, Object> groups = Main.dataUtils.getGroupList();
         String chatIdStr = Long.toString(chatId);
 
         if (groups.containsValue(chatIdStr)) {

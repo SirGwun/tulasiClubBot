@@ -1,6 +1,6 @@
 package bot.core.model;
 
-import bot.core.util.DataUtils;
+import bot.core.Main;
 import org.telegram.telegrambots.meta.api.objects.Message;
 
 public class MessageContext  {
@@ -14,7 +14,7 @@ public class MessageContext  {
     }
 
     public boolean isFromAdmin() {
-        return message.getChatId() == DataUtils.getAdminID();
+        return message.getChatId() == Main.dataUtils.getAdminID();
     }
 
     public boolean isCommand() {
