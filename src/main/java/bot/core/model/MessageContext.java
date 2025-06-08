@@ -6,15 +6,12 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 public class MessageContext  {
     private final Message message;
 
-    private final long chatId;
-
     public MessageContext(Message message) {
         this.message = message;
-        this.chatId = message.getChatId();
     }
 
     public boolean isFromAdmin() {
-        return message.getChatId() == DataUtils.getAdminID();
+        return message.getFrom().getId() == DataUtils.getAdminID();
     }
 
     public boolean isCommand() {
@@ -24,6 +21,10 @@ public class MessageContext  {
     public boolean isFromGroup() {
         String type = message.getChat().getType();
         return type.equals("group") || type.equals("supergroup") || message.getChat().isChannelChat() || message.isChannelMessage();
+    }
+
+    public String getChatName() {
+        return message.getChat().getTitle();
     }
 
     public String getText() {
@@ -42,11 +43,15 @@ public class MessageContext  {
         return message.hasText();
     }
 
-    public long getChatId() {
-        return chatId;
-    }
-
     public Message getMessage() {
         return message;
+    }
+
+    public long getFromId() {
+        return message.getFrom().getId();
+    }
+
+    public long getChatId() {
+        return message.getChatId();
     }
 }

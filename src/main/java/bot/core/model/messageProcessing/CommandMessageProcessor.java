@@ -16,7 +16,7 @@ public class CommandMessageProcessor implements MessageProcessor {
 
     @Override
     public void process(MessageContext message, Session session) {
-        CommandHandler handler = new CommandHandler(session.getState(), message.getChatId());
+        CommandHandler handler = new CommandHandler(session.getState(), message.getFromId());
         handler.handle(message);
     }
 }

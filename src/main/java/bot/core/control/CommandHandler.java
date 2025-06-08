@@ -56,9 +56,6 @@ public class CommandHandler {
                 handleCatalogCommand();
                 break;
             //***************
-            case "/new_group":
-                handleNewGroupCommand();
-                break;
             case "/cancel":
                 handleCancelCommand();
                 break;
@@ -155,12 +152,6 @@ public class CommandHandler {
         for (String message : messages) {
             ChatUtils.sendMessage(userId, message);
         }
-    }
-
-    private void handleNewGroupCommand() {
-        log.info("User {} create new group", userId);
-        ChatUtils.sendMessage(userId, "Введите название новой группы");
-        state.waitGroupName();
     }
 
     private void handleCancelCommand() {

@@ -24,7 +24,6 @@ public class PaymentBot extends TelegramLongPollingBot {
     HistoryForwardProcessor historyForwardProcessor  = new HistoryForwardProcessor();
     List<MessageProcessor> processors = Arrays.asList(
             new CommandMessageProcessor(),
-            new SetGroupNameProcessor(),
             new EditInfoProcessor(),
             new EditHelpProcessor(),
             new AddingInGroupMessageProcessor(),
@@ -38,7 +37,7 @@ public class PaymentBot extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         log.info(update.toString());
-        if (update.hasMessage() || update.hasChatMember()) {
+        if (update.hasMessage()) {
             handleIncomingMessage(update.getMessage());
         } else if (update.hasCallbackQuery()) {
             callbackHandler.handleCallbackQuery(update.getCallbackQuery());
@@ -46,10 +45,13 @@ public class PaymentBot extends TelegramLongPollingBot {
     }
 
     private void handleIncomingMessage(Message message) {
+        long fromId = message.getFrom().getId();
         long chatId = message.getChatId();
-        log.info("Получено новое сообщение от {}", chatId);
 
-        Session session = Main.getSessionByUser().computeIfAbsent(chatId, id -> new Session(chatId));
+        log.info("Получено новое сообщение от {}", fromId);
+        log.info("Оно касается действий в {} - {}", chatId, message.getChat().getTitle());
+
+        Session session = Main.getSessionByUser().computeIfAbsent(fromId, id -> new Session(chatId));
 
         MessageContext ctx = new MessageContext(message);
 
@@ -85,7 +87,6 @@ public class PaymentBot extends TelegramLongPollingBot {
 
         // Команды для администраторов
         List<BotCommand> adminCommands = new ArrayList<>();
-        adminCommands.add(new BotCommand("/new_group", "Добавить группу"));
         adminCommands.add(new BotCommand("/set_group", "Установить текущую группу"));
         adminCommands.add(new BotCommand("/del", "Удалить группу"));
         adminCommands.add(new BotCommand("/edit_info", "Изменить информацию"));
