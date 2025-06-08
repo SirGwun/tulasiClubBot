@@ -211,5 +211,9 @@ public final class ChatUtils {
             log.error("Ошибка при добавлении пользователя в группу \n {}", e.getMessage());
         }
     }
+
+    public static void addInGroup(long userId, Long groupId) {
+        addInGroup(userId, Main.dataUtils.getGroupName(groupId));
+    }
 }
 
