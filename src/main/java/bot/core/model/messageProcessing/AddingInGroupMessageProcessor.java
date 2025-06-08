@@ -37,7 +37,7 @@ public class AddingInGroupMessageProcessor implements MessageProcessor {
         return false;
     }
 
-
+    //todo Изменить способ хранения и валидации групп чтобы можно было хранить имена групп с любыми символами
     @Override
     public void process(MessageContext ctx, Session session) {
         long chatId = ctx.getChatId();

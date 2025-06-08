@@ -68,6 +68,7 @@ public final class ChatUtils {
     /**
      * Keyboard containing all groups available for user.
      */
+    //todo типизировать groupList
     public static InlineKeyboardMarkup getAllGroupKeyboard(long userId, String callBack) {
         Properties groupList = DataUtils.getGroupList();
 
@@ -75,6 +76,7 @@ public final class ChatUtils {
         for (Map.Entry<Object, Object> group : groupList.entrySet()) {
             String groupId = group.getValue().toString();
             boolean botIsAdmin = GroupUtils.isBotAdminInGroup(groupId);
+
             if (userId == DataUtils.getAdminID() || botIsAdmin) {
                 String groupName = group.getKey().toString();
                 switch (callBack) {

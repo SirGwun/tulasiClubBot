@@ -123,6 +123,7 @@ public class CommandHandler {
         ChatUtils.sendMessage(userId, START_MESSAGE);
     }
 
+
     private void handleSetGroupCommand() {
         log.info("User {} set group", userId);
         InlineKeyboardMarkup allGroupKeyboard = ChatUtils.getAllGroupKeyboard(userId, "setGroup");
@@ -132,8 +133,9 @@ public class CommandHandler {
             return;
         }
 
+        //todo научится различать такие группы и по разному их обрабатывать
         if (MessageUtils.hasExceptedGroup(allGroupKeyboard)) {
-            ChatUtils.sendMessage(userId, "Группы помеченные \"!\" либо не существуют, либо бот не является в них админом\n\nРекомендую их удалить");
+            ChatUtils.sendMessage(userId, "В группах помеченных ! бот либо не является админом, либо их не существует");
         }
         ChatUtils.sendInlineKeyboard(userId, "Выберите группу", allGroupKeyboard);
     }
