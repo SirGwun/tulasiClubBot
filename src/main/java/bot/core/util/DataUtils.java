@@ -9,19 +9,40 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
-
+/**
+ * Utility class that stores configuration and helper data for the bot.
+ * All state is kept in instance fields instead of static ones.
+ */
 public class DataUtils {
-    private static String botName = "tulasiClubBot";
-    private static String botToken;
-    private static long adminChatID;
-    private static long mainGroupID;
-    private static String info;
-    private static String help;
-    private static final Properties config = new Properties();
-    private static final Properties groupList = new Properties();
+    private final String configPath;
+    private final String groupListPath;
+    private final String helpPath;
+    private final String infoPath;
+    private final String catalogPath;
 
-    static {
-        if (System.getenv("AMVERA") != null && System.getenv("AMVERA").equals("1")) {
+    private String botName = "tulasiClubBot";
+    private String botToken;
+    private long adminChatID;
+    private long mainGroupID;
+    private String info;
+    private String help;
+    private final Properties config = new Properties();
+    private final Properties groupList = new Properties();
+
+    /**
+     * Create a new instance and load configuration and group list.
+     * Paths are resolved depending on the environment.
+     */
+    public DataUtils() {
+        boolean amvera = System.getenv("AMVERA") != null && System.getenv("AMVERA").equals("1");
+        String base = amvera ? "/data/" : "data/";
+        this.configPath = base + "config.properties";
+        this.groupListPath = base + "groupList.properties";
+        this.helpPath = base + "help.txt";
+        this.infoPath = base + "info.txt";
+        this.catalogPath = base + "catalog.txt";
+
+        if (amvera) {
             botToken = System.getenv("BOTTOCKEN");
             System.out.println("Загружен токен");
             System.out.println("AMVERA");
@@ -35,19 +56,18 @@ public class DataUtils {
                 botToken = secretProperties.getProperty("botToken");
                 System.out.println("Загружен токен");
                 System.out.println("local");
-            } catch (FileNotFoundException ex) {
-                Main.log.error("unable to find secret.properties: {}", ex.getMessage());
             } catch (IOException ex) {
                 Main.log.error("unable to read secret.properties: {}", ex.getMessage());
             }
         }
+
         loadConfig();
         loadGroupList();
     }
 
-    public static boolean updateConfig(String kay, String value) {
-        if (config.containsKey(kay)) {
-            config.setProperty(kay, value);
+    public boolean updateConfig(String key, String value) {
+        if (config.containsKey(key)) {
+            config.setProperty(key, value);
             saveConfig();
             loadConfig();
             return true;
@@ -55,42 +75,23 @@ public class DataUtils {
         return false;
     }
 
-    public static boolean addNewGroup(String name, long id) {
+    public boolean addNewGroup(String name, long id) {
         groupList.put(name, String.valueOf(id));
         saveGroupList();
         loadGroupList();
         return groupList.containsKey(name);
     }
 
-    private static void saveConfig() {
-        OutputStream configOutput = null;
-        try {
-            if (System.getenv("AMVERA") != null && System.getenv("AMVERA").equals("1")) {
-                configOutput = new FileOutputStream("/data/config.properties");
-            } else {
-                configOutput = new FileOutputStream("data/config.properties");
-            }
+    private void saveConfig() {
+        try (OutputStream configOutput = new FileOutputStream(configPath)) {
             config.store(configOutput, null);
         } catch (IOException ex) {
             Main.log.error("Can't save config {}", ex.getMessage());
-        } finally {
-            if (configOutput != null) {
-                try {
-                    configOutput.close();
-                } catch (IOException ex) {
-                    Main.log.error("Unable to close конфиг file : {}", ex.getMessage());
-                }
-            }
         }
     }
-    private static void loadConfig() {
-        InputStream configInput = null;
-        try {
-            if (System.getenv("AMVERA") != null && System.getenv("AMVERA").equals("1")) {
-                configInput = new FileInputStream("/data/config.properties");
-            } else {
-                configInput = new FileInputStream("data/config.properties");
-            }
+
+    private void loadConfig() {
+        try (InputStream configInput = new FileInputStream(configPath)) {
             config.load(configInput);
             adminChatID = Long.parseLong(config.getProperty("adminChatID"));
             mainGroupID = Long.parseLong(config.getProperty("groupID"));
@@ -98,73 +99,36 @@ public class DataUtils {
             Main.log.error("Не удалось загрузить конфиг {}", ex.getMessage());
         } catch (IOException ex) {
             Main.log.error("Unable to read конфиг file : {}", ex.getMessage());
-        } finally {
-            if (configInput != null) {
-                try {
-                    configInput.close();
-                } catch (IOException ex) {
-                    Main.log.error("Unable to close конфиг file : {}", ex.getMessage());
-                }
-            }
         }
     }
 
-    public static Properties getGroupList() {
+    public Properties getGroupList() {
         return groupList;
     }
 
-    private static void loadGroupList() {
-        InputStream groupListInput = null;
-        try {
-            if (System.getenv("AMVERA") != null && System.getenv("AMVERA").equals("1")) {
-                groupListInput = new FileInputStream("/data/groupList.properties");
-            } else {
-                groupListInput = new FileInputStream("data/groupList.properties");
-            }
+    private void loadGroupList() {
+        try (InputStream groupListInput = new FileInputStream(groupListPath)) {
             groupList.load(groupListInput);
         } catch (FileNotFoundException ex) {
             Main.log.error("Не удалось загрузить groupList {}", ex.getMessage());
         } catch (IOException ex) {
             Main.log.error("Unable to read groupList file : {}", ex.getMessage());
-        } finally {
-            if (groupListInput != null) {
-                try {
-                    groupListInput.close();
-                } catch (IOException ex) {
-                    Main.log.error("Unable to close groupList file : {}", ex.getMessage());
-                }
-            }
         }
     }
 
-    private static void saveGroupList() {
-        OutputStream groupListOutput = null;
-        try {
-            if (System.getenv("AMVERA") != null && System.getenv("AMVERA").equals("1")) {
-                groupListOutput = new FileOutputStream("/data/groupList.properties");
-            } else {
-                groupListOutput = new FileOutputStream("data/groupList.properties");
-            }
+    private void saveGroupList() {
+        try (OutputStream groupListOutput = new FileOutputStream(groupListPath)) {
             groupList.store(groupListOutput, null);
         } catch (IOException ex) {
             Main.log.error("Can't save groupList {}", ex.getMessage());
-        } finally {
-            if (groupListOutput != null) {
-                try {
-                    groupListOutput.close();
-                } catch (IOException ex) {
-                    Main.log.error("Unable to close groupList file : {}", ex.getMessage());
-                }
-            }
         }
     }
 
-
-    public static String getBotToken() {
+    public String getBotToken() {
         return botToken;
     }
 
-    public static void testMode() {
+    public void testMode() {
         setBotName("harmoniousNutritionBot");
         Properties secretProperties = new Properties();
         try (InputStream input = DataUtils.class.getClassLoader().getResourceAsStream("secret.properties")) {
@@ -175,30 +139,25 @@ public class DataUtils {
         }
     }
 
-    //todo передeлать чтобы возвращала список
-    public static long getAdminID() {
+    public long getAdminID() {
         return adminChatID;
     }
 
-    public static long getMainGroupId() {
+    public long getMainGroupId() {
         return mainGroupID;
     }
 
-    public static String getBotName() {
+    public String getBotName() {
         return botName;
     }
 
-    public static void setBotName(String botName) {
-        DataUtils.botName = botName;
+    public void setBotName(String botName) {
+        this.botName = botName;
     }
 
-    public static String getHelp() {
+    public String getHelp() {
         if (help == null) {
-            String filePath = (System.getenv("AMVERA") != null && System.getenv("AMVERA").equals("1"))
-                    ? "/data/help.txt"
-                    : "data/help.txt";
-
-            try (InputStream input = new FileInputStream(filePath)) {
+            try (InputStream input = new FileInputStream(helpPath)) {
                 help = IOUtils.toString(input, StandardCharsets.UTF_8);
             } catch (FileNotFoundException e) {
                 Main.log.error("Не удалось загрузить help.txt", e);
@@ -209,26 +168,18 @@ public class DataUtils {
         return help;
     }
 
-    public static void setHelp(String help) {
-        DataUtils.help = help;
-
-        String filePath = (System.getenv("AMVERA") != null && System.getenv("AMVERA").equals("1"))
-                ? "/data/help.txt"
-                : "data/help.txt";
-        try (OutputStream output = new FileOutputStream(filePath)) {
+    public void setHelp(String help) {
+        this.help = help;
+        try (OutputStream output = new FileOutputStream(helpPath)) {
             IOUtils.write(help, output, StandardCharsets.UTF_8);
         } catch (IOException e) {
             Main.log.error("Не удалось сохранить help.txt", e);
         }
     }
 
-    public static String getInfo() {
+    public String getInfo() {
         if (info == null) {
-            String filePath = (System.getenv("AMVERA") != null && System.getenv("AMVERA").equals("1"))
-                    ? "/data/info.txt"
-                    : "data/info.txt";
-
-            try (InputStream input = new FileInputStream(filePath)) {
+            try (InputStream input = new FileInputStream(infoPath)) {
                 info = IOUtils.toString(input, StandardCharsets.UTF_8);
             } catch (FileNotFoundException e) {
                 Main.log.error("Не удалось загрузить info.txt", e);
@@ -239,24 +190,20 @@ public class DataUtils {
         return info;
     }
 
-    public static void setInfo(String info) {
-        DataUtils.info = info;
-
-        String filePath = (System.getenv("AMVERA") != null && System.getenv("AMVERA").equals("1"))
-                ? "/data/info.txt"
-                : "data/info.txt";
-        try (OutputStream output = new FileOutputStream(filePath)) {
+    public void setInfo(String info) {
+        this.info = info;
+        try (OutputStream output = new FileOutputStream(infoPath)) {
             IOUtils.write(info, output, StandardCharsets.UTF_8);
         } catch (IOException e) {
             Main.log.error("Не удалось сохранить info.txt", e);
         }
     }
 
-    public static String getHistroyID() {
+    public String getHistroyID() {
         return (String) config.get("history");
     }
 
-    public static void removeGroup(String groupId) {
+    public void removeGroup(String groupId) {
         boolean removed = false;
         Iterator<Map.Entry<Object, Object>> iterator = groupList.entrySet().iterator();
         while (iterator.hasNext()) {
@@ -276,8 +223,8 @@ public class DataUtils {
         }
     }
 
-    public static String getGroupName(long groupID) {
-        for (Map.Entry<Object, Object> group: groupList.entrySet()) {
+    public String getGroupName(long groupID) {
+        for (Map.Entry<Object, Object> group : groupList.entrySet()) {
             if (group.getValue().equals(String.valueOf(groupID))) {
                 return group.getKey().toString().replace("-", " ");
             }
@@ -285,14 +232,8 @@ public class DataUtils {
         return null;
     }
 
-    public static String getCatalog() {
-        try {
-            InputStream catalogInput = null;
-            if (System.getenv("AMVERA") != null && System.getenv("AMVERA").equals("1")) {
-                catalogInput = new FileInputStream("/data/catalog.txt");
-            } else {
-                catalogInput = new FileInputStream("data/catalog.txt");
-            }
+    public String getCatalog() {
+        try (InputStream catalogInput = new FileInputStream(catalogPath)) {
             return IOUtils.toString(catalogInput, StandardCharsets.UTF_8);
         } catch (FileNotFoundException ex) {
             Main.log.error("Не удалось загрузить каталог {}", ex.getMessage());
@@ -302,3 +243,4 @@ public class DataUtils {
         return null;
     }
 }
+

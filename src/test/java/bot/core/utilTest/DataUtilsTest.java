@@ -1,7 +1,5 @@
-package bot.core.utilTest;
+package bot.core.util;
 
-import bot.core.DataSincroniser;
-import bot.core.util.DataUtils;
 import org.junit.*;
 
 import java.io.IOException;
@@ -9,16 +7,16 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.Properties;
-import java.lang.reflect.Field;
+
 
 import static org.junit.Assert.*;
 
 public class DataUtilsTest {
-    private static final Path DATA_DIR = Paths.get("src","test", "testData");
+    private static final Path DATA_DIR = Paths.get("data");
+    private DataUtils dataUtils;
 
     @BeforeClass
     public static void setUpClass() throws Exception {
-        DataSincroniser.sincronise();
         Files.createDirectories(DATA_DIR);
 
         Properties config = new Properties();
@@ -40,72 +38,70 @@ public class DataUtilsTest {
         Files.writeString(DATA_DIR.resolve("catalog.txt"), "Catalog content", StandardCharsets.UTF_8);
     }
 
-    private void setStaticField(String name, Object value) throws Exception {
-        Field f = DataUtils.class.getDeclaredField(name);
-        f.setAccessible(true);
-        f.set(null, value);
+
+    @Before
+    public void setUp() {
+        dataUtils = new DataUtils();
     }
 
     @Test
     public void testGetBotToken() {
-        assertEquals("prodToken", DataUtils.getBotToken());
+        assertEquals("prodToken", dataUtils.getBotToken());
     }
 
     @Test
     public void testTestMode() throws Exception {
-        DataUtils.testMode();
-        assertEquals("harmoniousNutritionBot", DataUtils.getBotName());
-        assertEquals("testToken", DataUtils.getBotToken());
-        // restore
-        setStaticField("botName", "tulasiClubBot");
-        setStaticField("botToken", "prodToken");
+        dataUtils.testMode();
+        assertEquals("harmoniousNutritionBot", dataUtils.getBotName());
+        assertEquals("testToken", dataUtils.getBotToken());
+        dataUtils = new DataUtils();
     }
 
     @Test
     public void testUpdateConfig() {
-        assertTrue(DataUtils.updateConfig("adminChatID", "33"));
-        assertEquals(33L, DataUtils.getAdminID());
-        assertFalse(DataUtils.updateConfig("unknown", "1"));
+        assertTrue(dataUtils.updateConfig("adminChatID", "33"));
+        assertEquals(33L, dataUtils.getAdminID());
+        assertFalse(dataUtils.updateConfig("unknown", "1"));
     }
 
     @Test
     public void testAddNewGroupAndRemove() {
-        assertTrue(DataUtils.addNewGroup("new-group", 555));
-        assertEquals("new group", DataUtils.getGroupName(555));
-        DataUtils.removeGroup(String.valueOf(555));
-        assertNull(DataUtils.getGroupName(555));
+        assertTrue(dataUtils.addNewGroup("new-group", 555));
+        assertEquals("new group", dataUtils.getGroupName(555));
+        dataUtils.removeGroup(String.valueOf(555));
+        assertNull(dataUtils.getGroupName(555));
     }
 
     @Test
     public void testGetGroupList() {
-        assertNotNull(DataUtils.getGroupList());
+        assertNotNull(dataUtils.getGroupList());
     }
 
     @Test
     public void testBotNameSet() {
-        DataUtils.setBotName("anotherBot");
-        assertEquals("anotherBot", DataUtils.getBotName());
+        dataUtils.setBotName("anotherBot");
+        assertEquals("anotherBot", dataUtils.getBotName());
     }
 
     @Test
     public void testHelp() throws IOException {
-        DataUtils.setHelp("new help");
-        assertEquals("new help", DataUtils.getHelp());
+        dataUtils.setHelp("new help");
+        assertEquals("new help", dataUtils.getHelp());
     }
 
     @Test
     public void testInfo() throws IOException {
-        DataUtils.setInfo("information");
-        assertEquals("information", DataUtils.getInfo());
+        dataUtils.setInfo("information");
+        assertEquals("information", dataUtils.getInfo());
     }
 
     @Test
     public void testHistory() {
-        assertEquals("hist", DataUtils.getHistroyID());
+        assertEquals("hist", dataUtils.getHistroyID());
     }
 
     @Test
     public void testCatalog() {
-        assertEquals("Catalog content", DataUtils.getCatalog());
+        assertEquals("Catalog content", dataUtils.getCatalog());
     }
 }

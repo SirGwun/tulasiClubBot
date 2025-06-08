@@ -70,14 +70,13 @@ public final class ChatUtils {
      */
     //todo типизировать groupList
     public static InlineKeyboardMarkup getAllGroupKeyboard(long userId, String callBack) {
-        Properties groupList = DataUtils.getGroupList();
+        Properties groupList = Main.dataUtils.getGroupList();
 
         List<InlineKeyboardButton> buttons = new ArrayList<>();
         for (Map.Entry<Object, Object> group : groupList.entrySet()) {
             String groupId = group.getValue().toString();
             boolean botIsAdmin = GroupUtils.isBotAdminInGroup(groupId);
-
-            if (userId == DataUtils.getAdminID() || botIsAdmin) {
+            if (userId == Main.dataUtils.getAdminID() || botIsAdmin) {
                 String groupName = group.getKey().toString();
                 switch (callBack) {
                     case "setGroup" -> buttons.add(createSetGroupButton(groupName, groupId, botIsAdmin));

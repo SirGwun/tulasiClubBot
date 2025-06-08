@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Main {
     public static final Logger log = LoggerFactory.getLogger(Main.class);
     public static PaymentBot bot;
+    public static DataUtils dataUtils;
     public static Map<Long, Session> sessionByUser = new ConcurrentHashMap<>();
     public static boolean isTest = false;
 
@@ -31,9 +32,10 @@ public class Main {
 
     public static void init() {
         try {
+            dataUtils = new DataUtils();
             if (isTest) {
                 log.info("Тестовый режим");
-                DataUtils.testMode();
+                dataUtils.testMode();
             } else {
                 //во избежание работы 2 инстенсов на продакшене и ошибок, с этим связаных
                 try {
@@ -42,7 +44,7 @@ public class Main {
                     log.error("Error sleep {}", e.getMessage());
                 }
             }
-            bot = new PaymentBot(DataUtils.getBotToken());
+            bot = new PaymentBot(dataUtils.getBotToken());
             TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
             telegramBotsApi.registerBot(bot);
         } catch (TelegramApiException e) {
