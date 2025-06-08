@@ -2,18 +2,20 @@ package bot.core.util;
 
 import bot.core.Main;
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Utility class that stores configuration and helper data for the bot.
  * All state is kept in instance fields instead of static ones.
  */
-public class DataUtils {
+public final class DataUtils {
+    private final static Logger log = LoggerFactory.getLogger(DataUtils.class);
+
     private final String configPath;
     private final String groupListPath;
     private final String helpPath;
@@ -27,7 +29,7 @@ public class DataUtils {
     private String info;
     private String help;
     private final Properties config = new Properties();
-    private final Properties groupList = new Properties();
+    private Map<String, Long> groupList = new HashMap<>();
 
     /**
      * Create a new instance and load configuration and group list.
@@ -37,7 +39,7 @@ public class DataUtils {
         boolean amvera = System.getenv("AMVERA") != null && System.getenv("AMVERA").equals("1");
         String base = amvera ? "/data/" : "data/";
         this.configPath = base + "config.properties";
-        this.groupListPath = base + "groupList.properties";
+        this.groupListPath = base + "groupList.ser";
         this.helpPath = base + "help.txt";
         this.infoPath = base + "info.txt";
         this.catalogPath = base + "catalog.txt";
@@ -76,7 +78,7 @@ public class DataUtils {
     }
 
     public boolean addNewGroup(String name, long id) {
-        groupList.put(name, String.valueOf(id));
+        groupList.put(name, id);
         saveGroupList();
         loadGroupList();
         return groupList.containsKey(name);
@@ -102,25 +104,27 @@ public class DataUtils {
         }
     }
 
-    public Properties getGroupList() {
+    public Map<String, Long> getGroupList() {
         return groupList;
     }
 
     private void loadGroupList() {
-        try (InputStream groupListInput = new FileInputStream(groupListPath)) {
-            groupList.load(groupListInput);
+        try (ObjectInputStream groupListInput = new ObjectInputStream(new FileInputStream(groupListPath))) {
+            groupList = (Map<String, Long>) groupListInput.readObject();
         } catch (FileNotFoundException ex) {
-            Main.log.error("Не удалось загрузить groupList {}", ex.getMessage());
+            log.error("Не удалось найти файл {}", groupListPath);
         } catch (IOException ex) {
-            Main.log.error("Unable to read groupList file : {}", ex.getMessage());
+            log.error("Unable to read groupList file: {}", ex.getMessage());
+        } catch (ClassNotFoundException e) {
+            log.error("Не удалось десериализовать groupList {}", e.getMessage());
         }
     }
 
     private void saveGroupList() {
-        try (OutputStream groupListOutput = new FileOutputStream(groupListPath)) {
-            groupList.store(groupListOutput, null);
+        try (ObjectOutputStream groupListOutput = new ObjectOutputStream(new FileOutputStream(groupListPath))) {
+            groupListOutput.writeObject(groupList);
         } catch (IOException ex) {
-            Main.log.error("Can't save groupList {}", ex.getMessage());
+            log.error("Can't save groupList {}", ex.getMessage());
         }
     }
 
@@ -139,7 +143,7 @@ public class DataUtils {
         }
     }
 
-    public long getAdminID() {
+    public long getAdminId() {
         return adminChatID;
     }
 
@@ -199,34 +203,32 @@ public class DataUtils {
         }
     }
 
-    public String getHistroyID() {
+    public String getHistroyId() {
         return (String) config.get("history");
     }
 
-    public void removeGroup(String groupId) {
-        boolean removed = false;
-        Iterator<Map.Entry<Object, Object>> iterator = groupList.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<Object, Object> group = iterator.next();
-            if (group.getValue().equals(groupId)) {
-                iterator.remove();
-                removed = true;
-                break;
+    public void removeGroup(Long groupId) {
+        for (Map.Entry<String, Long> entry : groupList.entrySet()) {
+            String name = entry.getKey();
+            Long id = entry.getValue();
+
+            if (Objects.equals(id, groupId)) {
+                groupList.remove(name, id);
+                log.info("Группа {} удалена из списка", name);
+                saveGroupList();
+                return;
             }
         }
-        if (removed) {
-            Main.log.info("Группа {} удалена из списка", groupId);
-            saveGroupList();
-            loadGroupList();
-        } else {
-            Main.log.info("Группа {} не найдена в списке", groupId);
-        }
+        Main.log.info("Группа {} не найдена в списке", groupId);
     }
 
-    public String getGroupName(long groupID) {
-        for (Map.Entry<Object, Object> group : groupList.entrySet()) {
-            if (group.getValue().equals(String.valueOf(groupID))) {
-                return group.getKey().toString().replace("-", " ");
+    public String getGroupName(long groupId) {
+        for (Map.Entry<String, Long> entry : groupList.entrySet()) {
+            String name = entry.getKey();
+            Long id = entry.getValue();
+
+            if (Objects.equals(groupId, id)) {
+                return name;
             }
         }
         return null;

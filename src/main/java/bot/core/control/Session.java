@@ -4,7 +4,7 @@ import bot.core.Main;
 
 public class Session {
     long userId;
-    String groupId;
+    Long groupId;
     SessionState state;
 
     public Session(long userId) {
@@ -12,13 +12,13 @@ public class Session {
         state = new SessionState();
     }
 
-    public String getGroupId() {
+    public Long getGroupId() {
         if (groupId == null)
-            return String.valueOf(Main.dataUtils.getMainGroupId());
+            return Main.dataUtils.getMainGroupId();
         return groupId;
     }
 
-    public void setGroupId(String groupId) {
+    public void setGroupId(Long groupId) {
         this.groupId = groupId;
     }
 

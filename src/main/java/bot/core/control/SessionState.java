@@ -25,7 +25,6 @@ public class SessionState {
     public EditingActions cansel() {
         EditingActions currentAction = action;
         action = EditingActions.NONE;
-        pendingGroupName = null;
         return currentAction;
     }
 }

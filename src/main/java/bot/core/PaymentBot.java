@@ -4,8 +4,6 @@ import bot.core.control.CallbackHandler;
 import bot.core.control.Session;
 import bot.core.model.MessageContext;
 import bot.core.model.messageProcessing.*;
-import bot.core.util.DataUtils;
-import bot.core.util.ChatUtils;
 import bot.core.validator.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,7 +93,7 @@ public class PaymentBot extends TelegramLongPollingBot {
         adminCommands.add(new BotCommand("/cancel", "Отменить действие"));
         try {
             execute(new SetMyCommands(defaultCommands, new BotCommandScopeAllPrivateChats(), null));
-            execute(new SetMyCommands(adminCommands, new BotCommandScopeChat(Long.toString(Main.dataUtils.getAdminID())), null));
+            execute(new SetMyCommands(adminCommands, new BotCommandScopeChat(Long.toString(Main.dataUtils.getAdminId())), null));
         } catch (Exception e) {
             log.error("Error setting bot commands {}", e.getMessage());
         }

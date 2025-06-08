@@ -3,7 +3,6 @@ package bot.core.validator;
 import bot.core.Main;
 import bot.core.model.MessageContext;
 import bot.core.util.ChatUtils;
-import bot.core.Main;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
@@ -48,14 +47,14 @@ public class Validator {
 
         try {
             ForwardMessage forwardMessage = new ForwardMessage();
-            forwardMessage.setChatId(Main.dataUtils.getAdminID());
+            forwardMessage.setChatId(Main.dataUtils.getAdminId());
             forwardMessage.setFromChatId(ctx.getChatId());
             forwardMessage.setMessageId(ctx.getMessage().getMessageId());
             Message forwardedMessage = Main.bot.execute(forwardMessage);
 
             // Отправляем сообщение с кнопками
             SendMessage sendMessage = new SendMessage();
-            sendMessage.setChatId(Main.dataUtils.getAdminID());
+            sendMessage.setChatId(Main.dataUtils.getAdminId());
             sendMessage.setText("Примите или отклоните пользователя");
             sendMessage.setReplyMarkup(ChatUtils.getValidationKeyboard(forwardedMessage.getMessageId(), userId));
             Main.bot.execute(sendMessage);

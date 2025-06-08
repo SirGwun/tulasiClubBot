@@ -4,11 +4,12 @@ import bot.core.model.EditingActions;
 import bot.core.model.MessageContext;
 import bot.core.Main;
 import bot.core.util.ChatUtils;
-import bot.core.util.MessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CommandHandler {
@@ -32,7 +33,7 @@ public class CommandHandler {
     }
 
     public void handleCommand(String command) {
-        if (userId == Main.dataUtils.getAdminID()) {
+        if (userId == Main.dataUtils.getAdminId()) {
             handleAdminCommand(command);
         } else {
            handleUserCommand(command);
@@ -126,7 +127,7 @@ public class CommandHandler {
 
     private void handleSetGroupCommand() {
         log.info("User {} set group", userId);
-        InlineKeyboardMarkup allGroupKeyboard = ChatUtils.getAllGroupKeyboard(userId, "setGroup");
+        InlineKeyboardMarkup allGroupKeyboard = ChatUtils.getAllGroupKeyboard("setGroup", userId);
 
         if (allGroupKeyboard.getKeyboard().isEmpty()) {
             ChatUtils.sendMessage(userId, "Нет доступных групп");
@@ -134,10 +135,22 @@ public class CommandHandler {
         }
 
         //todo научится различать такие группы и по разному их обрабатывать
-        if (MessageUtils.hasExceptedGroup(allGroupKeyboard)) {
-            ChatUtils.sendMessage(userId, "В группах помеченных ! бот либо не является админом, либо их не существует");
+        if (hasExceptedGroup(allGroupKeyboard)) {
+            ChatUtils.sendMessage(userId, "В группах помеченных ! бот либо не является админом, либо их больше не существует");
         }
         ChatUtils.sendInlineKeyboard(userId, "Выберите группу", allGroupKeyboard);
+    }
+
+    private boolean hasExceptedGroup(InlineKeyboardMarkup allGroupKeyboard) {
+        boolean hasGroupException = false;
+        for (List<InlineKeyboardButton> row : allGroupKeyboard.getKeyboard()) {
+            for (InlineKeyboardButton button : row) {
+                if (button.getText().startsWith("!")) {
+                    hasGroupException = true;
+                }
+            }
+        }
+        return hasGroupException;
     }
 
     private void handleCatalogCommand() {
@@ -150,10 +163,35 @@ public class CommandHandler {
             return;
         }
 
-        List<String> messages = MessageUtils.splitMessage(catalog, 4096);
+        List<String> messages = splitMessage(catalog, 4096);
         for (String message : messages) {
             ChatUtils.sendMessage(userId, message);
         }
+    }
+
+    private List<String> splitMessage(String text, int maxLength) {
+        List<String> messages = new ArrayList<>();
+        int start = 0;
+        while (start < text.length()) {
+            int end = Math.min(start + maxLength, text.length());
+
+            if (end < text.length() && !Character.isWhitespace(text.charAt(end))) {
+                int lastSpace = text.lastIndexOf(' ', end);
+                int lastNewLine = text.lastIndexOf('\n', end);
+                int breakPoint = Math.max(lastSpace, lastNewLine);
+                if (breakPoint > start) {
+                    end = breakPoint;
+                }
+            }
+
+            messages.add(text.substring(start, end));
+            start = end;
+
+            while (start < text.length() && Character.isWhitespace(text.charAt(start))) {
+                start++;
+            }
+        }
+        return messages;
     }
 
     private void handleCancelCommand() {
@@ -170,7 +208,7 @@ public class CommandHandler {
             return;
         }
 
-        InlineKeyboardMarkup allGroupKeyboard = ChatUtils.getAllGroupKeyboard(userId, "delGroup");
+        InlineKeyboardMarkup allGroupKeyboard = ChatUtils.getAllGroupKeyboard("delGroup" ,userId);
         ChatUtils.sendInlineKeyboard(userId, "Выберете группу для удаления", allGroupKeyboard);
     }
 

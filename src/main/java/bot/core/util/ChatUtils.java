@@ -1,11 +1,15 @@
 package bot.core.util;
 
 import bot.core.Main;
-import bot.core.model.Group;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.telegram.telegrambots.meta.api.methods.ParseMode;
+import org.telegram.telegrambots.meta.api.methods.groupadministration.CreateChatInviteLink;
+import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatAdministrators;
+import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatMemberCount;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
+import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -68,31 +72,24 @@ public final class ChatUtils {
     /**
      * Keyboard containing all groups available for user.
      */
-    //todo типизировать groupList
-    public static InlineKeyboardMarkup getAllGroupKeyboard(long userId, String callBack) {
-        Properties groupList = Main.dataUtils.getGroupList();
-
+    public static InlineKeyboardMarkup getAllGroupKeyboard(String callBack, Long userId) {
         List<InlineKeyboardButton> buttons = new ArrayList<>();
-        for (Map.Entry<Object, Object> group : groupList.entrySet()) {
-            String groupId = group.getValue().toString();
-            boolean botIsAdmin = GroupUtils.isBotAdminInGroup(groupId);
-            if (userId == Main.dataUtils.getAdminID() || botIsAdmin) {
-                String groupName = group.getKey().toString();
-                switch (callBack) {
-                    case "setGroup" -> buttons.add(createSetGroupButton(groupName, groupId, botIsAdmin));
-                    case "delGroup" -> buttons.add(createDeleteGroupButton(groupName, groupId, botIsAdmin));
-                    default -> buttons.add(createGroupButton(groupName, groupId, callBack, botIsAdmin));
-                }
+
+        for (Map.Entry<String, Long> entry : Main.dataUtils.getGroupList().entrySet()) {
+            String groupName = entry.getKey();
+            Long groupId = entry.getValue();
+
+            if (isBotAdminInGroup(groupId)) {
+                buttons.add(createButton(groupName, callBack + "_" + groupId));
+            } else if (Main.dataUtils.getAdminId() == userId) {
+                buttons.add(createButton("!" + groupName, callBack + "_" + groupId));
             }
         }
 
         buttons.sort(Comparator.comparing(InlineKeyboardButton::getText));
 
-        int columnCount = getColumnCount(buttons.size());
-        List<List<InlineKeyboardButton>> rows = distributeButtons(buttons, columnCount);
-
         InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup();
-        keyboard.setKeyboard(rows);
+        keyboard.setKeyboard(distributeButtons(buttons));
         return keyboard;
     }
 
@@ -119,37 +116,9 @@ public final class ChatUtils {
         return createButton("Отказываю", "decline_" + messageId + "_" + userId);
     }
 
-    /**
-     * Create button to choose a group for /set_group command.
-     * Callback format: {@code setGroup_<groupId>}.
-     */
-    private static InlineKeyboardButton createSetGroupButton(String name, String id, boolean isAdmin) {
-        return createGroupButton(name, id, "setGroup", isAdmin);
-    }
 
-    /**
-     * Create button to remove a group with /del command.
-     * Callback format: {@code delGroup_<groupId>}.
-     */
-    private static InlineKeyboardButton createDeleteGroupButton(String name, String id, boolean isAdmin) {
-        return createGroupButton(name, id, "delGroup", isAdmin);
-    }
-
-    /**
-     * Create button for confirming admin rights of the bot in a group.
-     * Callback format: {@code confirmAdmin_<groupId>}.
-     */
-    private static InlineKeyboardButton createConfirmAdminButton(Group group) {
-        return createButton(
-                "Бот администратор в " + group.getName().replace("-", " "),
-                "confirmAdmin_" + group.getId()
-        );
-    }
-
-    private static InlineKeyboardButton createGroupButton(String name, String id, String callBack, boolean isAdmin) {
-        String groupName = name.replace("-", " ");
-        String title = isAdmin ? groupName : "!" + groupName;
-        return createButton(title, callBack + "_" + id);
+    private static InlineKeyboardButton createGroupButton(String groupName, Long id, String callBack) {
+        return createButton(groupName, callBack + "_" + id);
     }
 
     private static int getColumnCount(int size) {
@@ -161,8 +130,10 @@ public final class ChatUtils {
         return 3;
     }
 
-    private static List<List<InlineKeyboardButton>> distributeButtons(List<InlineKeyboardButton> buttons, int columnCount) {
+    private static List<List<InlineKeyboardButton>> distributeButtons(List<InlineKeyboardButton> buttons) {
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+        int columnCount = getColumnCount(buttons.size());
+
         int totalRows = (int) Math.ceil((double) buttons.size() / columnCount);
         for (int rowIndex = 0; rowIndex < totalRows; rowIndex++) {
             List<InlineKeyboardButton> row = new ArrayList<>();
@@ -177,20 +148,6 @@ public final class ChatUtils {
         return rows;
     }
 
-    /**
-     * Keyboard to confirm admin rights of bot in group.
-     */
-    public static InlineKeyboardMarkup getConfirmAdminStatusKeyboard(Group group) {
-        InlineKeyboardButton button = createConfirmAdminButton(group);
-
-        InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup();
-        keyboard.setKeyboard(Collections.singletonList(Collections.singletonList(button)));
-        return keyboard;
-    }
-
-    /**
-     * Delete message in chat.
-     */
     public static void deleteMessage(long chatId, int messageId) {
         DeleteMessage deleteMessage = new DeleteMessage();
         deleteMessage.setChatId(chatId);
@@ -200,6 +157,58 @@ public final class ChatUtils {
             Main.log.info("Deleted message {}", messageId);
         } catch (TelegramApiException e) {
             Main.log.error("Ошибка при удалении сообщения", e);
+        }
+    }
+
+    public static CreateChatInviteLink createInviteLink(String groupId) {
+
+        CreateChatInviteLink inviteLink = new CreateChatInviteLink();
+        inviteLink.setChatId(groupId);
+        inviteLink.setName("Добро пожаловать на курс!");
+        inviteLink.setMemberLimit(1);
+
+        return inviteLink;
+    }
+
+    public static boolean isBotAdminInGroup(Long groupId) {
+        try {
+            // Проверяем, что группа существует, получив количество участников
+            GetChatMemberCount getChatMemberCount = new GetChatMemberCount(String.valueOf(groupId));
+            int memberCount = Main.bot.execute(getChatMemberCount);
+            if (memberCount > 0) {
+                // Получаем список администраторов группы
+                GetChatAdministrators getChatAdministrators = new GetChatAdministrators();
+                getChatAdministrators.setChatId(groupId);
+                List<ChatMember> admins = Main.bot.execute(getChatAdministrators);
+
+                // Проверяем, есть ли бот среди администраторов
+                String botUsername = Main.dataUtils.getBotName();
+                for (ChatMember admin : admins) {
+                    if (admin.getUser().getUserName().equals(botUsername)) {
+                        return true; // Бот является администратором в группе
+                    }
+                }
+            }
+        } catch (TelegramApiException e) {
+            log.info("Бот не адмистратор в группе {}", groupId);
+        }
+        return false; // Группа не существует или бот не является администратором
+    }
+
+    public static void addInGroup(long userId, String groupName) {
+        CreateChatInviteLink inviteLink;
+        inviteLink = createInviteLink(groupName);
+
+        try {
+            SendMessage message = new SendMessage();
+            message.setChatId(userId);
+            message.setText("Здравствуйте!\n\nОплата подтверждена. Для присоединения к группе перейдите по ссылке ниже:\n\n" +
+                    "<a href=\"" + Main.bot.execute(inviteLink).getInviteLink() + "\">Присоединиться к курсу</a>\n\n" +
+                    "Мы рады вас видеть!");
+            message.setParseMode(ParseMode.HTML);
+            Main.bot.execute(message);
+        } catch (TelegramApiException e) {
+            log.error("Ошибка при добавлении пользователя в группу \n {}", e.getMessage());
         }
     }
 }

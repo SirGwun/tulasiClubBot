@@ -4,7 +4,6 @@ import bot.core.control.Session;
 import bot.core.model.MessageContext;
 import bot.core.util.ChatUtils;
 import bot.core.Main;
-import bot.core.util.GroupUtils;
 import bot.core.validator.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,8 +38,8 @@ public class CommonMessageProcessor implements MessageProcessor {
         boolean valid = validator.isValidPayment(ctx.getMessage());
 
         if (valid) {
-            GroupUtils.addInGroup(userId, session.getGroupId());
-            ChatUtils.sendMessage(Long.parseLong(Main.dataUtils.getHistroyID()), "Добавлен в группу автопроверкой");
+            ChatUtils.addInGroup(userId, session.getGroupId());
+            ChatUtils.sendMessage(Long.parseLong(Main.dataUtils.getHistroyId()), "Добавлен в группу автопроверкой");
             log.info("Автоматическая проверка подтвердила оплату");
         } else {
             validator.sendOuHumanValidation(ctx);

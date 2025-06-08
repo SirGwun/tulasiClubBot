@@ -60,7 +60,7 @@ public class DataUtilsTest {
     @Test
     public void testUpdateConfig() {
         assertTrue(dataUtils.updateConfig("adminChatID", "33"));
-        assertEquals(33L, dataUtils.getAdminID());
+        assertEquals(33L, dataUtils.getAdminId());
         assertFalse(dataUtils.updateConfig("unknown", "1"));
     }
 
@@ -68,7 +68,7 @@ public class DataUtilsTest {
     public void testAddNewGroupAndRemove() {
         assertTrue(dataUtils.addNewGroup("new-group", 555));
         assertEquals("new group", dataUtils.getGroupName(555));
-        dataUtils.removeGroup(String.valueOf(555));
+        dataUtils.removeGroup(555L);
         assertNull(dataUtils.getGroupName(555));
     }
 
@@ -97,7 +97,7 @@ public class DataUtilsTest {
 
     @Test
     public void testHistory() {
-        assertEquals("hist", dataUtils.getHistroyID());
+        assertEquals("hist", dataUtils.getHistroyId());
     }
 
     @Test
