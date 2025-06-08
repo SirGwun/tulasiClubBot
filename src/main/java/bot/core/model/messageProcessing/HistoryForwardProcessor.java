@@ -4,7 +4,7 @@ import bot.core.Main;
 import bot.core.control.Session;
 import bot.core.control.SessionState;
 import bot.core.model.MessageContext;
-import bot.core.util.DataUtils;
+import bot.core.Main;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.ForwardMessage;
@@ -25,7 +25,7 @@ public class HistoryForwardProcessor implements MessageProcessor {
     @Override
     public void process(MessageContext message, Session session) {
         ForwardMessage forwardMessage = new ForwardMessage();
-        forwardMessage.setChatId(DataUtils.getHistroyID());
+        forwardMessage.setChatId(Main.dataUtils.getHistroyID());
         forwardMessage.setMessageId(message.getMessage().getMessageId());
         forwardMessage.setFromChatId(message.getChatId());
 

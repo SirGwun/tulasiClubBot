@@ -2,8 +2,8 @@ package bot.core.control;
 
 import bot.core.model.EditingActions;
 import bot.core.model.MessageContext;
+import bot.core.Main;
 import bot.core.util.ChatUtils;
-import bot.core.util.DataUtils;
 import bot.core.util.MessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +32,7 @@ public class CommandHandler {
     }
 
     public void handleCommand(String command) {
-        if (userId == DataUtils.getAdminID()) {
+        if (userId == Main.dataUtils.getAdminID()) {
             handleAdminCommand(command);
         } else {
            handleUserCommand(command);
@@ -143,7 +143,7 @@ public class CommandHandler {
 
     private void handleCatalogCommand() {
         log.info("user {} get /catalog command", userId);
-        String catalog = DataUtils.getCatalog();
+        String catalog = Main.dataUtils.getCatalog();
 
         if (catalog == null) {
             ChatUtils.sendMessage(userId, "Каталог пока пуст");
@@ -172,7 +172,7 @@ public class CommandHandler {
     private void handleDelCommand() {
         log.info("user {} get /del command", userId);
 
-        if (DataUtils.getGroupList().isEmpty()) {
+        if (Main.dataUtils.getGroupList().isEmpty()) {
             ChatUtils.sendMessage(userId, "Не найдено ни одной группы");
             return;
         }
@@ -182,11 +182,11 @@ public class CommandHandler {
     }
 
     private void handleInfoCommand() {
-        ChatUtils.sendMessage(userId, DataUtils.getInfo());
+        ChatUtils.sendMessage(userId, Main.dataUtils.getInfo());
     }
 
     private void handleHelpCommand() {
-        ChatUtils.sendMessage(userId, DataUtils.getHelp());
+        ChatUtils.sendMessage(userId, Main.dataUtils.getHelp());
     }
 
     private void handleEditInfoCommand() {

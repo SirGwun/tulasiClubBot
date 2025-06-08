@@ -2,7 +2,7 @@ package bot.core.control;
 
 import bot.core.Main;
 import bot.core.util.ChatUtils;
-import bot.core.util.DataUtils;
+import bot.core.Main;
 import bot.core.util.GroupUtils;
 import bot.core.util.MessageUtils;
 import org.slf4j.Logger;
@@ -74,8 +74,8 @@ public class CallbackHandler {
 
 
     private void handleDelGroupAction(long userID, int messageId, String groupId) {
-        if (DataUtils.getGroupList().containsValue(groupId)) {
-            DataUtils.removeGroup(groupId);
+        if (Main.dataUtils.getGroupList().containsValue(groupId)) {
+            Main.dataUtils.removeGroup(groupId);
             ChatUtils.sendMessage(userID, "Группа удалена");
             ChatUtils.deleteMessage(userID, messageId);
         } else {
@@ -95,7 +95,7 @@ public class CallbackHandler {
 
     private void handleSetGroupAction(String selectedGroupId, long selectingUserId, int callbackMessageId) {
         log.info("User {} set group {}", selectingUserId, selectedGroupId);
-        Properties groupList = DataUtils.getGroupList();
+        Properties groupList = Main.dataUtils.getGroupList();
         if (!groupList.containsValue(selectedGroupId)) {
             ChatUtils.sendMessage(selectingUserId, "Группа не найдена");
             return;
@@ -111,8 +111,8 @@ public class CallbackHandler {
         }
 
         if (GroupUtils.isBotAdminInGroup(groupID)) {
-            if (selectingUserId == DataUtils.getAdminID()) {
-                DataUtils.updateConfig("groupID", groupID);
+            if (selectingUserId == Main.dataUtils.getAdminID()) {
+                Main.dataUtils.updateConfig("groupID", groupID);
                 ChatUtils.deleteMessage(selectingUserId, callbackMessageId);
                 ChatUtils.sendMessage(selectingUserId, "Группа выбрана " + groupName.replaceAll("-", " "));
             } else {
@@ -140,7 +140,7 @@ public class CallbackHandler {
             if (newGroupName == null) {
                 ChatUtils.sendMessage(userId, "Имя группы пусто");
                 log.error("Имя группы пусто");
-            } else if (DataUtils.addNewGroup(newGroupName, Long.parseLong(groupId))) {
+            } else if (Main.dataUtils.addNewGroup(newGroupName, Long.parseLong(groupId))) {
                 ChatUtils.sendMessage(userId, "Группа добавлена");
                 state.cansel();
             } else {
@@ -148,7 +148,7 @@ public class CallbackHandler {
                 log.error("Не удалось добавить группу {}", groupId);
             }
         } else {
-            ChatUtils.sendMessage(DataUtils.getAdminID(), "Бот не являеться администратором в группе " + newGroupName);
+            ChatUtils.sendMessage(Main.dataUtils.getAdminID(), "Бот не являеться администратором в группе " + newGroupName);
         }
     }
 }
