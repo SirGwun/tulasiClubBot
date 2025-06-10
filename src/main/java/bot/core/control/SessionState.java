@@ -4,7 +4,12 @@ import bot.core.model.EditingActions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SessionState {
+import java.io.Serial;
+import java.io.Serializable;
+
+public class SessionState implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     EditingActions action;
 

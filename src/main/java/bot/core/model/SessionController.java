@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class SessionController {
     private static final SessionController INSTANCE = new SessionController();
-    private final Map<Long, Session> sessionMap;
+    private static Map<Long, Session> sessionMap;
 
     private SessionController() {
         sessionMap = Main.dataUtils.loadSessions();

@@ -2,7 +2,12 @@ package bot.core.control;
 
 import bot.core.Main;
 
-public class Session {
+import java.io.Serial;
+import java.io.Serializable;
+
+public class Session implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
     long userId;
     Long groupId;
     SessionState state;

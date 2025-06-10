@@ -203,6 +203,7 @@ public final class ChatUtils {
             String inviteLink = Main.bot.execute(link).getInviteLink();
             //todo придумать способ детектировать переход по ссылке и говорить пользователю где найти группу
             SendMessage message = new SendMessage();
+            //todo красивая ссылка
             message.setChatId(userId);
             message.setText("Для присоединения к группе перейдите по ссылке ниже:\n\n" +
                     inviteLink +

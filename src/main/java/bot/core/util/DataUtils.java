@@ -131,7 +131,7 @@ public final class DataUtils {
         } catch (FileNotFoundException ex) {
             log.error("Не удалось найти файл {}", groupListPath);
         } catch (IOException ex) {
-            log.error("Unable to read {} }: {}", name, ex.getMessage());
+            log.error("Unable to read {} : {}", name, ex.getMessage());
         } catch (ClassNotFoundException e) {
             log.error("Unable find class: {}", e.getMessage());;
         }
