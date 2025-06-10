@@ -8,7 +8,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Utility class that stores configuration and helper data for the bot.
@@ -17,6 +19,7 @@ import java.util.*;
 public final class DataUtils {
     private final static Logger log = LoggerFactory.getLogger(DataUtils.class);
 
+    private final String base;
     private final String configPath;
     private final String groupListPath;
     private final String helpPath;
@@ -38,7 +41,7 @@ public final class DataUtils {
      */
     public DataUtils() {
         boolean amvera = System.getenv("AMVERA") != null && System.getenv("AMVERA").equals("1");
-        String base = amvera ? "/data/" : "data/";
+        base = amvera ? "/data/" : "data/";
         this.configPath = base + "config.properties";
         this.groupListPath = base + "groupList.ser";
         this.helpPath = base + "help.txt";
@@ -111,18 +114,44 @@ public final class DataUtils {
         return groupList;
     }
 
+    private void save(Object object, String name) {
+        if (!(object instanceof Serializable))
+            throw new IllegalArgumentException();
 
+        try (ObjectOutputStream output = new ObjectOutputStream(new FileOutputStream(base + name + ".ser"))) {
+            output.writeObject(object);
+        } catch (IOException ex) {
+            log.error("Can't save {} \n {}", name, ex.getMessage());
+        }
+    }
 
-    private void loadGroupList() {
-        try (ObjectInputStream groupListInput = new ObjectInputStream(new FileInputStream(groupListPath))) {
-            groupList = (Map<String, Long>) groupListInput.readObject();
+    private Object load(String name) {
+        try (ObjectInputStream input = new ObjectInputStream(new FileInputStream(base + name + ".ser"))) {
+            return input.readObject();
         } catch (FileNotFoundException ex) {
             log.error("Не удалось найти файл {}", groupListPath);
         } catch (IOException ex) {
-            log.error("Unable to read groupList file: {}", ex.getMessage());
+            log.error("Unable to read {} }: {}", name, ex.getMessage());
         } catch (ClassNotFoundException e) {
-            log.error("Не удалось десериализовать groupList {}", e.getMessage());
+            log.error("Unable find class: {}", e.getMessage());;
         }
+        return null;
+    }
+
+    public void saveSessions(Map<Long, Session> sessionByUser) {
+        save(sessionByUser, "sessions");
+    }
+
+    public Map<Long, Session> loadSessions() {
+        Object ses = load("sessions");
+        if (ses instanceof ConcurrentHashMap<?, ?>)
+            return (Map<Long, Session>) ses;
+        else
+            throw new RuntimeException("Не удалось загрузить сессии!");
+    }
+
+    private void loadGroupList() {
+        groupList = (Map<String, Long>) load("groupList");
     }
 
     private void saveGroupList() {

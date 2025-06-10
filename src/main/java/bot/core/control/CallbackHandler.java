@@ -1,6 +1,7 @@
 package bot.core.control;
 
 import bot.core.Main;
+import bot.core.model.SessionController;
 import bot.core.util.ChatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,7 +100,7 @@ public class CallbackHandler {
                 ChatUtils.deleteMessage(selectingUserId, messageId);
                 ChatUtils.sendMessage(selectingUserId, "Группа по умолчанию выбрана " + groupName);
             } else {
-                Main.getSessionByUser(selectingUserId).setGroupId(selectedGroupId);
+                SessionController.getInstance().setUserGroupId(selectingUserId, selectedGroupId);
                 ChatUtils.sendMessage(selectingUserId, "Выбрана группа: " + groupName + "\nТеперь пришлите подтверждение оплаты");
             }
         } else {
@@ -110,7 +111,7 @@ public class CallbackHandler {
     private void handleConfirmAction(long targetUserId, long userCLickedButtonId) {
         log.info("Admin {} confirm {}", userCLickedButtonId, targetUserId);
 
-        Long groupId = Main.getSessionByUser(targetUserId).getGroupId();
+        Long groupId = SessionController.getInstance().getUserSession(targetUserId).getGroupId();
 
         if (groupId == null)
             groupId = Main.dataUtils.getDefaulfGroup();

@@ -15,6 +15,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import javax.xml.crypto.Data;
 import java.util.*;
 
 /** Utility methods for interacting with chats. */
@@ -190,9 +191,11 @@ public final class ChatUtils {
 
         //todo проверка группы
         try {
+
             CreateChatInviteLink link = new CreateChatInviteLink();
             link.setChatId(groupId);
             link.setName("Присоединиться к курсу");
+            link.setExpireDate(0);
             link.setMemberLimit(1);
 ;
             link.setMemberLimit(1);
@@ -202,13 +205,11 @@ public final class ChatUtils {
             SendMessage message = new SendMessage();
             message.setChatId(userId);
             message.setText("Для присоединения к группе перейдите по ссылке ниже:\n\n" +
-                    "inviteLink\n\n" +
-                    "Мы рады вас видеть!");
+                    inviteLink +
+                    "\nМы рады вас видеть!");
             message.setParseMode(ParseMode.HTML);
 
             Main.bot.execute(message);
-
-            Main.getSessionByUser(userId).unSetGroupId();
         } catch (TelegramApiException e) {
             log.error("Ошибка при добавлении пользователя в группу \n {}", e.getMessage());
         }

@@ -3,6 +3,7 @@ package bot.core;
 import bot.core.control.CallbackHandler;
 import bot.core.control.Session;
 import bot.core.model.MessageContext;
+import bot.core.model.SessionController;
 import bot.core.model.messageProcessing.*;
 import bot.core.validator.Validator;
 import org.slf4j.Logger;
@@ -50,7 +51,7 @@ public class PaymentBot extends TelegramLongPollingBot {
         log.info("Получено новое сообщение от {}", fromId);
         log.info("Оно касается действий в {} - {}", chatId, message.getChat().getTitle());
 
-        Session session = Main.getSessions().computeIfAbsent(fromId, id -> new Session(chatId));
+        Session session = SessionController.getInstance().openSessionIfNeeded(fromId);
 
         MessageContext ctx = new MessageContext(message);
 

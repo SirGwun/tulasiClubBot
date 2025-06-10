@@ -1,6 +1,7 @@
 package bot.core;
 
 import bot.core.control.Session;
+import bot.core.model.SessionController;
 import bot.core.util.DataUtils;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
@@ -9,6 +10,7 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 import org.slf4j.Logger;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -16,7 +18,6 @@ public class Main {
     public static final Logger log = LoggerFactory.getLogger(Main.class);
     public static PaymentBot bot;
     public static DataUtils dataUtils;
-    private static final Map<Long, Session> sessionByUser = new ConcurrentHashMap<>();
     public static boolean isTest = false;
 
     public static void main(String[] args) {
@@ -33,6 +34,8 @@ public class Main {
     public static void init() {
         try {
             dataUtils = new DataUtils();
+            dataUtils.saveSessions(new ConcurrentHashMap<>());
+            SessionController.getInstance();
             if (isTest) {
                 log.info("Тестовый режим");
                 dataUtils.testMode();
@@ -51,15 +54,5 @@ public class Main {
             log.error("Ошибка при инициализации бота {}", e.getMessage());
             e.printStackTrace();
         }
-    }
-
-    public static Map<Long, Session> getSessions() {
-        return sessionByUser;
-
-        dataUtils.saveSessions(sessionByUser);
-    }
-
-    public static Session getSessionByUser(Long userId) {
-        return getSessions().get(userId);
     }
 }
