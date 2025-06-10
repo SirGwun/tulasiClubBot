@@ -6,6 +6,8 @@ import bot.core.util.ChatUtils;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.ForwardMessage;
 import org.telegram.telegrambots.meta.api.methods.GetFile;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -20,13 +22,14 @@ import java.net.URL;
 
 
 public class Validator {
+    private static final Logger log = LoggerFactory.getLogger(Validator.class);
     public boolean isValidPayment(Message message) {
         if (message.hasDocument()) {
             Document document = message.getDocument();
             String fileName = document.getFileName();
             if (fileName.endsWith(".pdf")) {
                 try {
-                    Main.log.info("Получен файл {}", fileName);
+                    log.info("Получен файл {}", fileName);
                     String fileId = document.getFileId();
                     GetFile getFileMethod = new GetFile(fileId);
                     String fileUrl = Main.bot.execute(getFileMethod).getFileUrl(Main.dataUtils.getBotToken());

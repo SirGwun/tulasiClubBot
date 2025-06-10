@@ -136,7 +136,7 @@ public class CommandHandler {
 
         //todo научится различать такие группы и по разному их обрабатывать
         if (hasExceptedGroup(allGroupKeyboard)) {
-            ChatUtils.sendMessage(userId, "В группах помеченных ! бот либо не является админом, либо их больше не существует");
+            ChatUtils.sendMessage(userId, "Бот не входит в группы помеченные '!', либо не админ в них");
         }
         ChatUtils.sendInlineKeyboard(userId, "Выберите группу", allGroupKeyboard);
     }

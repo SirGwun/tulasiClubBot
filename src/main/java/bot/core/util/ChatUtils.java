@@ -9,6 +9,7 @@ import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatAdm
 import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatMemberCount;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
+import org.telegram.telegrambots.meta.api.objects.ChatInviteLink;
 import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -160,16 +161,6 @@ public final class ChatUtils {
         }
     }
 
-    public static CreateChatInviteLink createInviteLink(String groupId) {
-
-        CreateChatInviteLink inviteLink = new CreateChatInviteLink();
-        inviteLink.setChatId(groupId);
-        inviteLink.setName("Добро пожаловать на курс!");
-        inviteLink.setMemberLimit(1);
-
-        return inviteLink;
-    }
-
     public static boolean isBotAdminInGroup(Long groupId) {
         try {
             // Проверяем, что группа существует, получив количество участников
@@ -195,25 +186,32 @@ public final class ChatUtils {
         return false; // Группа не существует или бот не является администратором
     }
 
-    public static void addInGroup(long userId, String groupName) {
-        CreateChatInviteLink inviteLink;
-        inviteLink = createInviteLink(groupName);
+    public static void addInGroup(long userId, Long groupId) {
 
+        //todo проверка группы
         try {
+            CreateChatInviteLink link = new CreateChatInviteLink();
+            link.setChatId(groupId);
+            link.setName("Присоединиться к курсу");
+            link.setMemberLimit(1);
+;
+            link.setMemberLimit(1);
+
+            String inviteLink = Main.bot.execute(link).getInviteLink();
+            //todo придумать способ детектировать переход по ссылке и говорить пользователю где найти группу
             SendMessage message = new SendMessage();
             message.setChatId(userId);
-            message.setText("Здравствуйте!\n\nОплата подтверждена. Для присоединения к группе перейдите по ссылке ниже:\n\n" +
-                    "<a href=\"" + Main.bot.execute(inviteLink).getInviteLink() + "\">Присоединиться к курсу</a>\n\n" +
+            message.setText("Для присоединения к группе перейдите по ссылке ниже:\n\n" +
+                    "inviteLink\n\n" +
                     "Мы рады вас видеть!");
             message.setParseMode(ParseMode.HTML);
+
             Main.bot.execute(message);
+
+            Main.getSessionByUser(userId).unSetGroupId();
         } catch (TelegramApiException e) {
             log.error("Ошибка при добавлении пользователя в группу \n {}", e.getMessage());
         }
-    }
-
-    public static void addInGroup(long userId, Long groupId) {
-        addInGroup(userId, Main.dataUtils.getGroupName(groupId));
     }
 }
 

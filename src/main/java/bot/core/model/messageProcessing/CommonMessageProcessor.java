@@ -20,7 +20,6 @@ public class CommonMessageProcessor implements MessageProcessor {
     @Override
     public void process(MessageContext ctx, Session session) {
         long userId = ctx.getChatId();
-        log.info("New message from {}", userId);
 
         if (ctx.hasPayment()) {
             handlePayment(ctx, session);
@@ -30,12 +29,14 @@ public class CommonMessageProcessor implements MessageProcessor {
     }
 
     private void handlePayment(MessageContext ctx, Session session) {
-        long userId = ctx.getChatId();
+        long userId = ctx.getFromId();
         log.info("New payment from {}", userId);
 
         if (validator == null) validator = new Validator();
 
         boolean valid = validator.isValidPayment(ctx.getMessage());
+
+        //todo иногда валидатор отрабатывает долго, мб какой-то прогресс бар
 
         if (valid) {
             ChatUtils.addInGroup(userId, session.getGroupId());

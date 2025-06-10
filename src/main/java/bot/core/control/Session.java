@@ -22,6 +22,10 @@ public class Session {
         this.groupId = groupId;
     }
 
+    public void unSetGroupId() {
+        groupId = null;
+    }
+
     public SessionState getState() {
         return state;
     }

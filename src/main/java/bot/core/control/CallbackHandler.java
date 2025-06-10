@@ -95,22 +95,27 @@ public class CallbackHandler {
 
         if (ChatUtils.isBotAdminInGroup(selectedGroupId)) {
             if (selectingUserId == Main.dataUtils.getAdminId()) {
-                Main.dataUtils.updateConfig("groupID", String.valueOf(selectedGroupId));
+                Main.dataUtils.setDefaultGroup(selectedGroupId);
                 ChatUtils.deleteMessage(selectingUserId, messageId);
-                ChatUtils.sendMessage(selectingUserId, "Группа выбрана " + groupName.replaceAll("-", " "));
+                ChatUtils.sendMessage(selectingUserId, "Группа по умолчанию выбрана " + groupName);
             } else {
-                Main.getSessionByUser().get(selectingUserId).setGroupId(selectedGroupId);
-                ChatUtils.sendMessage(selectingUserId, "Выбрана группа: " + groupName.replaceAll("-", " ") + "\nТеперь пришлите подтверждение оплаты");
+                Main.getSessionByUser(selectingUserId).setGroupId(selectedGroupId);
+                ChatUtils.sendMessage(selectingUserId, "Выбрана группа: " + groupName + "\nТеперь пришлите подтверждение оплаты");
             }
         } else {
-            ChatUtils.sendMessage(selectingUserId, "Бот не выходит в группу или не являеться в ней администратором");
+            ChatUtils.sendMessage(selectingUserId, "Бот не выходит в группу или не является в ней администратором");
         }
     }
+
     private void handleConfirmAction(long targetUserId, long userCLickedButtonId) {
         log.info("Admin {} confirm {}", userCLickedButtonId, targetUserId);
-        Long groupId = Main.getSessionByUser().get(targetUserId).getGroupId();
 
-        ChatUtils.addInGroup(targetUserId, Main.dataUtils.getGroupName(groupId));
+        Long groupId = Main.getSessionByUser(targetUserId).getGroupId();
+
+        if (groupId == null)
+            groupId = Main.dataUtils.getDefaulfGroup();
+
+        ChatUtils.addInGroup(targetUserId, groupId);
     }
 
 }

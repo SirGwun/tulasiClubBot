@@ -16,7 +16,7 @@ public class Main {
     public static final Logger log = LoggerFactory.getLogger(Main.class);
     public static PaymentBot bot;
     public static DataUtils dataUtils;
-    public static Map<Long, Session> sessionByUser = new ConcurrentHashMap<>();
+    private static final Map<Long, Session> sessionByUser = new ConcurrentHashMap<>();
     public static boolean isTest = false;
 
     public static void main(String[] args) {
@@ -53,7 +53,13 @@ public class Main {
         }
     }
 
-    public static Map<Long, Session> getSessionByUser() {
+    public static Map<Long, Session> getSessions() {
         return sessionByUser;
+
+        dataUtils.saveSessions(sessionByUser);
+    }
+
+    public static Session getSessionByUser(Long userId) {
+        return getSessions().get(userId);
     }
 }

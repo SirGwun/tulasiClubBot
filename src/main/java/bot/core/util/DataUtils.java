@@ -1,6 +1,7 @@
 package bot.core.util;
 
 import bot.core.Main;
+import bot.core.control.Session;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,8 +47,7 @@ public final class DataUtils {
 
         if (amvera) {
             botToken = System.getenv("BOTTOCKEN");
-            System.out.println("Загружен токен");
-            System.out.println("AMVERA");
+            log.info("Запущено в AMVERA");
         } else {
             try (InputStream secretInput = DataUtils.class.getClassLoader().getResourceAsStream("secret.properties")) {
                 if (secretInput == null) {
@@ -56,8 +56,7 @@ public final class DataUtils {
                 Properties secretProperties = new Properties();
                 secretProperties.load(secretInput);
                 botToken = secretProperties.getProperty("botToken");
-                System.out.println("Загружен токен");
-                System.out.println("local");
+                log.info("Запущено в LOCAL");
             } catch (IOException ex) {
                 Main.log.error("unable to read secret.properties: {}", ex.getMessage());
             }
@@ -84,6 +83,10 @@ public final class DataUtils {
         return groupList.containsKey(name);
     }
 
+    public void setDefaultGroup(long groupId) {
+        updateConfig("groupID", String.valueOf(groupId));
+    }
+
     private void saveConfig() {
         try (OutputStream configOutput = new FileOutputStream(configPath)) {
             config.store(configOutput, null);
@@ -107,6 +110,8 @@ public final class DataUtils {
     public Map<String, Long> getGroupList() {
         return groupList;
     }
+
+
 
     private void loadGroupList() {
         try (ObjectInputStream groupListInput = new ObjectInputStream(new FileInputStream(groupListPath))) {
@@ -243,6 +248,10 @@ public final class DataUtils {
             Main.log.error("Unable to read каталог file : {}", ex.getMessage());
         }
         return null;
+    }
+
+    public Long getDefaulfGroup() {
+        return Long.parseLong(config.getProperty("groupID"));
     }
 }
 
