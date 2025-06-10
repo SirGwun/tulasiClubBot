@@ -74,7 +74,7 @@ public class DataUtilsTest {
 
     @Test
     public void testGetGroupList() {
-        assertNotNull(dataUtils.getGroupList());
+        assertNotNull(dataUtils.getGroupMap());
     }
 
     @Test

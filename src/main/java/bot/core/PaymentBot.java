@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.objects.*;
+import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeAllPrivateChats;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeChat;
@@ -22,11 +23,12 @@ public class PaymentBot extends TelegramLongPollingBot {
     CallbackHandler callbackHandler = new CallbackHandler();
     Validator validator;
     HistoryForwardProcessor historyForwardProcessor  = new HistoryForwardProcessor();
+    AddingInGroupMessageProcessor addingProcessor = new AddingInGroupMessageProcessor();
     List<MessageProcessor> processors = Arrays.asList(
             new CommandMessageProcessor(),
             new EditInfoProcessor(),
             new EditHelpProcessor(),
-            new AddingInGroupMessageProcessor(),
+            addingProcessor,
             new CommonMessageProcessor()
     );
 
@@ -36,11 +38,13 @@ public class PaymentBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        log.info(update.toString());
+        //log.info(update.toString());
         if (update.hasMessage()) {
             handleIncomingMessage(update.getMessage());
         } else if (update.hasCallbackQuery()) {
             callbackHandler.handleCallbackQuery(update.getCallbackQuery());
+        } else if (addingProcessor.canProcess(update)) {
+            addingProcessor.process(update.getMyChatMember());
         }
     }
 

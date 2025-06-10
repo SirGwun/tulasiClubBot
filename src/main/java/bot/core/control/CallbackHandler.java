@@ -65,7 +65,7 @@ public class CallbackHandler {
 
 
     private void handleDelGroupAction(long userId, int messageId, Long groupId) {
-        if (Main.dataUtils.getGroupList().containsValue(groupId)) {
+        if (Main.dataUtils.getGroupMap().containsValue(groupId)) {
             Main.dataUtils.removeGroup(groupId);
             ChatUtils.sendMessage(userId, "Группа удалена");
             ChatUtils.deleteMessage(userId, messageId);
@@ -87,7 +87,7 @@ public class CallbackHandler {
     private void handleSetGroupAction(Long selectedGroupId, long selectingUserId, int messageId) {
         log.info("User {} set group {}", selectingUserId, selectedGroupId);
 
-        if (!Main.dataUtils.getGroupList().containsValue(selectedGroupId)) {
+        if (!Main.dataUtils.getGroupMap().containsValue(selectedGroupId)) {
             ChatUtils.sendMessage(selectingUserId, "Группа не найдена");
             return;
         }

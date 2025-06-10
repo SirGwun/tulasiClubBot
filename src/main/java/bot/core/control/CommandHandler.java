@@ -203,7 +203,7 @@ public class CommandHandler {
     private void handleDelCommand() {
         log.info("user {} get /del command", userId);
 
-        if (Main.dataUtils.getGroupList().isEmpty()) {
+        if (Main.dataUtils.getGroupMap().isEmpty()) {
             ChatUtils.sendMessage(userId, "Не найдено ни одной группы");
             return;
         }

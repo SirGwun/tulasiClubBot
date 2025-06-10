@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -110,7 +109,7 @@ public final class DataUtils {
         }
     }
 
-    public Map<String, Long> getGroupList() {
+    public Map<String, Long> getGroupMap() {
         return groupList;
     }
 
@@ -242,6 +241,7 @@ public final class DataUtils {
     }
 
     public void removeGroup(Long groupId) {
+        //todo выходить из этой группы
         for (Map.Entry<String, Long> entry : groupList.entrySet()) {
             String name = entry.getKey();
             Long id = entry.getValue();

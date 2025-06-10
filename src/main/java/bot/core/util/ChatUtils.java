@@ -9,13 +9,11 @@ import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatAdm
 import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatMemberCount;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
-import org.telegram.telegrambots.meta.api.objects.ChatInviteLink;
 import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import javax.xml.crypto.Data;
 import java.util.*;
 
 /** Utility methods for interacting with chats. */
@@ -77,7 +75,7 @@ public final class ChatUtils {
     public static InlineKeyboardMarkup getAllGroupKeyboard(String callBack, Long userId) {
         List<InlineKeyboardButton> buttons = new ArrayList<>();
 
-        for (Map.Entry<String, Long> entry : Main.dataUtils.getGroupList().entrySet()) {
+        for (Map.Entry<String, Long> entry : Main.dataUtils.getGroupMap().entrySet()) {
             String groupName = entry.getKey();
             Long groupId = entry.getValue();
 
