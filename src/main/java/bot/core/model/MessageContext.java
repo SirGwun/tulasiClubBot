@@ -54,4 +54,8 @@ public class MessageContext  {
     public long getChatId() {
         return message.getChatId();
     }
+
+    public boolean hasPhoto() {
+        return message.hasPhoto();
+    }
 }

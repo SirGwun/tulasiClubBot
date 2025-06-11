@@ -26,10 +26,11 @@ public class PaymentBot extends TelegramLongPollingBot {
     AddingInGroupMessageProcessor addingProcessor = new AddingInGroupMessageProcessor();
     List<MessageProcessor> processors = Arrays.asList(
             new CommandMessageProcessor(),
+            new CommonMessageProcessor(),
+            addingProcessor,
             new EditInfoProcessor(),
             new EditHelpProcessor(),
-            addingProcessor,
-            new CommonMessageProcessor()
+            new EditPaymentInfoProcessor()
     );
 
     public PaymentBot(String botToken) {
@@ -90,9 +91,10 @@ public class PaymentBot extends TelegramLongPollingBot {
         defaultCommands.add(new BotCommand("/help", "Помощь"));
 
         // Команды для администраторов
-        List<BotCommand> adminCommands = new ArrayList<>();
+        List<BotCommand> adminCommands = new ArrayList<>(); //todo добавить startEditCatalog endEditCatalog
         adminCommands.add(new BotCommand("/set_group", "Установить текущую группу"));
         adminCommands.add(new BotCommand("/del", "Удалить группу"));
+        adminCommands.add(new BotCommand("/set_payment_info", "Установить информацию об оплате"));
         adminCommands.add(new BotCommand("/edit_info", "Изменить информацию"));
         adminCommands.add(new BotCommand("/edit_help", "Изменить помощь"));
         adminCommands.add(new BotCommand("/cancel", "Отменить действие"));

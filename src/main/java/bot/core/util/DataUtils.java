@@ -5,9 +5,20 @@ import bot.core.control.Session;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.telegram.telegrambots.meta.api.methods.GetFile;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
+import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.PhotoSize;
+import org.telegram.telegrambots.meta.api.objects.media.InputMediaPhoto;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -23,6 +34,7 @@ public final class DataUtils {
     private final String groupListPath;
     private final String helpPath;
     private final String infoPath;
+    private final String paymentFolderPath;
     private final String catalogPath;
 
     private String botName = "tulasiClubBot";
@@ -45,6 +57,7 @@ public final class DataUtils {
         this.groupListPath = base + "groupList.ser";
         this.helpPath = base + "help.txt";
         this.infoPath = base + "info.txt";
+        this.paymentFolderPath = base + "Payment info/";
         this.catalogPath = base + "catalog.txt";
 
         if (amvera) {
@@ -272,9 +285,9 @@ public final class DataUtils {
         try (InputStream catalogInput = new FileInputStream(catalogPath)) {
             return IOUtils.toString(catalogInput, StandardCharsets.UTF_8);
         } catch (FileNotFoundException ex) {
-            Main.log.error("Не удалось загрузить каталог {}", ex.getMessage());
+            log.warn("Не удалось загрузить каталог {}", ex.getMessage());
         } catch (IOException ex) {
-            Main.log.error("Unable to read каталог file : {}", ex.getMessage());
+            log.warn("Unable to read каталог file : {}", ex.getMessage());
         }
         return null;
     }
@@ -282,5 +295,27 @@ public final class DataUtils {
     public Long getDefaulfGroup() {
         return Long.parseLong(config.getProperty("groupID"));
     }
+
+    public void setPaymentInfo(String text) {
+        try (OutputStream out = new FileOutputStream(paymentFolderPath + "paymentText.txt")) {
+            IOUtils.write(text, out, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            log.error("Ошибка при сохранении payment info", e);
+        }
+    }
+
+    public String getPaymentInfo() {
+        try (InputStream input = new FileInputStream(paymentFolderPath + "paymentText.txt")) {
+            return IOUtils.toString(input, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            log.error("Ошибка при чтении paymentInfo", e);
+        }
+        return "";
+    }
+
+    public File getPaymentPhoto() {
+        return new File(paymentFolderPath + "paymentPhoto.jpg");
+    }
 }
+
 

@@ -7,29 +7,42 @@ import org.slf4j.LoggerFactory;
 import java.io.Serial;
 import java.io.Serializable;
 
+import static bot.core.model.EditingActions.*;
+
 public class SessionState implements Serializable {
     @Serial
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
     private final Logger log = LoggerFactory.getLogger(this.getClass());
-    EditingActions action;
+    private EditingActions action = NONE;
 
     public boolean isEditingInfo() {
-        return action == EditingActions.EDIT_INFO;
+        return action == EDIT_INFO;
     }
     public void editInfo() {
-        action = EditingActions.EDIT_INFO;
+        action = EDIT_INFO;
     }
 
     public boolean isEditingHelp() {
-        return action == EditingActions.EDIT_HELP;
+        return action == EDIT_HELP;
     }
     public void editHelp() {
-        action = EditingActions.EDIT_HELP;
+        action = EDIT_HELP;
     }
 
     public EditingActions cansel() {
         EditingActions currentAction = action;
-        action = EditingActions.NONE;
+        action = NONE;
         return currentAction;
+    }
+
+    public boolean isEditPaymentInfo() {
+        return action == EDIT_PAYMENT_INFO;
+    }
+    public void editPaymentInfo() {
+        action = EDIT_PAYMENT_INFO;
+    }
+
+    public boolean isCommonState() {
+        return action == NONE;
     }
 }

@@ -4,13 +4,18 @@ import bot.core.model.EditingActions;
 import bot.core.model.MessageContext;
 import bot.core.Main;
 import bot.core.util.ChatUtils;
+import bot.core.util.DataUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class CommandHandler {
     private static final Logger log = LoggerFactory.getLogger(CommandHandler.class);
@@ -66,6 +71,9 @@ public class CommandHandler {
             case "/edit_help":
                 handleEditHelpCommand();
                 break;
+            case "/set_payment_info":
+                handleSetPaymentInfo();
+                break;
             case "/del":
                 handleDelCommand();
                 break;
@@ -99,19 +107,12 @@ public class CommandHandler {
 
     private void handleStartCommand() {
         log.info("User {} started bot", userId);
+
         String START_MESSAGE = """
                 Здравствуйте!
-                                
                 Вас приветствует, бот-помощник.
-                                
-                Прошу вас сделать пожертвование за участие в лекции на карту:
-                                
-                2202203650939848 (руб) Сбербанк получатель Милана Дмитриевна С.\s
-                4400430384625882 (теньге) KASPI получатель Darshan Singkh
-                                
-                Обязательно получите чек и далее действуйте по инструкции:
-                               
-                Инструкция
+                
+                Инструкция как попасть на лекцию
                                 
                 1. Нажимаете Меню
                 2. Выбрать группу (/set_group)
@@ -120,8 +121,16 @@ public class CommandHandler {
                 5. Как только пройдёт проверка, получаете ссылку на доступ к лекции (проверка занимает до одного дня, но мы стараемся как можно скорее)
                                 
                 🔹 Чеки в формате PDF проверяются автоматически — доступ в большинстве случаев открывается мгновенно.
+                
                 """;
-        ChatUtils.sendMessage(userId, START_MESSAGE);
+        String paymentInfo = Main.dataUtils.getPaymentInfo();
+        ChatUtils.sendMessage(userId, START_MESSAGE + paymentInfo);
+
+        SendPhoto sendPhoto = new SendPhoto();
+        File file = Main.dataUtils.getPaymentPhoto();
+        sendPhoto.setPhoto(new InputFile(file));
+        sendPhoto.setChatId(userId);
+        ChatUtils.sendPhoto(sendPhoto);
     }
 
 
@@ -230,6 +239,12 @@ public class CommandHandler {
         log.info("User {} edit help", userId);
         state.editInfo();
         ChatUtils.sendMessage(userId, "Введите новое сообщение помощи");
+    }
+
+    private void handleSetPaymentInfo() {
+        log.info("User {} is set's payment info", userId);
+        state.editPaymentInfo();
+        ChatUtils.sendMessage(userId, "Пришлите сообщение содержащее информацию о методах оплаты");
     }
 
     private void handleUnknownCommand(String message) {

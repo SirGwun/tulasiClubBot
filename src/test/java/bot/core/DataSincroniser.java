@@ -17,7 +17,6 @@ public class DataSincroniser {
     private static final List<String> dataFilesNames = Arrays.asList(
             "catalog.txt",
             "config.properties",
-            "groupList.properties",
             "help.txt",
             "info.txt"
     );

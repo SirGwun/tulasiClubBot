@@ -14,7 +14,8 @@ public class CommonMessageProcessor implements MessageProcessor {
 
     @Override
     public boolean canProcess(MessageContext ctx, Session session) {
-        return !ctx.isFromGroup();
+        //todo проверить
+        return !ctx.isCommand() && !ctx.isFromGroup() && session.getState().isCommonState();
     }
 
     @Override

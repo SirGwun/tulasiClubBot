@@ -1,5 +1,6 @@
-package bot.core.util;
+package bot.core.utilTest;
 
+import bot.core.util.DataUtils;
 import org.junit.*;
 
 import java.io.IOException;
@@ -27,11 +28,6 @@ public class DataUtilsTest {
             config.store(out, null);
         }
 
-        Properties groups = new Properties();
-        groups.setProperty("default-group", "1000");
-        try (OutputStream out = Files.newOutputStream(DATA_DIR.resolve("groupList.properties"))) {
-            groups.store(out, null);
-        }
 
         Files.writeString(DATA_DIR.resolve("help.txt"), "Initial help", StandardCharsets.UTF_8);
         Files.writeString(DATA_DIR.resolve("info.txt"), "Initial info", StandardCharsets.UTF_8);

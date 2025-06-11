@@ -8,6 +8,7 @@ import org.telegram.telegrambots.meta.api.methods.groupadministration.CreateChat
 import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatAdministrators;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatMemberCount;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -211,6 +212,14 @@ public final class ChatUtils {
             Main.bot.execute(message);
         } catch (TelegramApiException e) {
             log.error("Ошибка при добавлении пользователя в группу \n {}", e.getMessage());
+        }
+    }
+
+    public static void sendPhoto(SendPhoto sendPhoto) {
+        try {
+            Main.bot.execute(sendPhoto);
+        } catch (TelegramApiException e) {
+            log.error("Ошибка при отправке фото {}", e.getMessage());
         }
     }
 }
