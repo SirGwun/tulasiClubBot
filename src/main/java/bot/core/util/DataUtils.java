@@ -116,9 +116,9 @@ public final class DataUtils {
             adminChatID = Long.parseLong(config.getProperty("adminChatID"));
             mainGroupID = Long.parseLong(config.getProperty("groupID"));
         } catch (FileNotFoundException ex) {
-            Main.log.error("Не удалось загрузить конфиг {}", ex.getMessage());
+            log.error("Не удалось загрузить конфиг {}", ex.getMessage());
         } catch (IOException ex) {
-            Main.log.error("Unable to read конфиг file : {}", ex.getMessage());
+            log.error("Unable to read конфиг file : {}", ex.getMessage());
         }
     }
 
@@ -185,7 +185,7 @@ public final class DataUtils {
             secretProperties.load(input);
             botToken = secretProperties.getProperty("testBotToken");
         } catch (IOException ex) {
-            Main.log.error(ex.getMessage());
+            log.error(ex.getMessage());
         }
     }
 
@@ -210,9 +210,9 @@ public final class DataUtils {
             try (InputStream input = new FileInputStream(helpPath)) {
                 help = IOUtils.toString(input, StandardCharsets.UTF_8);
             } catch (FileNotFoundException e) {
-                Main.log.error("Не удалось загрузить help.txt", e);
+                log.error("Не удалось загрузить help.txt", e);
             } catch (IOException e) {
-                Main.log.error("Не удалось прочитать help.txt", e);
+                log.error("Не удалось прочитать help.txt", e);
             }
         }
         return help;
@@ -223,7 +223,7 @@ public final class DataUtils {
         try (OutputStream output = new FileOutputStream(helpPath)) {
             IOUtils.write(help, output, StandardCharsets.UTF_8);
         } catch (IOException e) {
-            Main.log.error("Не удалось сохранить help.txt", e);
+            log.error("Не удалось сохранить help.txt", e);
         }
     }
 
@@ -232,9 +232,9 @@ public final class DataUtils {
             try (InputStream input = new FileInputStream(infoPath)) {
                 info = IOUtils.toString(input, StandardCharsets.UTF_8);
             } catch (FileNotFoundException e) {
-                Main.log.error("Не удалось загрузить info.txt", e);
+                log.error("Не удалось загрузить info.txt", e);
             } catch (IOException e) {
-                Main.log.error("Не удалось прочитать info.txt", e);
+                log.error("Не удалось прочитать info.txt", e);
             }
         }
         return info;
@@ -245,7 +245,7 @@ public final class DataUtils {
         try (OutputStream output = new FileOutputStream(infoPath)) {
             IOUtils.write(info, output, StandardCharsets.UTF_8);
         } catch (IOException e) {
-            Main.log.error("Не удалось сохранить info.txt", e);
+            log.error("Не удалось сохранить info.txt", e);
         }
     }
 
