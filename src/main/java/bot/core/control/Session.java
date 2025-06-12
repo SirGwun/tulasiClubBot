@@ -7,13 +7,15 @@ import java.io.Serializable;
 
 public class Session implements Serializable {
     @Serial
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
     long userId;
+    String userName;
     Long groupId;
     SessionState state;
 
-    public Session(long userId) {
+    public Session(long userId, String userName) {
         this.userId = userId;
+        this.userName = userName;
         state = new SessionState();
     }
 
@@ -41,5 +43,13 @@ public class Session implements Serializable {
 
     public long getUserId() {
         return userId;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 }

@@ -56,7 +56,7 @@ public class PaymentBot extends TelegramLongPollingBot {
         log.info("Получено новое сообщение от {}", fromId);
         log.info("Оно касается действий в {} - {}", chatId, message.getChat().getTitle());
 
-        Session session = SessionController.getInstance().openSessionIfNeeded(fromId);
+        Session session = SessionController.getInstance().openSessionIfNeeded(message.getFrom());
 
         MessageContext ctx = new MessageContext(message);
 

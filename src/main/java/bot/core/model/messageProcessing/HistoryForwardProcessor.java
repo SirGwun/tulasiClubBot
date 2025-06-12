@@ -30,7 +30,7 @@ public class HistoryForwardProcessor implements MessageProcessor {
         try {
             Main.bot.execute(forwardMessage);
         } catch (TelegramApiException e) {
-            log.error("Не пересылаемое сообщение");
+            log.error("Не удалось переслать сообщение");
         }
     }
 }

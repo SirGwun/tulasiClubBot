@@ -1,6 +1,8 @@
 package bot.core.util;
 
 import bot.core.Main;
+import bot.core.control.SessionState;
+import bot.core.model.SessionController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
@@ -15,6 +17,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import javax.xml.crypto.Data;
 import java.util.*;
 
 /** Utility methods for interacting with chats. */
@@ -187,16 +190,23 @@ public final class ChatUtils {
     }
 
     public static void addInGroup(long userId, Long groupId) {
+        //todo решить, перносить ли только на автопроверку
+        if (Main.dataUtils.getGroupName(groupId) == null) {
+            log.error("Попытка добавить в неизвестную группу {}", groupId);
+            return;
+        }
 
-        //todo проверка группы
+        String userName = SessionController.getInstance().getUserSession(userId).getUserName();
+        String groupName = Main.dataUtils.getGroupName(groupId);
+
+        ChatUtils.sendMessage(Long.parseLong(Main.dataUtils.getHistroyId()),
+                "Пользователю @" + userName + " отправлено приглашение в группу " + groupName);
+
         try {
-
             CreateChatInviteLink link = new CreateChatInviteLink();
             link.setChatId(groupId);
             link.setName("Присоединиться к курсу");
             link.setExpireDate(0);
-            link.setMemberLimit(1);
-;
             link.setMemberLimit(1);
 
             String inviteLink = Main.bot.execute(link).getInviteLink();

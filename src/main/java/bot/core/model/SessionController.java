@@ -2,6 +2,7 @@ package bot.core.model;
 
 import bot.core.Main;
 import bot.core.control.Session;
+import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.util.Map;
 
@@ -27,7 +28,8 @@ public class SessionController {
         return sessionMap.get(targetUserId);
     }
 
-    public Session openSessionIfNeeded(long fromId) {
-        return sessionMap.computeIfAbsent(fromId, k -> new Session(fromId));
+    public Session openSessionIfNeeded(User user) {
+        Long fromId = user.getId();
+        return sessionMap.computeIfAbsent(fromId, k -> new Session(fromId, user.getUserName()));
     }
 }
