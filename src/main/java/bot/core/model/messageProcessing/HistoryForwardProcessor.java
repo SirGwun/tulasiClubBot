@@ -14,7 +14,8 @@ public class HistoryForwardProcessor implements MessageProcessor {
     @Override
     public boolean canProcess(MessageContext message, Session session) {
         SessionState state = session.getState();
-        return  !state.isEditingHelp() &&
+        return  !message.isCommand() &&
+                !state.isEditingHelp() &&
                 !state.isEditingInfo() &&
                 (message.hasText() || message.hasPayment());
     }
