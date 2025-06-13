@@ -1,8 +1,15 @@
-FROM maven:3.6.3-jdk-21 AS build
-COPY . /app
+FROM eclipse-temurin:21-jdk-alpine AS build
 WORKDIR /app
-RUN mvn clean package
+COPY .mvn/ .mvn
+COPY mvnw pom.xml ./
+RUN ./mvnw dependency:go-offline
+COPY ./data ./data
+COPY ./src ./src
+RUN ./mvnw clean package
 
-FROM openjdk:11-jre-slim
-COPY --from=build /app/target/tulasiClabBot-1.0-jar-with-dependencies.jar /tcbot.jar
-CMD ["java", "-jar", "/tcbot.jar"]
+FROM eclipse-temurin:21-jre-alpine
+WORKDIR /app
+COPY --from=build /app/target/tcbot.jar /tcbot.jar
+COPY --from=build /app/data /app/data
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "/tcbot.jar"]

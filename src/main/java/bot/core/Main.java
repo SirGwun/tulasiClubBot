@@ -39,13 +39,6 @@ public class Main {
             if (isTest) {
                 log.info("Тестовый режим");
                 dataUtils.testMode();
-            } else {
-                //во избежание работы 2 инстенсов на продакшене и ошибок, с этим связаных
-                try {
-                    Thread.sleep(5000); //5 секунд
-                } catch (InterruptedException e) {
-                    log.error("Error sleep {}", e.getMessage());
-                }
             }
             bot = new PaymentBot(dataUtils.getBotToken());
             TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
