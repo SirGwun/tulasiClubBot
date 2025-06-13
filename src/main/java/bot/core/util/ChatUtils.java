@@ -169,6 +169,7 @@ public final class ChatUtils {
             // Проверяем, что группа существует, получив количество участников
             GetChatMemberCount getChatMemberCount = new GetChatMemberCount(String.valueOf(groupId));
             int memberCount = Main.bot.execute(getChatMemberCount);
+            log.info("[isBotAdminInGroup] Колличество участников {}", memberCount);
             if (memberCount > 0) {
                 // Получаем список администраторов группы
                 GetChatAdministrators getChatAdministrators = new GetChatAdministrators();
@@ -177,7 +178,9 @@ public final class ChatUtils {
 
                 // Проверяем, есть ли бот среди администраторов
                 String botUsername = Main.dataUtils.getBotName();
+                log.info("[isBotAdminInGroup] имя бота {}", botUsername);
                 for (ChatMember admin : admins) {
+                    log.info("[isBotAdminInGroup] Имя полученного админа {}", admin.getUser().getUserName());
                     if (admin.getUser().getUserName().equals(botUsername)) {
                         return true; // Бот является администратором в группе
                     }
