@@ -58,6 +58,7 @@ public class CommandHandler {
                 break;
             case "/help":
                 handleHelpCommand();
+                break;
             case "/catalog":
                 handleCatalogCommand();
                 break;
