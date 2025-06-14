@@ -6,6 +6,7 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.GetFile;
+import org.telegram.telegrambots.meta.api.methods.name.GetMyName;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -37,7 +38,7 @@ public final class DataUtils {
     private final String paymentFolderPath;
     private final String catalogPath;
 
-    private String botName = "tulasiClubBot";
+    private String botName;
     private String botToken;
     private long adminChatID;
     private long mainGroupID;
@@ -62,6 +63,7 @@ public final class DataUtils {
 
         if (amvera) {
             botToken = System.getenv("BOTTOCKEN");
+            botName = System.getenv("BOTNAME");
             log.info("Запущено в AMVERA");
         } else {
             try (InputStream secretInput = DataUtils.class.getClassLoader().getResourceAsStream("secret.properties")) {
@@ -71,6 +73,7 @@ public final class DataUtils {
                 Properties secretProperties = new Properties();
                 secretProperties.load(secretInput);
                 botToken = secretProperties.getProperty("botToken");
+                botName = secretProperties.getProperty("botName");
                 log.info("Запущено в LOCAL");
             } catch (IOException ex) {
                 Main.log.error("unable to read secret.properties: {}", ex.getMessage());
@@ -184,6 +187,7 @@ public final class DataUtils {
         try (InputStream input = DataUtils.class.getClassLoader().getResourceAsStream("secret.properties")) {
             secretProperties.load(input);
             botToken = secretProperties.getProperty("testBotToken");
+            botName = secretProperties.getProperty("testBotName");
         } catch (IOException ex) {
             log.error(ex.getMessage());
         }
