@@ -92,7 +92,7 @@ public class PaymentBot extends TelegramLongPollingBot {
 
         // Команды для администраторов
         List<BotCommand> adminCommands = new ArrayList<>(); //todo добавить startEditCatalog endEditCatalog
-        adminCommands.add(new BotCommand("/set_group", "Установить текущую группу"));
+        adminCommands.add(new BotCommand("/set_group", "Выбрать группу"));
         adminCommands.add(new BotCommand("/del", "Удалить группу"));
         adminCommands.add(new BotCommand("/set_payment_info", "Установить информацию об оплате в /start"));
         adminCommands.add(new BotCommand("/edit_info", "Изменить информацию"));

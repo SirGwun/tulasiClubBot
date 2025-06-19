@@ -6,7 +6,9 @@ import bot.core.util.ChatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
+import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatMember;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
+import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.*;
@@ -91,14 +93,11 @@ public class CallbackHandler {
             ChatUtils.sendMessage(selectingUserId, "Группа не найдена");
             return;
         }
-
         String groupName = Main.dataUtils.getGroupName(selectedGroupId);
 
         if (ChatUtils.isBotAdminInGroup(selectedGroupId)) {
-            if (selectingUserId == Main.dataUtils.getAdminId()) {
-                Main.dataUtils.setDefaultGroup(selectedGroupId);
-                ChatUtils.deleteMessage(selectingUserId, messageId);
-                ChatUtils.sendMessage(selectingUserId, "Группа по умолчанию выбрана " + groupName);
+            if (Helper.isItFavoriteUser(selectingUserId)) {
+                ChatUtils.addInGroup(selectingUserId, selectedGroupId);
             } else {
                 SessionController.getInstance().setUserGroupId(selectingUserId, selectedGroupId);
                 ChatUtils.sendMessage(selectingUserId, "Выбрана группа: " + groupName + "\nТеперь пришлите подтверждение оплаты");
@@ -118,5 +117,22 @@ public class CallbackHandler {
 
         ChatUtils.addInGroup(targetUserId, groupId);
     }
-
+    private static class Helper {
+        private static boolean isItFavoriteUser(Long userId) {
+            try {
+                GetChatMember getChatMember  = new GetChatMember();
+                getChatMember.setChatId(Main.dataUtils.getFavoriteGroupId());
+                getChatMember.setUserId(userId);
+                ChatMember chatMember = Main.bot.execute(getChatMember);
+                String status = chatMember.getStatus();
+                return status.equals("member")
+                        || status.equals("administrator")
+                        || status.equals("creator")
+                        || status.equals("restricted");
+            } catch (TelegramApiException e) {
+                log.warn("Не удалось получить статус пользователя в избранной группе {} ", userId);
+            }
+            return false;
+        }
+    }
 }

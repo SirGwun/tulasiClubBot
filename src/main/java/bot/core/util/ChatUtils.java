@@ -55,7 +55,6 @@ public final class ChatUtils {
     private static void execute(SendMessage message) {
         try {
             Main.bot.execute(message);
-            log.info("Отправлено сообщение для {}", message.getChatId());
         } catch (TelegramApiException e) {
             log.error("Ошибка при отправке сообщения {}", e.getMessage());
         }
@@ -169,7 +168,6 @@ public final class ChatUtils {
             // Проверяем, что группа существует, получив количество участников
             GetChatMemberCount getChatMemberCount = new GetChatMemberCount(String.valueOf(groupId));
             int memberCount = Main.bot.execute(getChatMemberCount);
-            log.info("[isBotAdminInGroup] Колличество участников {}", memberCount);
             if (memberCount > 0) {
                 // Получаем список администраторов группы
                 GetChatAdministrators getChatAdministrators = new GetChatAdministrators();
@@ -178,9 +176,7 @@ public final class ChatUtils {
 
                 // Проверяем, есть ли бот среди администраторов
                 String botUsername = Main.dataUtils.getBotName();
-                log.info("[isBotAdminInGroup] имя бота {}", botUsername);
                 for (ChatMember admin : admins) {
-                    log.info("[isBotAdminInGroup] Имя полученного админа {}", admin.getUser().getUserName());
                     if (admin.getUser().getUserName().equals(botUsername)) {
                         return true; // Бот является администратором в группе
                     }
@@ -193,7 +189,6 @@ public final class ChatUtils {
     }
 
     public static void addInGroup(long userId, Long groupId) {
-        //todo решить, перносить ли только на автопроверку
         if (Main.dataUtils.getGroupName(groupId) == null) {
             log.error("Попытка добавить в неизвестную группу {}", groupId);
             return;

@@ -5,21 +5,9 @@ import bot.core.control.Session;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.telegram.telegrambots.meta.api.methods.GetFile;
-import org.telegram.telegrambots.meta.api.methods.name.GetMyName;
-import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
-import org.telegram.telegrambots.meta.api.objects.InputFile;
-import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.api.objects.PhotoSize;
-import org.telegram.telegrambots.meta.api.objects.media.InputMediaPhoto;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -41,7 +29,7 @@ public final class DataUtils {
     private String botName;
     private String botToken;
     private long adminChatID;
-    private long mainGroupID;
+    private long favoriteGroupID;
     private String info;
     private String help;
     private final Properties config = new Properties();
@@ -117,7 +105,7 @@ public final class DataUtils {
         try (InputStream configInput = new FileInputStream(configPath)) {
             config.load(configInput);
             adminChatID = Long.parseLong(config.getProperty("adminChatID"));
-            mainGroupID = Long.parseLong(config.getProperty("groupID"));
+            favoriteGroupID = Long.parseLong(config.getProperty("favoriteGroupID"));
         } catch (FileNotFoundException ex) {
             log.error("Не удалось загрузить конфиг {}", ex.getMessage());
         } catch (IOException ex) {
@@ -197,8 +185,8 @@ public final class DataUtils {
         return adminChatID;
     }
 
-    public long getMainGroupId() {
-        return mainGroupID;
+    public long getFavoriteGroupId() {
+        return favoriteGroupID;
     }
 
     public String getBotName() {
