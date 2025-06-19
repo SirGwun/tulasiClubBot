@@ -157,9 +157,8 @@ public final class ChatUtils {
         deleteMessage.setMessageId(messageId);
         try {
             Main.bot.execute(deleteMessage);
-            Main.log.info("Deleted message {}", messageId);
         } catch (TelegramApiException e) {
-            Main.log.error("Ошибка при удалении сообщения", e);
+            log.error("Ошибка при удалении сообщения", e);
         }
     }
 
@@ -244,7 +243,8 @@ public final class ChatUtils {
 
     private static void sendInviteToUser(long userId, String groupName, String link) throws TelegramApiException {
         String messageText = "Для присоединения к группе перейдите по ссылке ниже:\n\n" +
-                "<a href=\"" + link + "\">" + groupName + "</a>\nМы рады вас видеть!";
+                "<a href=\"" + link + "\">" + groupName
+                + " - Мы рады вас видеть!" + "</a>";
 
         SendMessage msg = new SendMessage();
         msg.setChatId(userId);

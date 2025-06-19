@@ -34,7 +34,6 @@ public class Main {
     public static void init() {
         try {
             dataUtils = new DataUtils();
-            dataUtils.saveSessions(new ConcurrentHashMap<>());
             SessionController.getInstance();
             if (isTest) {
                 log.info("Тестовый режим");

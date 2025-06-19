@@ -82,6 +82,11 @@ public class CallbackHandler {
 
     private void handleDeclineAction(long targetUserId) {
         long groupId = SessionController.getInstance().getUserSession(targetUserId).getGroupId();
+        String userName = SessionController.getInstance()
+                .getUserSession(targetUserId)
+                .getUserName();
+        String groupName = Main.dataUtils.getGroupName(groupId);
+
         TimerController.stopTimer(targetUserId, groupId);
         try {
             if (TimerController.hasTimer(targetUserId, groupId)) {
@@ -99,9 +104,10 @@ public class CallbackHandler {
                     unban.setChatId(String.valueOf(groupId));
                     unban.setUserId(targetUserId);
                     Main.bot.execute(unban);
-                    log.info("User {} was kicked from group {}", targetUserId, groupId);
+                    log.info("User {} was kicked from group {}", userName, groupId);
 
-                    ChatUtils.sendMessage(Main.dataUtils.getAdminId(), "Пользователь был удален из группы");
+                    ChatUtils.sendMessage(Long.parseLong(Main.dataUtils.getHistroyId()),
+                            "Пользователь @" + userName + " был удален из группы " + groupName);
                 } else {
                     log.info("User {} already isn’t a member of group {}", targetUserId, groupId);
                 }
