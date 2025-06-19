@@ -6,11 +6,15 @@ import bot.core.util.ChatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
+import org.telegram.telegrambots.meta.api.methods.groupadministration.BanChatMember;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatMember;
+import org.telegram.telegrambots.meta.api.methods.groupadministration.UnbanChatMember;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 
+import java.time.Instant;
 import java.util.*;
 
 public class CallbackHandler {
@@ -65,7 +69,6 @@ public class CallbackHandler {
     }
 
 
-
     private void handleDelGroupAction(long userId, int messageId, Long groupId) {
         if (Main.dataUtils.getGroupMap().containsValue(groupId)) {
             Main.dataUtils.removeGroup(groupId);
@@ -77,12 +80,37 @@ public class CallbackHandler {
     }
 
 
-
     private void handleDeclineAction(long targetUserId) {
-        log.info("decline {}", targetUserId);
+        long groupId = SessionController.getInstance().getUserSession(targetUserId).getGroupId();
+        TimerController.stopTimer(targetUserId, groupId);
+        try {
+            if (TimerController.hasTimer(targetUserId, groupId)) {
+                ChatUtils.sendMessage(targetUserId, "Ваша заявка была отклонена, \n" +
+                        "вы можете создать еще одну заявку или обратиться к администратору @Tulasikl");
+            } else {
+                if (Helper.areUserInGroup(targetUserId, groupId)) {
+                    BanChatMember ban = new BanChatMember();
+                    ban.setChatId(String.valueOf(groupId));
+                    ban.setUserId(targetUserId);
+                    ban.setUntilDate((int) Instant.now().getEpochSecond() + 60); // 60 сек достаточно, чтобы Telegram «забыл» участника
+                    Main.bot.execute(ban);
 
-        ChatUtils.sendMessage(targetUserId, "Ваша заявка была отклонена, \n" +
-                "вы можете создать еще одну заявку или обратиться к администратору @Tulasikl");
+                    UnbanChatMember unban = new UnbanChatMember(); // сразу разбаниваем, чтобы человек мог пере-войти в будущем
+                    unban.setChatId(String.valueOf(groupId));
+                    unban.setUserId(targetUserId);
+                    Main.bot.execute(unban);
+                    log.info("User {} was kicked from group {}", targetUserId, groupId);
+
+                    ChatUtils.sendMessage(Main.dataUtils.getAdminId(), "Пользователь был удален из группы");
+                } else {
+                    log.info("User {} already isn’t a member of group {}", targetUserId, groupId);
+                }
+            }
+        } catch (TelegramApiRequestException e) {
+            log.error("UnbanChatMember Bad Request: method is available for supergroup and channel chats only");
+        } catch (TelegramApiException e) {
+            log.error("Can’t remove user {} from group {}", targetUserId, groupId);
+        }
     }
 
 
@@ -109,19 +137,18 @@ public class CallbackHandler {
 
     private void handleConfirmAction(long targetUserId, long userCLickedButtonId) {
         log.info("Admin {} confirm {}", userCLickedButtonId, targetUserId);
-
         Long groupId = SessionController.getInstance().getUserSession(targetUserId).getGroupId();
-
-        if (groupId == null)
-            groupId = Main.dataUtils.getDefaulfGroup();
-
-        ChatUtils.addInGroup(targetUserId, groupId, "Одобрение админа");
+        if (TimerController.hasTimer(targetUserId, groupId)) {
+            TimerController.stopTimer(targetUserId, groupId);
+            ChatUtils.addInGroup(targetUserId, groupId, "Одобрение админа");
+        }
     }
+
     private static class Helper {
-        private static boolean isItFavoriteUser(Long userId) {
+        private static boolean areUserInGroup(long userId, long groupId) {
             try {
-                GetChatMember getChatMember  = new GetChatMember();
-                getChatMember.setChatId(Main.dataUtils.getFavoriteGroupId());
+                GetChatMember getChatMember = new GetChatMember();
+                getChatMember.setChatId(groupId);
                 getChatMember.setUserId(userId);
                 ChatMember chatMember = Main.bot.execute(getChatMember);
                 String status = chatMember.getStatus();
@@ -133,6 +160,10 @@ public class CallbackHandler {
                 log.warn("Не удалось получить статус пользователя в избранной группе {} ", userId);
             }
             return false;
+        }
+
+        private static boolean isItFavoriteUser(Long userId) {
+            return areUserInGroup(userId, Main.dataUtils.getFavoriteGroupId());
         }
     }
 }

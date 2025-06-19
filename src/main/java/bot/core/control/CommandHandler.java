@@ -30,7 +30,6 @@ public class CommandHandler {
     public void handle(MessageContext message) {
         if (message.isCommand()) {
             String[] data = message.getText().split(" ");
-            log.info("New command {}", data[0]);
             handleCommand(data[0]);
         } else {
             log.warn("handleCommand call with no command {}", message.getText());

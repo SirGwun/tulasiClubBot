@@ -20,8 +20,6 @@ public class Session implements Serializable {
     }
 
     public Long getGroupId() {
-        if (groupId == null)
-            return Main.dataUtils.getFavoriteGroupId();
         return groupId;
     }
 

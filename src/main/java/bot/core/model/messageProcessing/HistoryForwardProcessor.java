@@ -17,6 +17,7 @@ public class HistoryForwardProcessor implements MessageProcessor {
         return  !message.isCommand() &&
                 !state.isEditingHelp() &&
                 !state.isEditingInfo() &&
+                !message.isFromGroup() &&
                 (message.hasText() || message.hasPayment());
     }
 

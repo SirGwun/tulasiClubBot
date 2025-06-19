@@ -17,7 +17,6 @@ public class EditHelpProcessor implements MessageProcessor {
 
     @Override
     public void process(MessageContext message, Session session) {
-        log.info("Editing help for chatId={}", message.getChatId());
         Main.dataUtils.setInfo(message.getText());
         session.getState().editHelp();
         ChatUtils.sendMessage(message.getChatId(), "Инструкция для пользователей изменена");

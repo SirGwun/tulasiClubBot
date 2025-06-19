@@ -52,6 +52,7 @@ public class Validator {
         long userId = ctx.getFromId();
         Long groupId = SessionController.getInstance().getUserSession(ctx.getFromId()).getGroupId();
 
+        TimerController.addTimer(userId, groupId, TimerController.STANDARD_TIME);
 
         try {
             ForwardMessage forwardMessage = new ForwardMessage();

@@ -11,8 +11,8 @@ public class TimerController {
     private static final List<Timer> timers = new ArrayList<>();
     public static final long STANDARD_TIME = 360000;
 
-    public static void addTimer(long userId, long groupId, long ms, long messageOnCHeckId) {
-        Timer timer = new Timer(userId, groupId, ms, messageOnCHeckId);
+    public static void addTimer(long userId, long groupId, long ms) {
+        Timer timer = new Timer(userId, groupId, ms);
         if (!timers.contains(timer)) {
             log.info("Новый таймер добавлен");
             timers.add(timer);
@@ -26,10 +26,20 @@ public class TimerController {
         for (int i = 0; i < timers.size(); i++) {
             Timer timer = timers.get(i);
             if (timer.matches(userId, groupId)) {
+                log.info("timer stop");
                 timer.stop();
                 timers.remove(timer);
                 return;
             }
         }
+    }
+
+    public static boolean hasTimer(long userId, long groupId) {
+        for (Timer timer : timers) {
+            if (timer.matches(userId, groupId)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

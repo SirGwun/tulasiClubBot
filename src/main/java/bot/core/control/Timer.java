@@ -1,20 +1,17 @@
 package bot.core.control;
 
-import bot.core.Main;
 import bot.core.util.ChatUtils;
 
 public class Timer {
     private final long userId;
     private final long groupId;
     private long time;
-    private long messageOnCHeckId;
     Thread thread;
 
-    public Timer(long userId, long groupId, long ms, long messageOnCHeckId) {
+    public Timer(long userId, long groupId, long ms) {
         this.userId = userId;
         this.groupId = groupId;
         time = ms;
-        this.messageOnCHeckId = messageOnCHeckId;
     }
 
     void start() {

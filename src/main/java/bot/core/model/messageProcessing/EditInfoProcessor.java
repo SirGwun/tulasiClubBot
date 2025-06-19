@@ -17,7 +17,6 @@ public class EditInfoProcessor implements MessageProcessor {
 
     @Override
     public void process(MessageContext message, Session session) {
-        log.info("Editing info for chatId={}", message.getChatId());
         Main.dataUtils.setInfo(message.getText());
         session.getState().editInfo();
         ChatUtils.sendMessage(message.getChatId(), "Информация изменена");
