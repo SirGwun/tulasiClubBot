@@ -1,7 +1,9 @@
 package bot.core.validator;
 
 import bot.core.Main;
+import bot.core.control.TimerController;
 import bot.core.model.MessageContext;
+import bot.core.model.SessionController;
 import bot.core.util.ChatUtils;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -10,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.ForwardMessage;
 import org.telegram.telegrambots.meta.api.methods.GetFile;
+import org.telegram.telegrambots.meta.api.methods.groupadministration.CreateChatInviteLink;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Document;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -46,7 +49,9 @@ public class Validator {
     }
 
     public void sendOuHumanValidation(MessageContext ctx) {
-        long userId = ctx.getChatId();
+        long userId = ctx.getFromId();
+        Long groupId = SessionController.getInstance().getUserSession(ctx.getFromId()).getGroupId();
+
 
         try {
             ForwardMessage forwardMessage = new ForwardMessage();
@@ -55,15 +60,22 @@ public class Validator {
             forwardMessage.setMessageId(ctx.getMessage().getMessageId());
             Message forwardedMessage = Main.bot.execute(forwardMessage);
 
-            // Отправляем сообщение с кнопками
             SendMessage sendMessage = new SendMessage();
             sendMessage.setChatId(Main.dataUtils.getAdminId());
-            sendMessage.setText("Примите или отклоните пользователя");
+
+            sendMessage.setText("Заявка в чат " + "<a href=\"" + createInviteLink(groupId) + "\">" + Main.dataUtils.getGroupName(groupId) + "</a>");
+            sendMessage.setParseMode("HTML");
             sendMessage.setReplyMarkup(ChatUtils.getValidationKeyboard(forwardedMessage.getMessageId(), userId));
             Main.bot.execute(sendMessage);
         } catch (TelegramApiException e) {
             Main.log.error("Ошибка при отправке сообщения администратору", e);
         }
+    }
+    private static String createInviteLink(Long groupId) throws TelegramApiException {
+        CreateChatInviteLink link = new CreateChatInviteLink();
+        link.setChatId(groupId);
+        link.setCreatesJoinRequest(true);
+        return Main.bot.execute(link).getInviteLink();
     }
 
     public String extractTextFromPDF(PDDocument document) {

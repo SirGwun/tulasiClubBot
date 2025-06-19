@@ -40,8 +40,7 @@ public class CommonMessageProcessor implements MessageProcessor {
         //todo иногда валидатор отрабатывает долго, мб какой-то прогресс бар
 
         if (valid) {
-            ChatUtils.addInGroup(userId, session.getGroupId());
-            ChatUtils.sendMessage(Long.parseLong(Main.dataUtils.getHistroyId()), "Добавлен в группу автопроверкой");
+            ChatUtils.addInGroup(userId, session.getGroupId(), "Автоматическая проверка");
             log.info("Автоматическая проверка подтвердила оплату");
         } else {
             validator.sendOuHumanValidation(ctx);

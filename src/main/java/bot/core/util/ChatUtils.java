@@ -188,39 +188,70 @@ public final class ChatUtils {
         return false; // Группа не существует или бот не является администратором
     }
 
-    public static void addInGroup(long userId, Long groupId) {
-        if (Main.dataUtils.getGroupName(groupId) == null) {
+    public static void addInGroup(long userId, Long groupId, String reason) {
+        String groupName = Main.dataUtils.getGroupName(groupId);
+        if (groupName == null) {
             log.error("Попытка добавить в неизвестную группу {}", groupId);
             return;
         }
 
-        String userName = SessionController.getInstance().getUserSession(userId).getUserName();
-        String groupName = Main.dataUtils.getGroupName(groupId);
-
-        ChatUtils.sendMessage(Long.parseLong(Main.dataUtils.getHistroyId()),
-                "Пользователю @" + userName + " отправлено приглашение в группу " + groupName);
+        String userName = SessionController.getInstance()
+                .getUserSession(userId)
+                .getUserName();
 
         try {
-            CreateChatInviteLink link = new CreateChatInviteLink();
-            link.setChatId(groupId);
-            link.setName("Присоединиться к курсу");
-            link.setExpireDate(0);
-            link.setMemberLimit(1);
+            String historyLink = createInviteLink(groupId, groupName, true);
+            sendToHistoryChat(userName, groupName, historyLink, reason);
 
-            String inviteLink = Main.bot.execute(link).getInviteLink();
-            //todo придумать способ детектировать переход по ссылке и говорить пользователю где найти группу
-            SendMessage message = new SendMessage();
-            //todo красивая ссылка
-            message.setChatId(userId);
-            message.setText("Для присоединения к группе перейдите по ссылке ниже:\n\n" +
-                    inviteLink +
-                    "\nМы рады вас видеть!");
-            message.setParseMode(ParseMode.HTML);
+            String userInviteLink = createOneTimeInviteLink(groupId);
+            sendInviteToUser(userId, groupName, userInviteLink);
 
-            Main.bot.execute(message);
+            // TODO: детектировать переход по ссылке и сообщать, где найти группу
+
         } catch (TelegramApiException e) {
             log.error("Ошибка при добавлении пользователя в группу \n {}", e.getMessage());
         }
+    }
+
+    private static String createInviteLink(Long groupId, String groupName, boolean joinRequest) throws TelegramApiException {
+        CreateChatInviteLink link = new CreateChatInviteLink();
+        link.setChatId(groupId);
+        link.setName(groupName);
+        link.setCreatesJoinRequest(joinRequest);
+        return Main.bot.execute(link).getInviteLink();
+    }
+
+    private static String createOneTimeInviteLink(Long groupId) throws TelegramApiException {
+        CreateChatInviteLink link = new CreateChatInviteLink();
+        link.setChatId(groupId);
+        link.setName("Присоединиться к курсу");
+        link.setExpireDate(0); // бессрочно
+        link.setMemberLimit(1); // одноразовая
+        return Main.bot.execute(link).getInviteLink();
+    }
+
+    private static void sendToHistoryChat(String userName, String groupName, String link, String reason) throws TelegramApiException {
+        String message = "Пользователю @" + userName + " отправлено приглашение в группу " +
+                "<a href=\"" + link + "\">" + groupName + "</a>\nПричина: " + reason;
+
+        SendMessage msg = new SendMessage();
+        msg.setChatId(Main.dataUtils.getHistroyId());
+        msg.setText(message);
+        msg.setParseMode("HTML");
+
+        Main.bot.execute(msg);
+    }
+
+    private static void sendInviteToUser(long userId, String groupName, String link) throws TelegramApiException {
+        String messageText = "Для присоединения к группе перейдите по ссылке ниже:\n\n" +
+                "<a href=\"" + link + "\">" + groupName + "</a>\nМы рады вас видеть!";
+
+        SendMessage msg = new SendMessage();
+        msg.setChatId(userId);
+        msg.setText(messageText);
+        msg.setParseMode("HTML");
+
+        Main.bot.execute(msg);
     }
 
     public static void sendPhoto(SendPhoto sendPhoto) {

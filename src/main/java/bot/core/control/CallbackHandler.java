@@ -97,7 +97,7 @@ public class CallbackHandler {
 
         if (ChatUtils.isBotAdminInGroup(selectedGroupId)) {
             if (Helper.isItFavoriteUser(selectingUserId)) {
-                ChatUtils.addInGroup(selectingUserId, selectedGroupId);
+                ChatUtils.addInGroup(selectingUserId, selectedGroupId, "Член избранной группы");
             } else {
                 SessionController.getInstance().setUserGroupId(selectingUserId, selectedGroupId);
                 ChatUtils.sendMessage(selectingUserId, "Выбрана группа: " + groupName + "\nТеперь пришлите подтверждение оплаты");
@@ -115,7 +115,7 @@ public class CallbackHandler {
         if (groupId == null)
             groupId = Main.dataUtils.getDefaulfGroup();
 
-        ChatUtils.addInGroup(targetUserId, groupId);
+        ChatUtils.addInGroup(targetUserId, groupId, "Одобрение админа");
     }
     private static class Helper {
         private static boolean isItFavoriteUser(Long userId) {
