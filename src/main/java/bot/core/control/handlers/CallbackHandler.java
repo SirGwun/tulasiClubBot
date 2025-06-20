@@ -66,7 +66,6 @@ public class CallbackHandler {
                                 "⚠️ Внимание: если вы ещё не вступали в группу, сначала перейдите по одноразовой ссылке выше.\n" +
                                 link);
                 break;
-                ChatUtils.sendMessage(Main.dataUtils.getHistoryId(), );
             }
         }
 
