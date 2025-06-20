@@ -41,6 +41,7 @@ public class PaymentBot extends TelegramLongPollingBot {
             handleIncomingMessage(update.getMessage());
         } else if (update.hasCallbackQuery()) {
             callbackHandler.handleCallbackQuery(update.getCallbackQuery());
+            System.out.println(update.getCallbackQuery().getData());
         } else if (addingProcessor.canProcess(update)) {
             addingProcessor.process(update.getMyChatMember());
         }

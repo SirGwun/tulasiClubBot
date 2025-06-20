@@ -196,24 +196,21 @@ public final class ChatUtils {
                 .getUserName();
 
         try {
-            String historyLink = createInviteLink(groupId, groupName, true);
+            String historyLink = getJoinRequestedLink(groupId, groupName);
             sendToHistoryChat(userName, groupName, historyLink, reason);
 
             String userInviteLink = createOneTimeInviteLink(groupId);
-            sendInviteToUser(userId, groupName, userInviteLink);
-
-            // TODO: детектировать переход по ссылке и сообщать, где найти группу
-
+            sendInviteToUser(userId, groupId, groupName, userInviteLink);
         } catch (TelegramApiException e) {
             log.error("Ошибка при добавлении пользователя в группу \n {}", e.getMessage());
         }
     }
 
-    private static String createInviteLink(Long groupId, String groupName, boolean joinRequest) throws TelegramApiException {
+    private static String getJoinRequestedLink(Long groupId, String groupName) throws TelegramApiException {
         CreateChatInviteLink link = new CreateChatInviteLink();
         link.setChatId(groupId);
         link.setName(groupName);
-        link.setCreatesJoinRequest(joinRequest);
+        link.setCreatesJoinRequest(true);
         return Main.bot.execute(link).getInviteLink();
     }
 
@@ -238,15 +235,26 @@ public final class ChatUtils {
         Main.bot.execute(msg);
     }
 
-    private static void sendInviteToUser(long userId, String groupName, String link) throws TelegramApiException {
-        String messageText = "Для присоединения к группе перейдите по ссылке ниже:\n\n" +
-                "<a href=\"" + link + "\">" + groupName
-                + " - Мы рады вас видеть!" + "</a>";
+    private static void sendInviteToUser(long userId, long groupId, String groupName, String link) throws TelegramApiException {
+        String messageText =
+                "Для присоединения к группе перейдите по ссылке ниже:\n\n" +
+                        "<a href=\"" + link + "\">" + groupName + " — мы рады вас видеть!</a>\n\n" +
+                        "После того как вы воспользуетесь этой ссылкой, группа появится во вкладке \"Все чаты\".\n" +
+                        "Если не можете её найти — воспользуйтесь кнопкой ниже.";
 
         SendMessage msg = new SendMessage();
         msg.setChatId(userId);
         msg.setText(messageText);
         msg.setParseMode("HTML");
+
+        InlineKeyboardButton button = new InlineKeyboardButton();
+        button.setText("Я вступил, но не могу найти группу");
+        button.setCallbackData("getJoinRequestedLink_" + getJoinRequestedLink(groupId, groupName) + "_" + userId);
+
+        InlineKeyboardMarkup replyMarkup = new InlineKeyboardMarkup();
+        replyMarkup.setKeyboard(List.of(List.of(button)));
+
+        msg.setReplyMarkup(replyMarkup);
 
         Main.bot.execute(msg);
     }
