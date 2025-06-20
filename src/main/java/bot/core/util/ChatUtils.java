@@ -249,7 +249,9 @@ public final class ChatUtils {
 
         InlineKeyboardButton button = new InlineKeyboardButton();
         button.setText("Я вступил, но не могу найти группу");
-        button.setCallbackData("getJoinRequestedLink_" + getJoinRequestedLink(groupId, groupName) + "_" + userId);
+        button.setCallbackData("getJoinRequestedLink_"
+                + getJoinRequestedLink(groupId, groupName) + "_"
+                + userId);
 
         InlineKeyboardMarkup replyMarkup = new InlineKeyboardMarkup();
         replyMarkup.setKeyboard(List.of(List.of(button)));

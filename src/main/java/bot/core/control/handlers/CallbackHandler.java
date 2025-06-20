@@ -65,8 +65,8 @@ public class CallbackHandler {
                         "Если вы уже вступили в группу, но не можете её найти — воспользуйтесь ссылкой ниже.\n\n" +
                                 "⚠️ Внимание: если вы ещё не вступали в группу, сначала перейдите по одноразовой ссылке выше.\n" +
                                 link);
-
                 break;
+                ChatUtils.sendMessage(Main.dataUtils.getHistoryId(), );
             }
         }
 
