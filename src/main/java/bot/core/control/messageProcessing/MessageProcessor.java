@@ -1,8 +1,8 @@
-package bot.core.model.messageProcessing;
+package bot.core.control.messageProcessing;
 
 
 import bot.core.model.MessageContext;
-import bot.core.control.Session;
+import bot.core.model.Session;
 
 public interface MessageProcessor {
     boolean canProcess(MessageContext message, Session session);

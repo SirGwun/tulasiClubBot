@@ -1,7 +1,7 @@
-package bot.core.model.messageProcessing;
+package bot.core.control.messageProcessing;
 
-import bot.core.control.CommandHandler;
-import bot.core.control.Session;
+import bot.core.control.handlers.CommandHandler;
+import bot.core.model.Session;
 import bot.core.model.MessageContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

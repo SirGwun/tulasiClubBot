@@ -1,7 +1,8 @@
-package bot.core.control;
+package bot.core.control.handlers;
 
 import bot.core.Main;
-import bot.core.model.SessionController;
+import bot.core.control.SessionController;
+import bot.core.control.TimerController;
 import bot.core.util.ChatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -106,7 +107,7 @@ public class CallbackHandler {
                     Main.bot.execute(unban);
                     log.info("User {} was kicked from group {}", userName, groupId);
 
-                    ChatUtils.sendMessage(Long.parseLong(Main.dataUtils.getHistroyId()),
+                    ChatUtils.sendMessage(Long.parseLong(Main.dataUtils.getHistoryId()),
                             "Пользователь @" + userName + " был удален из группы " + groupName);
                 } else {
                     log.info("User {} already isn’t a member of group {}", targetUserId, groupId);

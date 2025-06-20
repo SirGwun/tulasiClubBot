@@ -1,8 +1,8 @@
-package bot.core.model.messageProcessing;
+package bot.core.control.messageProcessing;
 
 import bot.core.Main;
-import bot.core.control.Session;
-import bot.core.control.SessionState;
+import bot.core.model.Session;
+import bot.core.model.SessionState;
 import bot.core.model.MessageContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +25,7 @@ public class HistoryForwardProcessor implements MessageProcessor {
     @Override
     public void process(MessageContext message, Session session) {
         ForwardMessage forwardMessage = new ForwardMessage();
-        forwardMessage.setChatId(Main.dataUtils.getHistroyId());
+        forwardMessage.setChatId(Main.dataUtils.getHistoryId());
         forwardMessage.setMessageId(message.getMessage().getMessageId());
         forwardMessage.setFromChatId(message.getChatId());
 

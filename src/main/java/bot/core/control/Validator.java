@@ -1,9 +1,7 @@
-package bot.core.validator;
+package bot.core.control;
 
 import bot.core.Main;
-import bot.core.control.TimerController;
 import bot.core.model.MessageContext;
-import bot.core.model.SessionController;
 import bot.core.util.ChatUtils;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;

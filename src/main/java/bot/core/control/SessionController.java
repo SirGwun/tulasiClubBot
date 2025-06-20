@@ -1,7 +1,7 @@
-package bot.core.model;
+package bot.core.control;
 
 import bot.core.Main;
-import bot.core.control.Session;
+import bot.core.model.Session;
 import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.util.Map;

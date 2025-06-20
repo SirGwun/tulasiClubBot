@@ -1,5 +1,6 @@
 package bot.core.control;
 
+import bot.core.model.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

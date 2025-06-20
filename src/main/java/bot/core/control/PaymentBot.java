@@ -1,17 +1,15 @@
-package bot.core;
+package bot.core.control;
 
-import bot.core.control.CallbackHandler;
-import bot.core.control.Session;
+import bot.core.Main;
+import bot.core.control.handlers.CallbackHandler;
+import bot.core.control.messageProcessing.*;
+import bot.core.model.Session;
 import bot.core.model.MessageContext;
-import bot.core.model.SessionController;
-import bot.core.model.messageProcessing.*;
-import bot.core.validator.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.objects.*;
-import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeAllPrivateChats;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeChat;
@@ -39,7 +37,6 @@ public class PaymentBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        //log.info(update.toString());
         if (update.hasMessage()) {
             handleIncomingMessage(update.getMessage());
         } else if (update.hasCallbackQuery()) {
@@ -50,19 +47,17 @@ public class PaymentBot extends TelegramLongPollingBot {
     }
 
     private void handleIncomingMessage(Message message) {
-        long fromId = message.getFrom().getId();
-        long chatId = message.getChatId();
-
-        log.info("Получено новое сообщение от {}", fromId);
-        log.info("Оно касается действий в {} - {}", chatId, message.getChat().getTitle());
+        String chatTitle = message.getChat().getTitle();
+        if (chatTitle == null) chatTitle = "Личных сообщений";
+        log.info("Получено новое сообщение от {} из {}", message.getFrom().getUserName(), chatTitle);
 
         Session session = SessionController.getInstance().openSessionIfNeeded(message.getFrom());
-
         MessageContext ctx = new MessageContext(message);
 
         if (historyForwardProcessor.canProcess(ctx, session)) historyForwardProcessor.process(ctx, session);
         for (MessageProcessor processor : processors) {
             if (processor.canProcess(ctx, session)) {
+                log.info("Запущен процессор {}", processor.getClass());
                 processor.process(ctx, session);
                 return;
             }

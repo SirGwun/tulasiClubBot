@@ -1,10 +1,10 @@
-package bot.core.control;
+package bot.core.control.handlers;
 
 import bot.core.model.EditingActions;
 import bot.core.model.MessageContext;
 import bot.core.Main;
+import bot.core.model.SessionState;
 import bot.core.util.ChatUtils;
-import bot.core.util.DataUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
@@ -15,7 +15,6 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class CommandHandler {
     private static final Logger log = LoggerFactory.getLogger(CommandHandler.class);
@@ -96,6 +95,7 @@ public class CommandHandler {
                 break;
             case "/help":
                 handleHelpCommand();
+                break;
             case "/catalog":
                 handleCatalogCommand();
                 break;
@@ -106,7 +106,7 @@ public class CommandHandler {
     }
 
     private void handleStartCommand() {
-        log.info("User {} started bot", userId);
+        log.info("User {} use start command", userId);
 
         String START_MESSAGE = """
                 Здравствуйте!
@@ -126,11 +126,11 @@ public class CommandHandler {
         String paymentInfo = Main.dataUtils.getPaymentInfo();
         ChatUtils.sendMessage(userId, START_MESSAGE + paymentInfo);
 
-        SendPhoto sendPhoto = new SendPhoto();
-        File file = Main.dataUtils.getPaymentPhoto();
-        sendPhoto.setPhoto(new InputFile(file));
-        sendPhoto.setChatId(userId);
-        ChatUtils.sendPhoto(sendPhoto);
+//        SendPhoto sendPhoto = new SendPhoto();
+//        File file = Main.dataUtils.getPaymentPhoto();
+//        sendPhoto.setPhoto(new InputFile(file));
+//        sendPhoto.setChatId(userId);
+//        ChatUtils.sendPhoto(sendPhoto);
     }
 
 
@@ -237,7 +237,7 @@ public class CommandHandler {
 
     private void handleEditHelpCommand() {
         log.info("User {} edit help", userId);
-        state.editInfo();
+        state.editHelp();
         ChatUtils.sendMessage(userId, "Введите новое сообщение помощи");
     }
 

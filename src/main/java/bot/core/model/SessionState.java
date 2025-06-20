@@ -1,6 +1,5 @@
-package bot.core.control;
+package bot.core.model;
 
-import bot.core.model.EditingActions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,7 +10,7 @@ import static bot.core.model.EditingActions.*;
 
 public class SessionState implements Serializable {
     @Serial
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 3L;
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     private EditingActions action = NONE;
 

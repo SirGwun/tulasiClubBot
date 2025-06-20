@@ -1,4 +1,4 @@
-package bot.core.control;
+package bot.core.model;
 
 import bot.core.util.ChatUtils;
 
@@ -14,7 +14,7 @@ public class Timer {
         time = ms;
     }
 
-    void start() {
+    public void start() {
         thread = new Thread(() -> {
             try {
                 Thread.sleep(time);
@@ -26,7 +26,7 @@ public class Timer {
         thread.start();
     }
 
-    void stop() {
+    public void stop() {
         thread.interrupt();
     }
 

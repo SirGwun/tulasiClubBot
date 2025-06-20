@@ -1,11 +1,9 @@
 package bot.core.util;
 
 import bot.core.Main;
-import bot.core.control.SessionState;
-import bot.core.model.SessionController;
+import bot.core.control.SessionController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.CreateChatInviteLink;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatAdministrators;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatMemberCount;
@@ -17,7 +15,6 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import javax.xml.crypto.Data;
 import java.util.*;
 
 /** Utility methods for interacting with chats. */
@@ -234,7 +231,7 @@ public final class ChatUtils {
                 "<a href=\"" + link + "\">" + groupName + "</a>\nПричина: " + reason;
 
         SendMessage msg = new SendMessage();
-        msg.setChatId(Main.dataUtils.getHistroyId());
+        msg.setChatId(Main.dataUtils.getHistoryId());
         msg.setText(message);
         msg.setParseMode("HTML");
 

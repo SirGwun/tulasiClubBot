@@ -1,10 +1,12 @@
 package bot.core.util;
 
 import bot.core.Main;
-import bot.core.control.Session;
+import bot.core.model.Session;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.telegram.telegrambots.meta.api.methods.groupadministration.LeaveChat;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -241,24 +243,34 @@ public final class DataUtils {
         }
     }
 
-    public String getHistroyId() {
+    public String getHistoryId() {
         return (String) config.get("history");
     }
 
     public void removeGroup(Long groupId) {
-        //todo выходить из этой группы
-        for (Map.Entry<String, Long> entry : groupList.entrySet()) {
-            String name = entry.getKey();
-            Long id = entry.getValue();
+        String removeGroupName = null;
 
-            if (Objects.equals(id, groupId)) {
-                groupList.remove(name, id);
-                log.info("Группа {} удалена из списка", name);
-                saveGroupList();
-                return;
+        for (Map.Entry<String, Long> entry : groupList.entrySet()) {
+            if (Objects.equals(entry.getValue(), groupId)) {
+                removeGroupName = entry.getKey();
+                break;
             }
         }
-        Main.log.info("Группа {} не найдена в списке", groupId);
+        if (removeGroupName != null) {
+            try {
+                LeaveChat leaveChat = new LeaveChat();
+                leaveChat.setChatId(groupId);
+                Main.bot.execute(leaveChat);
+            } catch (TelegramApiException e) {
+                log.warn("Не удалось выйти из группы {}", removeGroupName);
+            }
+
+            groupList.remove(removeGroupName);
+            log.info("Группа {} удалена из списка", removeGroupName);
+            saveGroupList();
+        } else {
+            log.info("Группа {} не найдена в списке", groupId);
+        }
     }
 
     public String getGroupName(long groupId) {
@@ -284,7 +296,7 @@ public final class DataUtils {
         return null;
     }
 
-    public Long getDefaulfGroup() {
+    public Long getDefaultGroup() {
         return Long.parseLong(config.getProperty("groupID"));
     }
 

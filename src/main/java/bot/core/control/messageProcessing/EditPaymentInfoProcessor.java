@@ -1,7 +1,7 @@
-package bot.core.model.messageProcessing;
+package bot.core.control.messageProcessing;
 
 import bot.core.Main;
-import bot.core.control.Session;
+import bot.core.model.Session;
 import bot.core.model.MessageContext;
 import bot.core.util.ChatUtils;
 

@@ -1,6 +1,6 @@
-package bot.core.model.messageProcessing;
+package bot.core.control.messageProcessing;
 
-import bot.core.control.Session;
+import bot.core.model.Session;
 import bot.core.model.MessageContext;
 import bot.core.util.ChatUtils;
 import bot.core.Main;
@@ -17,8 +17,8 @@ public class EditHelpProcessor implements MessageProcessor {
 
     @Override
     public void process(MessageContext message, Session session) {
-        Main.dataUtils.setInfo(message.getText());
-        session.getState().editHelp();
+        Main.dataUtils.setHelp(message.getText());
+        session.getState().cansel();
         ChatUtils.sendMessage(message.getChatId(), "Инструкция для пользователей изменена");
     }
 }

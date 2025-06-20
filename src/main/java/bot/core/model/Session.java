@@ -1,13 +1,11 @@
-package bot.core.control;
-
-import bot.core.Main;
+package bot.core.model;
 
 import java.io.Serial;
 import java.io.Serializable;
 
 public class Session implements Serializable {
     @Serial
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 3L;
     long userId;
     String userName;
     Long groupId;

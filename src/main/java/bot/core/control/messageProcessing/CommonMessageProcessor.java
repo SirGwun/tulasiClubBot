@@ -1,10 +1,9 @@
-package bot.core.model.messageProcessing;
+package bot.core.control.messageProcessing;
 
-import bot.core.control.Session;
+import bot.core.model.Session;
 import bot.core.model.MessageContext;
 import bot.core.util.ChatUtils;
-import bot.core.Main;
-import bot.core.validator.Validator;
+import bot.core.control.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
