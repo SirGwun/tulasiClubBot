@@ -10,7 +10,7 @@ import java.util.List;
 public class TimerController {
     private static final Logger log = LoggerFactory.getLogger(TimerController.class);
     private static final List<Timer> timers = new ArrayList<>();
-    public static final long STANDARD_TIME = 360000;
+    public static final long STANDARD_TIME = 7200000;
 
     public static void addTimer(long userId, long groupId, long ms) {
         Timer timer = new Timer(userId, groupId, ms);

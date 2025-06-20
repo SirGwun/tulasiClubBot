@@ -82,7 +82,6 @@ public class PaymentBot extends TelegramLongPollingBot {
         List<BotCommand> defaultCommands = new ArrayList<>();
         defaultCommands.add(new BotCommand("/set_group", "Выбрать группу"));
         defaultCommands.add(new BotCommand("/catalog", "Каталог всех лекций"));
-        defaultCommands.add(new BotCommand("/info", "Информация о группе"));
         defaultCommands.add(new BotCommand("/help", "Помощь"));
 
         // Команды для администраторов
@@ -90,7 +89,6 @@ public class PaymentBot extends TelegramLongPollingBot {
         adminCommands.add(new BotCommand("/set_group", "Выбрать группу"));
         adminCommands.add(new BotCommand("/del", "Удалить группу"));
         adminCommands.add(new BotCommand("/set_payment_info", "Установить информацию об оплате в /start"));
-        adminCommands.add(new BotCommand("/edit_info", "Изменить информацию"));
         adminCommands.add(new BotCommand("/edit_help", "Изменить помощь"));
         adminCommands.add(new BotCommand("/cancel", "Отменить действие"));
         try {
