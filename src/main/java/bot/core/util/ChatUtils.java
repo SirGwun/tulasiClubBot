@@ -202,14 +202,13 @@ public final class ChatUtils {
             String userInviteLink = createOneTimeInviteLink(groupId);
             sendInviteToUser(userId, groupId, groupName, userInviteLink);
         } catch (TelegramApiException e) {
-            log.error("Ошибка при добавлении пользователя в группу \n {}", e.getMessage());
+            log.error("Ошибка при добавлении пользователя в группу {}", e.getMessage());
         }
     }
 
     private static String getJoinRequestedLink(Long groupId, String groupName) throws TelegramApiException {
         CreateChatInviteLink link = new CreateChatInviteLink();
         link.setChatId(groupId);
-        link.setName(groupName);
         link.setCreatesJoinRequest(true);
         return Main.bot.execute(link).getInviteLink();
     }
