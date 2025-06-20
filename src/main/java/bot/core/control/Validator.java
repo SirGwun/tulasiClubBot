@@ -3,6 +3,7 @@ package bot.core.control;
 import bot.core.Main;
 import bot.core.model.MessageContext;
 import bot.core.util.ChatUtils;
+import com.sun.jdi.request.StepRequest;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
@@ -24,9 +25,11 @@ import java.net.URL;
 
 public class Validator {
     private static final Logger log = LoggerFactory.getLogger(Validator.class);
+    Document document;
+    String documentText;
     public boolean isValidPayment(Message message) {
         if (message.hasDocument()) {
-            Document document = message.getDocument();
+            document = message.getDocument();
             String fileName = document.getFileName();
             if (fileName.endsWith(".pdf")) {
                 try {
@@ -34,8 +37,8 @@ public class Validator {
                     String fileId = document.getFileId();
                     GetFile getFileMethod = new GetFile(fileId);
                     String fileUrl = Main.bot.execute(getFileMethod).getFileUrl(Main.dataUtils.getBotToken());
-
-                    return validatePDFText(extractTextFromPDF(new URL(fileUrl).openStream()));
+                    documentText = extractTextFromPDF(new URL(fileUrl).openStream());
+                    return validatePDFText();
                 } catch (TelegramApiException e) {
                     Main.log.error("Ошибка при получении файла {}", fileName);
                 } catch (IOException e) {
@@ -96,25 +99,32 @@ public class Validator {
         return "";
     }
 
-    public String extractTextFromPDF(String filePath) {
-        try (PDDocument document = Loader.loadPDF(new File(filePath))) {
-            return extractTextFromPDF(document);
-        } catch (IOException e) {
-            Main.log.error("Ошибка при получении текста из PDF", e);
-        }
-        return "";
+    public boolean validatePDFText() {
+        if (documentText.isEmpty())
+            return false;
+        return checkTitle(documentText) &&
+                checkName(documentText) &&
+                checkSum(documentText);
     }
 
-    public boolean validatePDFText(String textFromDocument) {
-        if (textFromDocument.isEmpty()) {
-            return false;
-        } else {
-            boolean hasCheck = textFromDocument.contains("Чек");
-            boolean hasName = (textFromDocument.contains("Елена Алексеевна") ||
-                                textFromDocument.contains("Елена Алексеевна") ||
-                                    textFromDocument.contains("Елена C."));
-            boolean hasSum = textFromDocument.contains("Сумма");
-            return hasCheck && hasName && hasSum;
-        }
+    private boolean checkTitle(String documentText) {
+        return documentText.contains("Чек") ||
+                documentText.contains("чек") ||
+                documentText.contains("Transfer") ||
+                documentText.contains("transfer");
+    }
+
+    private boolean checkName(String documentText) {
+        return  documentText.contains("Елена Алексеевна") ||
+                documentText.contains("Елена C.") ||
+                documentText.contains("Милана С.") ||
+                documentText.contains("Милана Дмитриевна") ||
+                documentText.contains("DEBA PRASAD DASH");
+
+    }
+
+    private boolean checkSum(String documentText) {
+        return documentText.contains("Сумма") ||
+                documentText.contains("Amount");
     }
 }
