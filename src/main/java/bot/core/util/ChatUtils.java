@@ -230,6 +230,7 @@ public final class ChatUtils {
         msg.setChatId(Main.dataUtils.getHistoryId());
         msg.setText(message);
         msg.setParseMode("HTML");
+        msg.setDisableWebPagePreview(true);
 
         Main.bot.execute(msg);
     }
