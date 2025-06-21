@@ -157,6 +157,8 @@ public class CallbackHandler {
         if (TimerController.hasTimer(targetUserId, groupId)) {
             TimerController.stopTimer(targetUserId, groupId);
             ChatUtils.addInGroup(targetUserId, groupId, "Одобрение админа");
+        } else {
+            log.info("Already added by timer");
         }
     }
 
