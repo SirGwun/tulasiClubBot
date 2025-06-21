@@ -68,6 +68,8 @@ public class Validator {
             sendMessage.setText("Заявка в чат " + "<a href=\"" + createInviteLink(groupId) + "\">" + Main.dataUtils.getGroupName(groupId) + "</a>");
             sendMessage.setParseMode("HTML");
             sendMessage.setReplyMarkup(ChatUtils.getValidationKeyboard(forwardedMessage.getMessageId(), userId));
+            sendMessage.setDisableWebPagePreview(true);
+
             Main.bot.execute(sendMessage);
         } catch (TelegramApiException e) {
             Main.log.error("Ошибка при отправке сообщения администратору", e);
