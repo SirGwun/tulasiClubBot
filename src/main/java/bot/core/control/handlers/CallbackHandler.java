@@ -97,11 +97,16 @@ public class CallbackHandler {
                 .getUserName();
         String groupName = Main.dataUtils.getGroupName(groupId);
 
-        TimerController.stopTimer(targetUserId, groupId);
         try {
             if (TimerController.hasTimer(targetUserId, groupId)) {
                 ChatUtils.sendMessage(targetUserId, "Ваша заявка была отклонена, \n" +
                         "вы можете создать еще одну заявку или обратиться к администратору @Tulasikl");
+                ChatUtils.sendMessage(Long.parseLong(Main.dataUtils.getHistoryId()),
+                        "Заявка пользователя " +
+                                userName +
+                                "была отклонена, \n" +
+                                "Он хотел попасть в группу " + groupName);
+                TimerController.stopTimer(targetUserId, groupId);
             } else {
                 if (Helper.areUserInGroup(targetUserId, groupId)) {
                     BanChatMember ban = new BanChatMember();
@@ -118,6 +123,9 @@ public class CallbackHandler {
 
                     ChatUtils.sendMessage(Long.parseLong(Main.dataUtils.getHistoryId()),
                             "Пользователь @" + userName + " был удален из группы " + groupName);
+
+                    ChatUtils.sendMessage(targetUserId, "Вы были удалены из группы " + groupName + "\n" +
+                            "вы можете создать еще одну заявку или обратиться к администратору @Tulasikl");
                 } else {
                     log.info("User {} already isn’t a member of group {}", targetUserId, groupId);
                 }
