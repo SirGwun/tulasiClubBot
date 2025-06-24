@@ -42,6 +42,7 @@ public class Session implements Serializable {
     }
 
     public String getUserName() {
+        if (userName == null) return "не_удалось_получить_имя";
         return userName;
     }
 

@@ -89,7 +89,6 @@ public class CallbackHandler {
         }
     }
 
-
     private void handleDeclineAction(long targetUserId) {
         long groupId = SessionController.getInstance().getUserSession(targetUserId).getGroupId();
         String userName = SessionController.getInstance()
@@ -102,9 +101,9 @@ public class CallbackHandler {
                 ChatUtils.sendMessage(targetUserId, "Ваша заявка была отклонена, \n" +
                         "вы можете создать еще одну заявку или обратиться к администратору @Tulasikl");
                 ChatUtils.sendMessage(Long.parseLong(Main.dataUtils.getHistoryId()),
-                        "Заявка пользователя " +
+                        "Заявка пользователя @" +
                                 userName +
-                                "была отклонена, \n" +
+                                " была отклонена, \n" +
                                 "Он хотел попасть в группу " + groupName);
                 TimerController.stopTimer(targetUserId, groupId);
             } else {
