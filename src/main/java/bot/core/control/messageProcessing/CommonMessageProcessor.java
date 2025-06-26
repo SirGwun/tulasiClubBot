@@ -1,5 +1,6 @@
 package bot.core.control.messageProcessing;
 
+import bot.core.Main;
 import bot.core.model.Session;
 import bot.core.model.MessageContext;
 import bot.core.util.ChatUtils;
@@ -25,7 +26,7 @@ public class CommonMessageProcessor implements MessageProcessor {
         if (ctx.hasPayment()) {
             handlePayment(ctx, session);
         } else {
-            ChatUtils.sendMessage(userId, "Пожалуйста приложите документ или фото платежа");
+            ChatUtils.sendMessage(userId, Main.dataUtils.getHelp());
         }
     }
 
