@@ -5,9 +5,13 @@ import bot.core.model.MessageContext;
 import bot.core.Main;
 import bot.core.model.SessionState;
 import bot.core.util.ChatUtils;
+import bot.core.control.SessionController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
+import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChat;
+import org.telegram.telegrambots.meta.api.objects.Chat;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -28,22 +32,24 @@ public class CommandHandler {
 
     public void handle(MessageContext message) {
         if (message.isCommand()) {
-            String[] data = message.getText().split(" ");
-            handleCommand(data[0]);
+            String[] data = message.getText().split(" ", 2);
+            String command = data[0];
+            String args = data.length > 1 ? data[1] : "";
+            handleCommand(command, args);
         } else {
             log.warn("handleCommand call with no command {}", message.getText());
         }
     }
 
-    public void handleCommand(String command) {
+    public void handleCommand(String command, String args) {
         if (userId == Main.dataUtils.getAdminId()) {
-            handleAdminCommand(command);
+            handleAdminCommand(command, args);
         } else {
            handleUserCommand(command);
         }
     }
 
-    private void handleAdminCommand(String command) {
+    private void handleAdminCommand(String command, String args) {
         switch (command) {
             case "/start":
                 handleStartCommand();
@@ -75,6 +81,9 @@ public class CommandHandler {
                 break;
             case "/del":
                 handleDelCommand();
+                break;
+            case "/say":
+                handleSayCommand(args);
                 break;
             default:
                 handleUnknownCommand(command);
@@ -245,6 +254,42 @@ public class CommandHandler {
         log.info("User {} is set's payment info", userId);
         state.editPaymentInfo();
         ChatUtils.sendMessage(userId, "Пришлите сообщение содержащее информацию о методах оплаты");
+    }
+
+    private void handleSayCommand(String args) {
+        if (args == null || args.isBlank()) {
+            ChatUtils.sendMessage(userId, "Формат: /say @username текст");
+            return;
+        }
+
+        String[] parts = args.trim().split(" ", 2);
+        if (parts.length < 2) {
+            ChatUtils.sendMessage(userId, "Формат: /say @username текст");
+            return;
+        }
+
+        String username = parts[0].startsWith("@") ? parts[0].substring(1) : parts[0];
+        String text = parts[1];
+        log.info("Admin {} use say command to @{}", userId, username);
+
+        Long targetId = SessionController.getInstance().getUserIdByUsername(username);
+        if (targetId == null) {
+            try {
+                GetChat getChat = new GetChat("@" + username);
+                Chat chat = Main.bot.execute(getChat);
+                targetId = chat.getId();
+            } catch (TelegramApiException e) {
+                log.warn("Unable to find user via Telegram API: {}", e.getMessage());
+            }
+        }
+
+        if (targetId == null) {
+            ChatUtils.sendMessage(userId, "Пользователь @" + username + " не найден");
+            return;
+        }
+
+        ChatUtils.sendMessage(targetId, text);
+        ChatUtils.sendMessage(userId, "Сообщение отправлено пользователю @" + username);
     }
 
     private void handleUnknownCommand(String message) {

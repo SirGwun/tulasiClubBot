@@ -33,4 +33,19 @@ public class SessionController {
         Long fromId = user.getId();
         return sessionMap.computeIfAbsent(fromId, k -> new Session(fromId, user.getUserName()));
     }
+
+    /**
+     * Find user id by username from stored sessions.
+     *
+     * @param username username without @
+     * @return user id or null if not found
+     */
+    public Long getUserIdByUsername(String username) {
+        for (Session session : sessionMap.values()) {
+            if (username.equals(session.getUserName())) {
+                return session.getUserId();
+            }
+        }
+        return null;
+    }
 }
