@@ -32,6 +32,7 @@ public final class DataUtils {
     private String botToken;
     private long adminChatID;
     private long favoriteGroupID;
+    private long defaultTime;
     private String info;
     private String help;
     private final Properties config = new Properties();
@@ -108,6 +109,7 @@ public final class DataUtils {
             config.load(configInput);
             adminChatID = Long.parseLong(config.getProperty("adminChatID"));
             favoriteGroupID = Long.parseLong(config.getProperty("favoriteGroupID"));
+            defaultTime = Long.parseLong(config.getProperty("defaultTime", "-1"));
         } catch (FileNotFoundException ex) {
             log.error("Не удалось загрузить конфиг {}", ex.getMessage());
         } catch (IOException ex) {
@@ -298,6 +300,14 @@ public final class DataUtils {
 
     public Long getDefaultGroup() {
         return Long.parseLong(config.getProperty("groupID"));
+    }
+
+    public long getDefaultTime() {
+        return defaultTime;
+    }
+
+    public void setDefaultTime(long minutes) {
+        updateConfig("defaultTime", String.valueOf(minutes));
     }
 
     public void setPaymentInfo(String text) {

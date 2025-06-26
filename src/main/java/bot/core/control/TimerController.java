@@ -1,5 +1,6 @@
 package bot.core.control;
 
+import bot.core.Main;
 import bot.core.util.ChatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,10 +11,17 @@ import java.util.List;
 public class TimerController {
     private static final Logger log = LoggerFactory.getLogger(TimerController.class);
     private static final List<Timer> timers = new ArrayList<>();
-    public static final long STANDARD_TIME = 7200000;
+    private static long defaultTimeMs;
 
-    public static void addTimer(long userId, long groupId, long ms) {
-        Timer timer = new Timer(userId, groupId, ms);
+    static {
+        setDefaultTime(Main.dataUtils.getDefaultTime());
+    }
+    public static void addTimer(long userId, long groupId) {
+        if (defaultTimeMs <= 0) {
+            log.info("Таймеры отключены, новый таймер не создан");
+            return;
+        }
+        Timer timer = new Timer(userId, groupId, defaultTimeMs);
         if (!timers.contains(timer)) {
             log.info("Новый таймер добавлен");
             timers.add(timer);
@@ -21,6 +29,19 @@ public class TimerController {
             return;
         }
         log.info("Попытка добавления уже существующего таймера");
+    }
+
+    public static void setDefaultTime(long minutes) {
+        if (minutes < 0) {
+            defaultTimeMs = -1;
+        } else {
+            defaultTimeMs = minutes * 60_000;
+        }
+        log.info("Установлено время таймера {} минут", minutes);
+    }
+
+    public static long getDefaultTime() {
+        return defaultTimeMs < 0 ? -1 : defaultTimeMs / 60_000;
     }
 
     public static void stopTimer(long userId, long groupId) {

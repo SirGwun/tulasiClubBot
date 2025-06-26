@@ -91,6 +91,7 @@ public class PaymentBot extends TelegramLongPollingBot {
         adminCommands.add(new BotCommand("/set_payment_info", "Установить информацию об оплате в /start"));
         adminCommands.add(new BotCommand("/edit_help", "Изменить помощь"));
         adminCommands.add(new BotCommand("/cancel", "Отменить действие"));
+        adminCommands.add(new BotCommand("/timer", "Установить таймер"));
         try {
             execute(new SetMyCommands(defaultCommands, new BotCommandScopeAllPrivateChats(), null));
             execute(new SetMyCommands(adminCommands, new BotCommandScopeChat(Long.toString(Main.dataUtils.getAdminId())), null));

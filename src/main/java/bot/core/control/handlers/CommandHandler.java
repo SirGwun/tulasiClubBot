@@ -5,6 +5,7 @@ import bot.core.model.MessageContext;
 import bot.core.Main;
 import bot.core.model.SessionState;
 import bot.core.util.ChatUtils;
+import bot.core.control.TimerController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
@@ -28,22 +29,23 @@ public class CommandHandler {
 
     public void handle(MessageContext message) {
         if (message.isCommand()) {
-            String[] data = message.getText().split(" ");
-            handleCommand(data[0]);
+            String[] data = message.getText().split(" ", 2);
+            String arg = data.length > 1 ? data[1] : null;
+            handleCommand(data[0], arg);
         } else {
             log.warn("handleCommand call with no command {}", message.getText());
         }
     }
 
-    public void handleCommand(String command) {
+    public void handleCommand(String command, String arg) {
         if (userId == Main.dataUtils.getAdminId()) {
-            handleAdminCommand(command);
+            handleAdminCommand(command, arg);
         } else {
            handleUserCommand(command);
         }
     }
 
-    private void handleAdminCommand(String command) {
+    private void handleAdminCommand(String command, String arg) {
         switch (command) {
             case "/start":
                 handleStartCommand();
@@ -72,6 +74,9 @@ public class CommandHandler {
                 break;
             case "/set_payment_info":
                 handleSetPaymentInfo();
+                break;
+            case "/timer":
+                handleTimerCommand(arg);
                 break;
             case "/del":
                 handleDelCommand();
@@ -245,6 +250,27 @@ public class CommandHandler {
         log.info("User {} is set's payment info", userId);
         state.editPaymentInfo();
         ChatUtils.sendMessage(userId, "Пришлите сообщение содержащее информацию о методах оплаты");
+    }
+
+    private void handleTimerCommand(String arg) {
+        if (arg == null) {
+            ChatUtils.sendMessage(userId, "Не указано время таймера");
+            return;
+        }
+        try {
+            long minutes = Long.parseLong(arg.trim());
+            TimerController.setDefaultTime(minutes);
+            Main.dataUtils.setDefaultTime(minutes);
+            if (minutes < 0) {
+                ChatUtils.sendMessage(userId, "Таймер отключен");
+            } else {
+                ChatUtils.sendMessage(userId, "Таймер установлен на " + minutes + " минут");
+            }
+            log.info("Admin {} set timer to {}", userId, minutes);
+        } catch (NumberFormatException e) {
+            ChatUtils.sendMessage(userId, "Неверное значение таймера");
+            log.warn("Admin {} entered wrong timer value {}", userId, arg);
+        }
     }
 
     private void handleUnknownCommand(String message) {
