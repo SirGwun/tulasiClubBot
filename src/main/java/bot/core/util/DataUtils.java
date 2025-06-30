@@ -28,9 +28,11 @@ public final class DataUtils {
     private final String infoPath;
     private final String paymentFolderPath;
     private final String catalogPath;
+    private final String tagListPath;
 
     private String botName;
     private String botToken;
+    private String groupTag;
     private long adminChatID;
     private long favoriteGroupID;
     private String info;
@@ -51,6 +53,8 @@ public final class DataUtils {
         this.infoPath = base + "info.txt";
         this.paymentFolderPath = base + "Payment info/";
         this.catalogPath = base + "catalog.txt";
+        this.tagListPath = base + "tagList.txt";
+        groupTag = "Второй поток"; //todo сериализовать и десериализовать
 
         if (amvera) {
             botToken = System.getenv("BOTTOCKEN");
@@ -86,7 +90,7 @@ public final class DataUtils {
     }
 
     public boolean addNewGroup(String name, long id) {
-        groupList.add(new Group(name, id));
+        groupList.add(new Group(name, id, groupTag));
         saveGroupList();
         loadGroupList();
         return groupList.stream().anyMatch(g -> g.getName().equals(name));
@@ -333,6 +337,38 @@ public final class DataUtils {
 
     public File getPaymentPhoto() {
         return new File(paymentFolderPath + "paymentPhoto.jpg");
+    }
+
+    public Map<Integer, String> getTagMap() {
+        Map<Integer, String> tags = new HashMap<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(tagListPath))) {
+            while (reader.ready()) {
+                String input = reader.readLine();
+                tags.put(Integer.parseInt(input.substring(0, 1)),
+                        input.substring(2, input.length() - 1));
+            }
+        } catch (IOException e) {
+            log.error("Ошибка чтения tagList {}", e.getMessage());
+        }
+        return tags;
+    }
+
+    public String getGroupTag() {
+        return groupTag;
+    }
+
+    public void setGroupTag(String groupTag) {
+        this.groupTag = groupTag;
+    }
+
+    public void addNewTag(String tagName) {
+        Map<Integer, String> tags = getTagMap();
+        int newTagId = tags.size() + 1;
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(tagListPath, true))) {
+            writer.write("\n" + newTagId + " " + tagName);
+        } catch (IOException e) {
+            log.error("Ошибка при добавлении нового тега {}", e.getMessage());
+        }
     }
 }
 

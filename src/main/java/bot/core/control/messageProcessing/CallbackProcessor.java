@@ -1,4 +1,4 @@
-package bot.core.control.handlers;
+package bot.core.control.messageProcessing;
 
 import bot.core.Main;
 import bot.core.control.SessionController;
@@ -11,6 +11,7 @@ import org.telegram.telegrambots.meta.api.methods.groupadministration.BanChatMem
 import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatMember;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.UnbanChatMember;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
+import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
@@ -18,10 +19,19 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 import java.time.Instant;
 import java.util.*;
 
-public class CallbackHandler {
-    private static final Logger log = LoggerFactory.getLogger(CallbackHandler.class);
-    //Map(userId, groupID>
+public class CallbackProcessor implements MessageProcessor {
+    private static final Logger log = LoggerFactory.getLogger(CallbackProcessor.class);
     Map<Long, Long> groupMap = new HashMap<>();
+
+    @Override
+    public boolean canProcess(Update update) {
+        return update.hasCallbackQuery();
+    }
+
+    @Override
+    public void process(Update update) {
+        handleCallbackQuery(update.getCallbackQuery());
+    }
 
     public void handleCallbackQuery(CallbackQuery callbackQuery) {
         String[] data = callbackQuery.getData().split("_");
@@ -52,6 +62,10 @@ public class CallbackHandler {
                 Long groupId = Long.parseLong(data[1]);
                 handleSetGroupAction(groupId, userClickedButtonId, messageId);
                 break;
+            }
+            case "setTag": {
+                String tagId = data[1];
+                handleSetTagAction(tagId, userClickedButtonId, messageId);
             }
             case "delGroup": {
                 Long groupId = Long.parseLong(data[1]);
@@ -156,6 +170,17 @@ public class CallbackHandler {
         } else {
             ChatUtils.sendMessage(selectingUserId, "Бот не выходит в группу или не является в ней администратором");
         }
+    }
+
+    private void handleSetTagAction(String tagId, long userClickedButtonId, int messageId) {
+        Map<Integer, String> tags = Main.dataUtils.getTagMap();
+        String tag = tags.get(Integer.parseInt(tagId));
+        if (tag == null) {
+            log.error("Попытка прочитать несуществующий тег {} ", tagId);
+            return;
+        }
+        log.info("User {} set tag {}", userClickedButtonId, tag);
+        Main.dataUtils.setGroupTag(tag);
     }
 
     private void handleConfirmAction(long targetUserId, long userCLickedButtonId) {

@@ -20,24 +20,40 @@ public class AddingInGroupMessageProcessor implements MessageProcessor {
     private boolean isBotAddedToGroup(Update update) {
         if (!update.hasMyChatMember()) return false;
         User user = update.getMyChatMember().getNewChatMember().getUser();
-        String status = update.getMyChatMember().getNewChatMember().getStatus();
-        System.out.println(status);
-        if (!user.getUserName().equalsIgnoreCase(Main.dataUtils.getBotName())) return false;
-        if (status.equalsIgnoreCase("left") || status.equalsIgnoreCase("kicked")) return false;
-
-        return true;
+        return user.getUserName().equalsIgnoreCase(Main.dataUtils.getBotName());
     }
 
     @Override
     public void process(Update update) {
-        if (!update.hasMyChatMember()) return;
         ChatMemberUpdated myChatMember = update.getMyChatMember();
-        processChatAddition(
-                myChatMember.getChat().getId(),
-                myChatMember.getChat().getTitle(),
-                myChatMember.getFrom().getId(),
-                myChatMember.getChat().getType()
-        );
+        if (myChatMember.getNewChatMember().getStatus().equalsIgnoreCase("left")
+                || myChatMember.getNewChatMember().getStatus().equalsIgnoreCase("kicked"))
+            processChatLeft(
+                    myChatMember.getChat().getId(),
+                    myChatMember.getChat().getTitle(),
+                    myChatMember.getFrom().getId(),
+                    myChatMember.getChat().getType()
+            );
+        else {
+            processChatAddition(
+                    myChatMember.getChat().getId(),
+                    myChatMember.getChat().getTitle(),
+                    myChatMember.getFrom().getId(),
+                    myChatMember.getChat().getType()
+            );
+        }
+    }
+
+    private void processChatLeft(long chatId, String chatName, Long fromId, String type) {
+        String chatType = (type.equals("group") || type.equals("supergroup")) ? "группы" : "канала";
+
+        if (!isItNewChat(chatName, chatId)) {
+            log.info("Bot left from group: " + chatName);
+            Main.dataUtils.removeGroup(chatId);
+            ChatUtils.sendMessage(fromId, "Бот был удален из " + chatType + " " + chatName);
+        } else {
+            log.info("Попытка удалить несуществующую группу: " + chatName);
+        }
     }
 
     private void processChatAddition(long chatId, String chatName, Long fromId, String type) {
@@ -45,7 +61,8 @@ public class AddingInGroupMessageProcessor implements MessageProcessor {
         String chatType = (type.equals("group") || type.equals("supergroup")) ? "группу" : "канал";
 
         if (isItNewChat(chatName, chatId)) {
-            addBot(chatName, chatId);
+            log.info("Bot added to group: " + chatName);
+            Main.dataUtils.addNewGroup(chatName, chatId);
             ChatUtils.sendMessage(fromId, "Вы успешно добавили бота в " + chatType + " " + chatName);
         } else { //todo определять добавили или удалили и не отправлять во втором случае
             ChatUtils.sendMessage(fromId,
@@ -61,10 +78,5 @@ public class AddingInGroupMessageProcessor implements MessageProcessor {
         Group group = Main.dataUtils.getGroupByName(chatName);
         Long savedChatId = group == null ? null : group.getId();
         return savedChatId == null || savedChatId.equals(chatId);
-    }
-
-    private void addBot(String chatName, Long chatId) {
-        log.info("Bot added to group: " + chatName);
-        Main.dataUtils.addNewGroup(chatName, chatId);
     }
 }

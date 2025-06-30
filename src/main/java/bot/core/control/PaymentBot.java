@@ -1,7 +1,7 @@
 package bot.core.control;
 
 import bot.core.Main;
-import bot.core.control.handlers.CallbackHandler;
+import bot.core.control.messageProcessing.CallbackProcessor;
 import bot.core.control.messageProcessing.*;
 
 import org.slf4j.Logger;
@@ -17,14 +17,14 @@ import java.util.*;
 
 public class PaymentBot extends TelegramLongPollingBot {
     private static final Logger log = LoggerFactory.getLogger(PaymentBot.class);
-    CallbackHandler callbackHandler = new CallbackHandler();
+    CallbackProcessor callbackHandler = new CallbackProcessor();
     Validator validator;
     HistoryForwardProcessor historyForwardProcessor  = new HistoryForwardProcessor();
-    AddingInGroupMessageProcessor addingProcessor = new AddingInGroupMessageProcessor();
     List<MessageProcessor> processors = Arrays.asList(
+            new AddingInGroupMessageProcessor(),
+            new CallbackProcessor(),
             new CommandMessageProcessor(),
             new CommonMessageProcessor(),
-            new EditInfoProcessor(),
             new EditHelpProcessor(),
             new EditPaymentInfoProcessor()
     );
@@ -35,20 +35,12 @@ public class PaymentBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        if (update.hasCallbackQuery()) {
-            callbackHandler.handleCallbackQuery(update.getCallbackQuery());
-        } else if (addingProcessor.canProcess(update)) {
-            addingProcessor.process(update);
-        } else if (update.hasMessage()) {
-            handleIncomingMessage(update);
+        if (update.hasMessage()) {
+            Message message = update.getMessage();
+            String chatTitle = message.getChat().getTitle();
+            if (chatTitle == null) chatTitle = "Личных сообщений";
+            log.info("Получено новое сообщение от {} из {}", message.getFrom().getUserName(), chatTitle);
         }
-    }
-
-    private void handleIncomingMessage(Update update) {
-        Message message = update.getMessage();
-        String chatTitle = message.getChat().getTitle();
-        if (chatTitle == null) chatTitle = "Личных сообщений";
-        log.info("Получено новое сообщение от {} из {}", message.getFrom().getUserName(), chatTitle);
 
         if (historyForwardProcessor.canProcess(update)) {
             historyForwardProcessor.process(update);
@@ -62,7 +54,6 @@ public class PaymentBot extends TelegramLongPollingBot {
             }
         }
     }
-
 
     @Override
     public String getBotUsername() {
@@ -84,6 +75,8 @@ public class PaymentBot extends TelegramLongPollingBot {
         // Команды для администраторов
         List<BotCommand> adminCommands = new ArrayList<>(); //todo добавить startEditCatalog endEditCatalog
         adminCommands.add(new BotCommand("/set_group", "Выбрать группу"));
+        adminCommands.add(new BotCommand("/set_tag", "Установить тег с которым будет добавляться группа"));
+        adminCommands.add(new BotCommand("/add_tag", "Добавить тег"));
         adminCommands.add(new BotCommand("/del", "Удалить группу"));
         adminCommands.add(new BotCommand("/set_payment_info", "Установить информацию об оплате в /start"));
         adminCommands.add(new BotCommand("/edit_help", "Изменить помощь"));

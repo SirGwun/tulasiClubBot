@@ -4,15 +4,12 @@ import bot.core.Main;
 import bot.core.control.SessionController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.CreateChatInviteLink;
-import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChat;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatAdministrators;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatMemberCount;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
-import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -77,20 +74,37 @@ public final class ChatUtils {
      * Keyboard containing all groups available for user.
      */
     public static InlineKeyboardMarkup getAllGroupKeyboard(String callBack, Long userId) {
+       return getTaggedGroupKeyboard(callBack, userId, null);
+    }
+
+    public static InlineKeyboardMarkup getTaggedGroupKeyboard(String callBack, Long userId, String tag) {
         List<InlineKeyboardButton> buttons = new ArrayList<>();
 
         for (Group group : Main.dataUtils.getGroupList()) {
-            String groupName = group.getName();
-            Long groupId = group.getId();
-
-            if (isBotAdminInGroup(groupId)) {
-                buttons.add(createButton(groupName, callBack + "_" + groupId));
-            } else if (Main.dataUtils.getAdminId() == userId) {
-                buttons.add(createButton("!" + groupName, callBack + "_" + groupId));
+            if (group.getTag().equals(tag) || tag == null) {
+                String groupName = group.getName();
+                Long groupId = group.getId();
+                if (isBotAdminInGroup(groupId)) {
+                    buttons.add(createButton(groupName, callBack + "_" + groupId));
+                } else if (Main.dataUtils.getAdminId() == userId) {
+                    buttons.add(createButton("!" + groupName, callBack + "_" + groupId));
+                }
             }
         }
 
         buttons.sort(Comparator.comparing(InlineKeyboardButton::getText));
+
+        InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup();
+        keyboard.setKeyboard(distributeButtons(buttons));
+        return keyboard;
+    }
+
+    public static InlineKeyboardMarkup getAllTagKeyboard(String callBack, Long userId) {
+        List<InlineKeyboardButton> buttons = new ArrayList<>();
+        Map<Integer, String> tags = Main.dataUtils.getTagMap();
+        for (int i = 0; i < tags.size(); i++) {
+            buttons.add(createButton(tags.get(i), callBack + "_" + i));
+        }
 
         InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup();
         keyboard.setKeyboard(distributeButtons(buttons));
@@ -118,11 +132,6 @@ public final class ChatUtils {
      */
     private static InlineKeyboardButton createDeclineButton(int messageId, long userId) {
         return createButton("Отказываю", "decline_" + messageId + "_" + userId);
-    }
-
-
-    private static InlineKeyboardButton createGroupButton(String groupName, Long id, String callBack) {
-        return createButton(groupName, callBack + "_" + id);
     }
 
     private static int getColumnCount(int size) {
