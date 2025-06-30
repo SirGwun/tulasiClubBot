@@ -3,8 +3,7 @@ package bot.core.control;
 import bot.core.Main;
 import bot.core.control.handlers.CallbackHandler;
 import bot.core.control.messageProcessing.*;
-import bot.core.model.Session;
-import bot.core.model.MessageContext;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -25,7 +24,6 @@ public class PaymentBot extends TelegramLongPollingBot {
     List<MessageProcessor> processors = Arrays.asList(
             new CommandMessageProcessor(),
             new CommonMessageProcessor(),
-            addingProcessor,
             new EditInfoProcessor(),
             new EditHelpProcessor(),
             new EditPaymentInfoProcessor()
@@ -37,28 +35,29 @@ public class PaymentBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        if (update.hasMessage()) {
-            handleIncomingMessage(update.getMessage());
-        } else if (update.hasCallbackQuery()) {
+        if (update.hasCallbackQuery()) {
             callbackHandler.handleCallbackQuery(update.getCallbackQuery());
         } else if (addingProcessor.canProcess(update)) {
-            addingProcessor.process(update.getMyChatMember());
+            addingProcessor.process(update);
+        } else if (update.hasMessage()) {
+            handleIncomingMessage(update);
         }
     }
 
-    private void handleIncomingMessage(Message message) {
+    private void handleIncomingMessage(Update update) {
+        Message message = update.getMessage();
         String chatTitle = message.getChat().getTitle();
         if (chatTitle == null) chatTitle = "Личных сообщений";
         log.info("Получено новое сообщение от {} из {}", message.getFrom().getUserName(), chatTitle);
 
-        Session session = SessionController.getInstance().openSessionIfNeeded(message.getFrom());
-        MessageContext ctx = new MessageContext(message);
+        if (historyForwardProcessor.canProcess(update)) {
+            historyForwardProcessor.process(update);
+        }
 
-        if (historyForwardProcessor.canProcess(ctx, session)) historyForwardProcessor.process(ctx, session);
         for (MessageProcessor processor : processors) {
-            if (processor.canProcess(ctx, session)) {
+            if (processor.canProcess(update)) {
                 log.info("Запущен процессор {}", processor.getClass());
-                processor.process(ctx, session);
+                processor.process(update);
                 return;
             }
         }

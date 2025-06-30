@@ -1,8 +1,10 @@
 package bot.core.control.messageProcessing;
 
 import bot.core.Main;
+import bot.core.control.SessionController;
 import bot.core.model.Session;
 import bot.core.model.MessageContext;
+import org.telegram.telegrambots.meta.api.objects.Update;
 import bot.core.util.ChatUtils;
 import bot.core.control.Validator;
 import org.slf4j.Logger;
@@ -13,14 +15,24 @@ public class CommonMessageProcessor implements MessageProcessor {
     Validator validator;
 
     @Override
-    public boolean canProcess(MessageContext ctx, Session session) {
+    public boolean canProcess(Update update) {
+        if (!update.hasMessage()) return false;
+        MessageContext ctx = new MessageContext(update.getMessage());
+        Session session = SessionController.getInstance()
+                .openSessionIfNeeded(update.getMessage().getFrom());
         //todo проверить
         return !ctx.isCommand() && !ctx.isFromGroup() && session.getState().isCommonState();
     }
 
     @Override
-    public void process(MessageContext ctx, Session session) {
+    public void process(Update update) {
+        if (!update.hasMessage()) return;
         if (validator == null) validator = new Validator();
+
+        MessageContext ctx = new MessageContext(update.getMessage());
+        Session session = SessionController.getInstance()
+                .getUserSession(ctx.getFromId());
+
         long userId = ctx.getChatId();
 
         if (ctx.hasPayment()) {

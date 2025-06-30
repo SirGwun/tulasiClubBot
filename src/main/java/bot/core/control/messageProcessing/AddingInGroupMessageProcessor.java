@@ -1,8 +1,6 @@
 package bot.core.control.messageProcessing;
 
 import bot.core.Main;
-import bot.core.model.Session;
-import bot.core.model.MessageContext;
 import bot.core.util.ChatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,18 +9,10 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import bot.core.model.Group;
 
-import java.util.List;
-
 public class AddingInGroupMessageProcessor implements MessageProcessor {
     Logger log = LoggerFactory.getLogger(AddingInGroupMessageProcessor.class);
 
-
-    //поменять
     @Override
-    public boolean canProcess(MessageContext ctx, Session session) {
-        return false;
-    }
-
     public boolean canProcess(Update update) {
         return isBotAddedToGroup(update) && update.getMyChatMember().getFrom().getId() == Main.dataUtils.getAdminId();
     }
@@ -39,16 +29,9 @@ public class AddingInGroupMessageProcessor implements MessageProcessor {
     }
 
     @Override
-    public void process(MessageContext ctx, Session session) {
-        processChatAddition(
-                ctx.getChatId(),
-                ctx.getChatName(),
-                ctx.getFromId(),
-                ctx.getMessage().getChat().getType()
-        );
-    }
-
-    public void process(ChatMemberUpdated myChatMember) {
+    public void process(Update update) {
+        if (!update.hasMyChatMember()) return;
+        ChatMemberUpdated myChatMember = update.getMyChatMember();
         processChatAddition(
                 myChatMember.getChat().getId(),
                 myChatMember.getChat().getTitle(),
