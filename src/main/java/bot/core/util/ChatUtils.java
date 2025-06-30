@@ -17,6 +17,7 @@ import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import bot.core.model.Group;
 
 import java.util.*;
 
@@ -78,9 +79,9 @@ public final class ChatUtils {
     public static InlineKeyboardMarkup getAllGroupKeyboard(String callBack, Long userId) {
         List<InlineKeyboardButton> buttons = new ArrayList<>();
 
-        for (Map.Entry<String, Long> entry : Main.dataUtils.getGroupMap().entrySet()) {
-            String groupName = entry.getKey();
-            Long groupId = entry.getValue();
+        for (Group group : Main.dataUtils.getGroupList()) {
+            String groupName = group.getName();
+            Long groupId = group.getId();
 
             if (isBotAdminInGroup(groupId)) {
                 buttons.add(createButton(groupName, callBack + "_" + groupId));

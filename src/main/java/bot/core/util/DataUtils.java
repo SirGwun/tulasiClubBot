@@ -2,6 +2,7 @@ package bot.core.util;
 
 import bot.core.Main;
 import bot.core.model.Session;
+import bot.core.model.Group;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +36,7 @@ public final class DataUtils {
     private String info;
     private String help;
     private final Properties config = new Properties();
-    private Map<String, Long> groupList = new HashMap<>();
+    private List<Group> groupList = new ArrayList<>();
 
     /**
      * Create a new instance and load configuration and group list.
@@ -85,10 +86,10 @@ public final class DataUtils {
     }
 
     public boolean addNewGroup(String name, long id) {
-        groupList.put(name, id);
+        groupList.add(new Group(name, id));
         saveGroupList();
         loadGroupList();
-        return groupList.containsKey(name);
+        return groupList.stream().anyMatch(g -> g.getName().equals(name));
     }
 
     public void setDefaultGroup(long groupId) {
@@ -115,7 +116,7 @@ public final class DataUtils {
         }
     }
 
-    public Map<String, Long> getGroupMap() {
+    public List<Group> getGroupList() {
         return groupList;
     }
 
@@ -156,7 +157,10 @@ public final class DataUtils {
     }
 
     private void loadGroupList() {
-        groupList = (Map<String, Long>) load("groupList");
+        List<Group> list = (List<Group>) load("groupList");
+        if (list != null) {
+            groupList = list;
+        }
     }
 
     private void saveGroupList() {
@@ -248,25 +252,25 @@ public final class DataUtils {
     }
 
     public void removeGroup(Long groupId) {
-        String removeGroupName = null;
+        Group removeGroup = null;
 
-        for (Map.Entry<String, Long> entry : groupList.entrySet()) {
-            if (Objects.equals(entry.getValue(), groupId)) {
-                removeGroupName = entry.getKey();
+        for (Group group : groupList) {
+            if (Objects.equals(group.getId(), groupId)) {
+                removeGroup = group;
                 break;
             }
         }
-        if (removeGroupName != null) {
+        if (removeGroup != null) {
             try {
                 LeaveChat leaveChat = new LeaveChat();
                 leaveChat.setChatId(groupId);
                 Main.bot.execute(leaveChat);
             } catch (TelegramApiException e) {
-                log.warn("Не удалось выйти из группы {}", removeGroupName);
+                log.warn("Не удалось выйти из группы {}", removeGroup.getName());
             }
 
-            groupList.remove(removeGroupName);
-            log.info("Группа {} удалена из списка", removeGroupName);
+            groupList.remove(removeGroup);
+            log.info("Группа {} удалена из списка", removeGroup.getName());
             saveGroupList();
         } else {
             log.info("Группа {} не найдена в списке", groupId);
@@ -274,15 +278,25 @@ public final class DataUtils {
     }
 
     public String getGroupName(long groupId) {
-        for (Map.Entry<String, Long> entry : groupList.entrySet()) {
-            String name = entry.getKey();
-            Long id = entry.getValue();
-
-            if (Objects.equals(groupId, id)) {
-                return name;
+        for (Group group : groupList) {
+            if (Objects.equals(group.getId(), groupId)) {
+                return group.getName();
             }
         }
         return null;
+    }
+
+    public Group getGroupByName(String name) {
+        for (Group group : groupList) {
+            if (group.getName().equals(name)) {
+                return group;
+            }
+        }
+        return null;
+    }
+
+    public boolean containsGroupId(long id) {
+        return groupList.stream().anyMatch(g -> g.getId() == id);
     }
 
     public String getCatalog() {

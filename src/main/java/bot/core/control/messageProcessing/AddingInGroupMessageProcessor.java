@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.objects.ChatMemberUpdated;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
+import bot.core.model.Group;
 
 import java.util.List;
 
@@ -77,7 +78,8 @@ public class AddingInGroupMessageProcessor implements MessageProcessor {
     }
 
     private boolean isItNewChat(String chatName, Long chatId) {
-        Long savedChatId = Main.dataUtils.getGroupMap().get(chatName);
+        Group group = Main.dataUtils.getGroupByName(chatName);
+        Long savedChatId = group == null ? null : group.getId();
         return savedChatId == null || savedChatId.equals(chatId);
     }
 
