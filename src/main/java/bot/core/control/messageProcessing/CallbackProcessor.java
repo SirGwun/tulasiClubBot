@@ -1,27 +1,20 @@
 package bot.core.control.messageProcessing;
 
 import bot.core.Main;
-import bot.core.control.SessionController;
-import bot.core.control.TimerController;
 import bot.core.util.ChatUtils;
+import bot.core.control.callbackHandlers.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
-import org.telegram.telegrambots.meta.api.methods.groupadministration.BanChatMember;
-import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatMember;
-import org.telegram.telegrambots.meta.api.methods.groupadministration.UnbanChatMember;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 
-import java.time.Instant;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 
 public class CallbackProcessor implements MessageProcessor {
     private static final Logger log = LoggerFactory.getLogger(CallbackProcessor.class);
-    Map<Long, Long> groupMap = new HashMap<>();
 
     @Override
     public boolean canProcess(Update update) {
@@ -30,55 +23,28 @@ public class CallbackProcessor implements MessageProcessor {
 
     @Override
     public void process(Update update) {
-        handleCallbackQuery(update.getCallbackQuery());
+        handleCallbackQuery(update);
     }
 
-    public void handleCallbackQuery(CallbackQuery callbackQuery) {
-        String[] data = callbackQuery.getData().split("_");
-        String action = data[0];
-        long userClickedButtonId = callbackQuery.getMessage().getChatId();
-        int messageId = callbackQuery.getMessage().getMessageId();
+    private final List<callbackHandler> handlers = Arrays.asList(
+            new ConfirmHandler(),
+            new DeclineHandler(),
+            new SetGroupHandler(),
+            new SetTagHandler(),
+            new DelGroupHandler(),
+            new GetJoinRequestedLinkHandler()
+    );
 
-        switch (action) {
-            case "confirm": {
-                int originMessageId = Integer.parseInt(data[1]);
-                long targetUserId = Long.parseLong(data[2]);
-                handleConfirmAction(targetUserId, userClickedButtonId);
+    public void handleCallbackQuery(Update update) {
+        CallbackQuery callbackQuery = update.getCallbackQuery();
 
-                ChatUtils.deleteMessage(userClickedButtonId, messageId);
-                ChatUtils.deleteMessage(userClickedButtonId, originMessageId);
-                break;
-            }
-            case "decline": {
-                int originMessageId = Integer.parseInt(data[1]);
-                ChatUtils.deleteMessage(userClickedButtonId, messageId);
-                ChatUtils.deleteMessage(userClickedButtonId, originMessageId);
-
-                long targetUserId = Long.parseLong(data[2]);
-                handleDeclineAction(targetUserId);
-                break;
-            }
-            case "setGroup": {
-                Long groupId = Long.parseLong(data[1]);
-                handleSetGroupAction(groupId, userClickedButtonId, messageId);
-                break;
-            }
-            case "setTag": {
-                String tagId = data[1];
-                handleSetTagAction(tagId, userClickedButtonId, messageId);
-            }
-            case "delGroup": {
-                Long groupId = Long.parseLong(data[1]);
-                handleDelGroupAction(userClickedButtonId, messageId, groupId);
-                break;
-            }
-            case "getJoinRequestedLink": {
-                String link = data[1];
-                long chatId = Long.parseLong(data[2]);
-                ChatUtils.sendMessage(chatId,
-                        "Если вы уже вступили в группу, но не можете её найти — воспользуйтесь ссылкой ниже.\n\n" +
-                                "⚠️ Внимание: если вы ещё не вступали в группу, сначала перейдите по одноразовой ссылке выше.\n" +
-                                link);
+        for (callbackHandler handler : handlers) {
+            if (handler.match(update)) {
+                if (!handler.isFormatCorrect(callbackQuery.getData())) {
+                    ChatUtils.sendMessage(callbackQuery.getMessage().getChatId(), handler.getFormat());
+                } else {
+                    handler.handle(update);
+                }
                 break;
             }
         }
@@ -89,131 +55,6 @@ public class CallbackProcessor implements MessageProcessor {
             Main.bot.execute(answerCallbackQuery);
         } catch (TelegramApiException e) {
             log.error("Ошибка при отправке ответа на CallbackQuery", e);
-        }
-    }
-
-
-    private void handleDelGroupAction(long userId, int messageId, Long groupId) {
-        if (Main.dataUtils.containsGroupId(groupId)) {
-            Main.dataUtils.removeGroup(groupId);
-            ChatUtils.sendMessage(userId, "Группа удалена");
-            ChatUtils.deleteMessage(userId, messageId);
-        } else {
-            ChatUtils.sendMessage(userId, "Группа не найдена");
-        }
-    }
-
-    private void handleDeclineAction(long targetUserId) {
-        long groupId = SessionController.getInstance().getUserSession(targetUserId).getGroupId();
-        String userName = SessionController.getInstance()
-                .getUserSession(targetUserId)
-                .getUserName();
-        String groupName = Main.dataUtils.getGroupName(groupId);
-
-        try {
-            if (TimerController.hasTimer(targetUserId, groupId)) {
-                ChatUtils.sendMessage(targetUserId, "Ваша заявка была отклонена, \n" +
-                        "вы можете создать еще одну заявку или обратиться к администратору @Tulasikl");
-                ChatUtils.sendMessage(Long.parseLong(Main.dataUtils.getHistoryId()),
-                        "Заявка пользователя @" +
-                                userName +
-                                " была отклонена, \n" +
-                                "Он хотел попасть в группу " + groupName);
-                TimerController.stopTimer(targetUserId, groupId);
-            } else {
-                if (Helper.areUserInGroup(targetUserId, groupId)) {
-                    BanChatMember ban = new BanChatMember();
-                    ban.setChatId(String.valueOf(groupId));
-                    ban.setUserId(targetUserId);
-                    ban.setUntilDate((int) Instant.now().getEpochSecond() + 60); // 60 сек достаточно, чтобы Telegram «забыл» участника
-                    Main.bot.execute(ban);
-
-                    UnbanChatMember unban = new UnbanChatMember(); // сразу разбаниваем, чтобы человек мог пере-войти в будущем
-                    unban.setChatId(String.valueOf(groupId));
-                    unban.setUserId(targetUserId);
-                    Main.bot.execute(unban);
-                    log.info("User {} was kicked from group {}", userName, groupId);
-
-                    ChatUtils.sendMessage(Long.parseLong(Main.dataUtils.getHistoryId()),
-                            "Пользователь @" + userName + " был удален из группы " + groupName);
-
-                    ChatUtils.sendMessage(targetUserId, "Вы были удалены из группы " + groupName + "\n" +
-                            "вы можете создать еще одну заявку или обратиться к администратору @Tulasikl");
-                } else {
-                    log.info("User {} already isn’t a member of group {}", targetUserId, groupId);
-                }
-            }
-        } catch (TelegramApiRequestException e) {
-            log.error("UnbanChatMember Bad Request: method is available for supergroup and channel chats only");
-        } catch (TelegramApiException e) {
-            log.error("Can’t remove user {} from group {}", targetUserId, groupId);
-        }
-    }
-
-
-    private void handleSetGroupAction(Long selectedGroupId, long selectingUserId, int messageId) {
-        log.info("User {} set group {}", selectingUserId, selectedGroupId);
-
-        if (!Main.dataUtils.containsGroupId(selectedGroupId)) {
-            ChatUtils.sendMessage(selectingUserId, "Группа не найдена");
-            return;
-        }
-        String groupName = Main.dataUtils.getGroupName(selectedGroupId);
-
-        if (ChatUtils.isBotAdminInGroup(selectedGroupId)) {
-            if (Helper.isItFavoriteUser(selectingUserId)) {
-                ChatUtils.addInGroup(selectingUserId, selectedGroupId, "Член избранной группы");
-            } else {
-                SessionController.getInstance().setUserGroupId(selectingUserId, selectedGroupId);
-                ChatUtils.sendMessage(selectingUserId, "Выбрана группа: " + groupName + "\nТеперь пришлите подтверждение оплаты");
-            }
-        } else {
-            ChatUtils.sendMessage(selectingUserId, "Бот не выходит в группу или не является в ней администратором");
-        }
-    }
-
-    private void handleSetTagAction(String tagId, long userClickedButtonId, int messageId) {
-        Map<Integer, String> tags = Main.dataUtils.getTagMap();
-        String tag = tags.get(Integer.parseInt(tagId));
-        if (tag == null) {
-            log.error("Попытка прочитать несуществующий тег {} ", tagId);
-            return;
-        }
-        log.info("User {} set tag {}", userClickedButtonId, tag);
-        Main.dataUtils.setGroupTag(tag);
-    }
-
-    private void handleConfirmAction(long targetUserId, long userCLickedButtonId) {
-        log.info("Admin {} confirm {}", userCLickedButtonId, targetUserId);
-        Long groupId = SessionController.getInstance().getUserSession(targetUserId).getGroupId();
-        if (TimerController.hasTimer(targetUserId, groupId)) {
-            TimerController.stopTimer(targetUserId, groupId);
-            ChatUtils.addInGroup(targetUserId, groupId, "Одобрение админа");
-        } else {
-            log.info("Already added by timer");
-        }
-    }
-
-    private static class Helper {
-        private static boolean areUserInGroup(long userId, long groupId) {
-            try {
-                GetChatMember getChatMember = new GetChatMember();
-                getChatMember.setChatId(groupId);
-                getChatMember.setUserId(userId);
-                ChatMember chatMember = Main.bot.execute(getChatMember);
-                String status = chatMember.getStatus();
-                return status.equals("member")
-                        || status.equals("administrator")
-                        || status.equals("creator")
-                        || status.equals("restricted");
-            } catch (TelegramApiException e) {
-                log.warn("Не удалось получить статус пользователя в избранной группе {} ", userId);
-            }
-            return false;
-        }
-
-        private static boolean isItFavoriteUser(Long userId) {
-            return areUserInGroup(userId, Main.dataUtils.getFavoriteGroupId());
         }
     }
 }
