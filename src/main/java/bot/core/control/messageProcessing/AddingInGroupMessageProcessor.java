@@ -17,28 +17,25 @@ public class AddingInGroupMessageProcessor implements MessageProcessor {
     Logger log = LoggerFactory.getLogger(AddingInGroupMessageProcessor.class);
 
 
-    //Когда бота добавили в группу
+    //поменять
     @Override
     public boolean canProcess(MessageContext ctx, Session session) {
-        return ctx.isFromGroup() && isBotAddedToGroup(ctx) && ctx.isFromAdmin();
+        return false;
     }
 
     public boolean canProcess(Update update) {
-        return update.hasMyChatMember() && update.getMyChatMember().getFrom().getId() == Main.dataUtils.getAdminId();
+        return isBotAddedToGroup(update) && update.getMyChatMember().getFrom().getId() == Main.dataUtils.getAdminId();
     }
 
-    private boolean isBotAddedToGroup(MessageContext ctx) {
-        List<User> newMembers = ctx.getMessage().getNewChatMembers();
-        if (newMembers == null || newMembers.isEmpty()) return false;
+    private boolean isBotAddedToGroup(Update update) {
+        if (!update.hasMyChatMember()) return false;
+        User user = update.getMyChatMember().getNewChatMember().getUser();
+        String status = update.getMyChatMember().getNewChatMember().getStatus();
+        System.out.println(status);
+        if (!user.getUserName().equalsIgnoreCase(Main.dataUtils.getBotName())) return false;
+        if (status.equalsIgnoreCase("left") || status.equalsIgnoreCase("kicked")) return false;
 
-        String botUsername = Main.dataUtils.getBotName();
-
-        for (User user : newMembers) {
-            if (Boolean.TRUE.equals(user.getIsBot()) && botUsername.equalsIgnoreCase(user.getUserName())) {
-                return true;
-            }
-        }
-        return false;
+        return true;
     }
 
     @Override

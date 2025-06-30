@@ -163,7 +163,7 @@ public final class DataUtils {
         }
     }
 
-    private void saveGroupList() {
+    public void saveGroupList() {
         try (ObjectOutputStream groupListOutput = new ObjectOutputStream(new FileOutputStream(groupListPath))) {
             groupListOutput.writeObject(groupList);
         } catch (IOException ex) {
