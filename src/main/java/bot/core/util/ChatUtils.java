@@ -2,6 +2,7 @@ package bot.core.util;
 
 import bot.core.Main;
 import bot.core.control.SessionController;
+import bot.core.control.callbackHandlers.Action;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.CreateChatInviteLink;
@@ -57,10 +58,10 @@ public final class ChatUtils {
         coursesDescription.setCallbackData("getCourseDescription_" + chatId);
 
         InlineKeyboardButton getInstruction = new InlineKeyboardButton("Инструкция");
-        getInstruction.setCallbackData("getInstruction_" + chatId);
+        getInstruction.setCallbackData(Action.getInstruction.toString() + "_" + chatId);
 
         InlineKeyboardButton chooseCourse = new InlineKeyboardButton("Выбрать курс");
-        chooseCourse.setCallbackData("chooseCourse_" + chatId);
+        chooseCourse.setCallbackData(Action.chooseCourse.toString() + "_" + chatId);
 
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
         rows.add(Arrays.asList(coursesDescription, getInstruction));
@@ -144,7 +145,7 @@ public final class ChatUtils {
      * Callback format: {@code confirm_<messageId>_<userId>}.
      */
     private static InlineKeyboardButton createConfirmButton(int messageId, long userId) {
-        return createButton("Принимаю", "confirm_" + messageId + "_" + userId);
+        return createButton("Принимаю", Action.confirm.toString() + "_" + messageId + "_" + userId);
     }
 
     /**
@@ -152,7 +153,7 @@ public final class ChatUtils {
      * Callback format: {@code decline_<messageId>_<userId>}.
      */
     private static InlineKeyboardButton createDeclineButton(int messageId, long userId) {
-        return createButton("Отказываю", "decline_" + messageId + "_" + userId);
+        return createButton("Отказываю", Action.decline.toString() + "_" + messageId + "_" + userId);
     }
 
     private static int getColumnCount(int size) {
@@ -284,7 +285,7 @@ public final class ChatUtils {
 
         InlineKeyboardButton button = new InlineKeyboardButton();
         button.setText("Я вступил, но не могу найти группу");
-        button.setCallbackData("getJoinRequestedLink_"
+        button.setCallbackData(Action.getJoinRequestedLink.toString() + "_"
                 + getJoinRequestedLink(groupId, groupName) + "_"
                 + userId);
 

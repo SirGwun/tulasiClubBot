@@ -1,6 +1,7 @@
 package bot.core.control.callbackHandlers;
 
 import bot.core.util.ChatUtils;
+import bot.core.control.callbackHandlers.Action;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -17,13 +18,13 @@ public class ChooseTagHandler implements CallbackHandler {
         if (!update.hasCallbackQuery()) return false;
         String[] data = update.getCallbackQuery().getData().split("_");
         String action = data[0];
-        return action.equalsIgnoreCase("chooseTag");
+        return action.equalsIgnoreCase(Action.chooseTag.toString());
     }
 
     @Override
     public boolean isFormatCorrect(String callback) {
         String[] data = callback.split("_");
-        return data.length == 2 && data[0].equalsIgnoreCase("chooseTag");
+        return data.length == 2 && data[0].equalsIgnoreCase(Action.chooseTag.toString());
     }
 
     @Override
@@ -37,7 +38,7 @@ public class ChooseTagHandler implements CallbackHandler {
         ChatUtils.sendInlineKeyboard(
                 user.getId(),
                 "Выберете интересующую вас группу",
-                ChatUtils.getTaggedGroupKeyboard("setGroup", user.getId(), tag));
+                ChatUtils.getTaggedGroupKeyboard(Action.setGroup.toString(), user.getId(), tag));
     }
 
     @Override

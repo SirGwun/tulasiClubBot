@@ -2,6 +2,8 @@ package bot.core.control.callbackHandlers;
 
 import bot.core.Main;
 import bot.core.util.ChatUtils;
+import bot.core.control.callbackHandlers.Action;
+import bot.core.control.callbackHandlers.AbstractCallbackHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -9,26 +11,15 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 
-public class ChooseCourseHandler implements CallbackHandler {
+public class ChooseCourseHandler extends AbstractCallbackHandler {
     Logger log = LoggerFactory.getLogger(ChooseCourseHandler.class);
-    @Override
-    public boolean match(Update update) {
-        if (!update.hasCallbackQuery()) return false;
-        String[] data = update.getCallbackQuery().getData().split("_");
-        String action = data[0];
-        return action.equalsIgnoreCase("chooseCourse");
-    }
 
-    @Override
-    public boolean isFormatCorrect(String callback) {
-        String[] data = callback.split("_");
-        String action = data[0];
-        return data.length == 2 && action.equalsIgnoreCase("chooseCourse");
+    public ChooseCourseHandler() {
+        super(Action.chooseCourse, 2);
     }
 
     @Override
@@ -37,7 +28,7 @@ public class ChooseCourseHandler implements CallbackHandler {
         List<List<InlineKeyboardButton>> buttonRows = new ArrayList<>();
         for (Map.Entry<Integer, String> entry : tagMap.entrySet()) {
             InlineKeyboardButton button = new InlineKeyboardButton(entry.getValue());
-            button.setCallbackData("chooseTag_"  + entry.getKey());
+            button.setCallbackData(Action.chooseTag.toString() + "_"  + entry.getKey());
         }
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
         keyboardMarkup.setKeyboard(buttonRows);
@@ -48,8 +39,4 @@ public class ChooseCourseHandler implements CallbackHandler {
                 keyboardMarkup);
     }
 
-    @Override
-    public String getFormat() {
-        return "chooseCourse_<chatId>";
-    }
 }

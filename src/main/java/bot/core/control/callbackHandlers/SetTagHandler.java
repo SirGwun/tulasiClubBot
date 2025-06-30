@@ -2,6 +2,7 @@ package bot.core.control.callbackHandlers;
 
 import bot.core.Main;
 import bot.core.util.ChatUtils;
+import bot.core.control.callbackHandlers.Action;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
@@ -19,13 +20,14 @@ public class SetTagHandler implements CallbackHandler {
 
     @Override
     public boolean match(Update update) {
-        return update.hasCallbackQuery() && update.getCallbackQuery().getData().startsWith("setTag_");
+        return update.hasCallbackQuery() && update.getCallbackQuery().getData().startsWith(Action.setTag.toString() + "_");
     }
 
     @Override
     public boolean isFormatCorrect(String callback) {
         String[] data = callback.split("_");
         if (data.length != 2) return false;
+        if (!data[0].equalsIgnoreCase(Action.setTag.toString())) return false;
         try {
             Integer.parseInt(data[1]);
             return true;

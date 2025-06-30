@@ -7,6 +7,7 @@ import bot.core.control.SessionController;
 import bot.core.model.Session;
 import bot.core.model.SessionState;
 import bot.core.util.ChatUtils;
+import bot.core.control.callbackHandlers.Action;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChat;
@@ -161,7 +162,7 @@ public class CommandMessageProcessor implements MessageProcessor {
 
         private void handleSetGroupCommand() {
             log.info("User {} set group", userId);
-            InlineKeyboardMarkup allGroupKeyboard = ChatUtils.getAllGroupKeyboard("setGroup", userId);
+            InlineKeyboardMarkup allGroupKeyboard = ChatUtils.getAllGroupKeyboard(Action.setGroup.toString(), userId);
 
             if (allGroupKeyboard.getKeyboard().isEmpty()) {
                 ChatUtils.sendMessage(userId, "Нет доступных групп");
@@ -177,7 +178,7 @@ public class CommandMessageProcessor implements MessageProcessor {
 
         private void handleSetTagCommand() {
             log.info("User {} use set_tag command", userId);
-            InlineKeyboardMarkup allTagKeyboard = ChatUtils.getAllTagKeyboard("setTag", userId);
+            InlineKeyboardMarkup allTagKeyboard = ChatUtils.getAllTagKeyboard(Action.setTag.toString(), userId);
 
             ChatUtils.sendInlineKeyboard(userId,
                     "Установите тег который будет присваиваться всем добавленным далее группам/каналам",
@@ -259,7 +260,7 @@ public class CommandMessageProcessor implements MessageProcessor {
                 return;
             }
 
-            InlineKeyboardMarkup allGroupKeyboard = ChatUtils.getAllGroupKeyboard("delGroup" ,userId);
+            InlineKeyboardMarkup allGroupKeyboard = ChatUtils.getAllGroupKeyboard(Action.delGroup.toString(), userId);
             ChatUtils.sendInlineKeyboard(userId, "Выберете группу для удаления", allGroupKeyboard);
         }
 
