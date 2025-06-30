@@ -4,7 +4,7 @@ import bot.core.util.ChatUtils;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
-public class GetJoinRequestedLinkHandler implements callbackHandler {
+public class GetJoinRequestedLinkHandler implements CallbackHandler {
     @Override
     public boolean match(Update update) {
         return update.hasCallbackQuery() && update.getCallbackQuery().getData().startsWith("getJoinRequestedLink_");
@@ -17,7 +17,7 @@ public class GetJoinRequestedLinkHandler implements callbackHandler {
     }
 
     @Override
-    public boolean handle(Update update) {
+    public void handle(Update update) {
         CallbackQuery cq = update.getCallbackQuery();
         String[] data = cq.getData().split("_", 3);
         String link = data[1];
@@ -26,7 +26,6 @@ public class GetJoinRequestedLinkHandler implements callbackHandler {
                 "Если вы уже вступили в группу, но не можете её найти — воспользуйтесь ссылкой ниже.\n\n" +
                         "⚠️ Внимание: если вы ещё не вступали в группу, сначала перейдите по одноразовой ссылке выше.\n" +
                         link);
-        return true;
     }
 
     @Override

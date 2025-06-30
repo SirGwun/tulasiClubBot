@@ -8,8 +8,13 @@ import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
-public class SetGroupHandler implements callbackHandler {
+public class SetGroupHandler implements CallbackHandler {
     private static final Logger log = LoggerFactory.getLogger(SetGroupHandler.class);
+
+    @Override
+    public String getFormat() {
+        return "setGroup_<groupId>";
+    }
 
     @Override
     public boolean match(Update update) {
@@ -29,7 +34,7 @@ public class SetGroupHandler implements callbackHandler {
     }
 
     @Override
-    public boolean handle(Update update) {
+    public void handle(Update update) {
         CallbackQuery cq = update.getCallbackQuery();
         String[] data = cq.getData().split("_");
         Long groupId = Long.parseLong(data[1]);
@@ -40,7 +45,7 @@ public class SetGroupHandler implements callbackHandler {
 
         if (!Main.dataUtils.containsGroupId(groupId)) {
             ChatUtils.sendMessage(userId, "Группа не найдена");
-            return true;
+            return;
         }
         String groupName = Main.dataUtils.getGroupName(groupId);
 
@@ -54,8 +59,8 @@ public class SetGroupHandler implements callbackHandler {
         } else {
             ChatUtils.sendMessage(userId, "Бот не выходит в группу или не является в ней администратором");
         }
-        return true;
     }
+
 
     private boolean isItFavoriteUser(Long userId) {
         return areUserInGroup(userId, Main.dataUtils.getFavoriteGroupId());
@@ -76,10 +81,5 @@ public class SetGroupHandler implements callbackHandler {
             log.warn("Не удалось получить статус пользователя в избранной группе {} ", userId);
         }
         return false;
-    }
-
-    @Override
-    public String getFormat() {
-        return "setGroup_<groupId>";
     }
 }

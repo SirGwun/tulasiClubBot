@@ -1,7 +1,6 @@
 package bot.core.control.messageProcessing;
 
 import bot.core.Main;
-import bot.core.util.ChatUtils;
 import bot.core.control.callbackHandlers.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,22 +25,27 @@ public class CallbackProcessor implements MessageProcessor {
         handleCallbackQuery(update);
     }
 
-    private final List<callbackHandler> handlers = Arrays.asList(
+    private final List<CallbackHandler> handlers = Arrays.asList(
             new ConfirmHandler(),
             new DeclineHandler(),
             new SetGroupHandler(),
             new SetTagHandler(),
             new DelGroupHandler(),
-            new GetJoinRequestedLinkHandler()
+            new GetJoinRequestedLinkHandler(),
+            new ChooseTagHandler(),
+            new GetInstructionHandler(),
+            new ChooseCourseHandler()
     );
 
     public void handleCallbackQuery(Update update) {
         CallbackQuery callbackQuery = update.getCallbackQuery();
 
-        for (callbackHandler handler : handlers) {
+        for (CallbackHandler handler : handlers) {
             if (handler.match(update)) {
                 if (!handler.isFormatCorrect(callbackQuery.getData())) {
-                    ChatUtils.sendMessage(callbackQuery.getMessage().getChatId(), handler.getFormat());
+                    log.error("!!!Incorrect callback format \nprovided: {} \nrecuaerd: {}",
+                            callbackQuery.getData(),
+                            handler.getFormat());
                 } else {
                     handler.handle(update);
                 }

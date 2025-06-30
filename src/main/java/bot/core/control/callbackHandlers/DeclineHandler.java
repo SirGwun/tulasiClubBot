@@ -17,8 +17,13 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 
 import java.time.Instant;
 
-public class DeclineHandler implements callbackHandler {
+public class DeclineHandler implements CallbackHandler {
     private static final Logger log = LoggerFactory.getLogger(DeclineHandler.class);
+
+    @Override
+    public String getFormat() {
+        return "decline_<messageId>_<userId>";
+    }
 
     @Override
     public boolean match(Update update) {
@@ -39,7 +44,7 @@ public class DeclineHandler implements callbackHandler {
     }
 
     @Override
-    public boolean handle(Update update) {
+    public void handle(Update update) {
         CallbackQuery cq = update.getCallbackQuery();
         String[] data = cq.getData().split("_");
         int originMessageId = Integer.parseInt(data[1]);
@@ -50,7 +55,6 @@ public class DeclineHandler implements callbackHandler {
         ChatUtils.deleteMessage(chatId, messageId);
         ChatUtils.deleteMessage(chatId, originMessageId);
         handleDeclineAction(targetUserId);
-        return true;
     }
 
     private void handleDeclineAction(long targetUserId) {
@@ -115,10 +119,5 @@ public class DeclineHandler implements callbackHandler {
             log.warn("Не удалось получить статус пользователя в избранной группе {} ", userId);
         }
         return false;
-    }
-
-    @Override
-    public String getFormat() {
-        return "decline_<messageId>_<userId>";
     }
 }

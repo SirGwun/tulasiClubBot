@@ -1,6 +1,5 @@
 package bot.core.control.callbackHandlers;
 
-import bot.core.Main;
 import bot.core.util.ChatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,8 +9,8 @@ import org.telegram.telegrambots.meta.api.objects.User;
 /**
 * Срабатывает когда нажимают на кнопку "Выбрать курс"
  */
-public class chooseTagHandler implements callbackHandler{
-    private static final Logger log = LoggerFactory.getLogger(chooseTagHandler.class);
+public class ChooseTagHandler implements CallbackHandler {
+    private static final Logger log = LoggerFactory.getLogger(ChooseTagHandler.class);
 
     @Override
     public boolean match(Update update) {
@@ -24,7 +23,7 @@ public class chooseTagHandler implements callbackHandler{
     @Override
     public boolean isFormatCorrect(String callback) {
         String[] data = callback.split("_");
-        return data.length >= 2 && data[0].equalsIgnoreCase("chooseTag");
+        return data.length == 2 && data[0].equalsIgnoreCase("chooseTag");
     }
 
     @Override

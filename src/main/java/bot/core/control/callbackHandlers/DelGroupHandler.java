@@ -5,7 +5,7 @@ import bot.core.util.ChatUtils;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
-public class DelGroupHandler implements callbackHandler {
+public class DelGroupHandler implements CallbackHandler {
     @Override
     public boolean match(Update update) {
         return update.hasCallbackQuery() && update.getCallbackQuery().getData().startsWith("delGroup_");
@@ -24,7 +24,7 @@ public class DelGroupHandler implements callbackHandler {
     }
 
     @Override
-    public boolean handle(Update update) {
+    public void handle(Update update) {
         CallbackQuery cq = update.getCallbackQuery();
         String[] data = cq.getData().split("_");
         Long groupId = Long.parseLong(data[1]);
@@ -38,7 +38,6 @@ public class DelGroupHandler implements callbackHandler {
         } else {
             ChatUtils.sendMessage(userId, "Группа не найдена");
         }
-        return true;
     }
 
     @Override

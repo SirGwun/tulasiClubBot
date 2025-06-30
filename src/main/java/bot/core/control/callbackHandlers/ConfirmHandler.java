@@ -3,13 +3,12 @@ package bot.core.control.callbackHandlers;
 import bot.core.control.SessionController;
 import bot.core.control.TimerController;
 import bot.core.util.ChatUtils;
-import bot.core.Main;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
-public class ConfirmHandler implements callbackHandler {
+public class ConfirmHandler implements CallbackHandler {
     private static final Logger log = LoggerFactory.getLogger(ConfirmHandler.class);
 
     @Override
@@ -31,7 +30,7 @@ public class ConfirmHandler implements callbackHandler {
     }
 
     @Override
-    public boolean handle(Update update) {
+    public void handle(Update update) {
         CallbackQuery cq = update.getCallbackQuery();
         String[] data = cq.getData().split("_");
         int originMessageId = Integer.parseInt(data[1]);
@@ -49,7 +48,6 @@ public class ConfirmHandler implements callbackHandler {
         }
         ChatUtils.deleteMessage(chatId, messageId);
         ChatUtils.deleteMessage(chatId, originMessageId);
-        return true;
     }
 
     @Override

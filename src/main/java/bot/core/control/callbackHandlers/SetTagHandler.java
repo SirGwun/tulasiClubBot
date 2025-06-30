@@ -9,7 +9,12 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.Map;
 
-public class SetTagHandler implements callbackHandler {
+public class SetTagHandler implements CallbackHandler {
+    @Override
+    public String getFormat() {
+        return "setTag_<tagId>";
+    }
+
     private static final Logger log = LoggerFactory.getLogger(SetTagHandler.class);
 
     @Override
@@ -30,7 +35,7 @@ public class SetTagHandler implements callbackHandler {
     }
 
     @Override
-    public boolean handle(Update update) {
+    public void handle(Update update) {
         CallbackQuery cq = update.getCallbackQuery();
         String[] data = cq.getData().split("_");
         String tagId = data[1];
@@ -41,16 +46,10 @@ public class SetTagHandler implements callbackHandler {
         String tag = tags.get(Integer.parseInt(tagId));
         if (tag == null) {
             log.error("Попытка прочитать несуществующий тег {} ", tagId);
-            return true;
+            return;
         }
         log.info("User {} set tag {}", userId, tag);
         Main.dataUtils.setGroupTag(tag);
         ChatUtils.deleteMessage(userId, messageId);
-        return true;
-    }
-
-    @Override
-    public String getFormat() {
-        return "setTag_<tagId>";
     }
 }

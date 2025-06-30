@@ -29,25 +29,46 @@ public final class ChatUtils {
     /**
      * Send a simple text message to chat.
      */
-    public static void sendMessage(long chatId, String message) {
-        SendMessage sendMessage = createMessage(chatId, message);
+    public static void sendMessage(long chatId, String text) {
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(chatId);
+        sendMessage.setText(text);
         execute(sendMessage);
     }
 
     /**
      * Send a message with inline keyboard.
      */
-    public static void sendInlineKeyboard(long chatId, String message, InlineKeyboardMarkup keyboard) {
-        SendMessage sendMessage = createMessage(chatId, message);
+    public static void sendInlineKeyboard(long chatId, String text, InlineKeyboardMarkup keyboard) {
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(chatId);
+        sendMessage.setText(text);
         sendMessage.setReplyMarkup(keyboard);
         execute(sendMessage);
     }
 
-    private static SendMessage createMessage(long chatId, String text) {
-        SendMessage message = new SendMessage();
-        message.setChatId(chatId);
-        message.setText(text);
-        return message;
+    public static void sendMainMenu(long chatId) {
+        String text =
+                """
+                Главное меню, описание кнопок и что тут происходит        
+                """;
+        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
+        InlineKeyboardButton coursesDescription = new InlineKeyboardButton("Описание курсов и лекций");
+        coursesDescription.setCallbackData("getCourseDescription_" + chatId);
+
+        InlineKeyboardButton getInstruction = new InlineKeyboardButton("Инструкция");
+        getInstruction.setCallbackData("getInstruction_" + chatId);
+
+        InlineKeyboardButton chooseCourse = new InlineKeyboardButton("Выбрать курс");
+        chooseCourse.setCallbackData("chooseCourse_" + chatId);
+
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+        rows.add(Arrays.asList(coursesDescription, getInstruction));
+        rows.add(Collections.singletonList(chooseCourse));
+        keyboardMarkup.setKeyboard(rows);
+
+        log.debug("Sent main menu to {}", chatId);
+        sendInlineKeyboard(chatId, text, keyboardMarkup);
     }
 
     private static void execute(SendMessage message) {
