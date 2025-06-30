@@ -2,19 +2,21 @@ package bot.core.control.callbackHandlers;
 
 import bot.core.Main;
 import bot.core.util.ChatUtils;
+import bot.core.control.callbackHandlers.Action;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 public class DelGroupHandler implements CallbackHandler {
     @Override
     public boolean match(Update update) {
-        return update.hasCallbackQuery() && update.getCallbackQuery().getData().startsWith("delGroup_");
+        return update.hasCallbackQuery() && update.getCallbackQuery().getData().startsWith(Action.delGroup.toString() + "_");
     }
 
     @Override
     public boolean isFormatCorrect(String callback) {
         String[] data = callback.split("_");
         if (data.length != 2) return false;
+        if (!data[0].equalsIgnoreCase(Action.delGroup.toString())) return false;
         try {
             Long.parseLong(data[1]);
             return true;

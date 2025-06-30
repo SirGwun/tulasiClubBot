@@ -4,6 +4,7 @@ import bot.core.Main;
 import bot.core.control.SessionController;
 import bot.core.control.TimerController;
 import bot.core.util.ChatUtils;
+import bot.core.control.callbackHandlers.Action;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.BanChatMember;
@@ -27,13 +28,14 @@ public class DeclineHandler implements CallbackHandler {
 
     @Override
     public boolean match(Update update) {
-        return update.hasCallbackQuery() && update.getCallbackQuery().getData().startsWith("decline_");
+        return update.hasCallbackQuery() && update.getCallbackQuery().getData().startsWith(Action.decline.toString() + "_");
     }
 
     @Override
     public boolean isFormatCorrect(String callback) {
         String[] data = callback.split("_");
         if (data.length != 3) return false;
+        if (!data[0].equalsIgnoreCase(Action.decline.toString())) return false;
         try {
             Integer.parseInt(data[1]);
             Long.parseLong(data[2]);

@@ -3,6 +3,7 @@ package bot.core.control.callbackHandlers;
 import bot.core.control.SessionController;
 import bot.core.control.TimerController;
 import bot.core.util.ChatUtils;
+import bot.core.control.callbackHandlers.Action;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
@@ -13,13 +14,14 @@ public class ConfirmHandler implements CallbackHandler {
 
     @Override
     public boolean match(Update update) {
-        return update.hasCallbackQuery() && update.getCallbackQuery().getData().startsWith("confirm_");
+        return update.hasCallbackQuery() && update.getCallbackQuery().getData().startsWith(Action.confirm.toString() + "_");
     }
 
     @Override
     public boolean isFormatCorrect(String callback) {
         String[] data = callback.split("_");
         if (data.length != 3) return false;
+        if (!data[0].equalsIgnoreCase(Action.confirm.toString())) return false;
         try {
             Integer.parseInt(data[1]);
             Long.parseLong(data[2]);
