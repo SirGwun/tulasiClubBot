@@ -8,6 +8,6 @@ public enum Command {
     set_payment_info,
     edit_help,
     cancel,
-    say, start, info, help, catalog, edit_info, unknown;
+    say, start, info, help, catalog, edit_info, unknown, menu;
 }
 

@@ -78,6 +78,9 @@ public class CommandMessageProcessor implements MessageProcessor {
                 case Command.start:
                     handleStartCommand();
                     break;
+                case Command.menu:
+                    handleMenuCommand();
+                    break;
                 case Command.set_tag:
                     handleSetTagCommand();
                     break;
@@ -85,10 +88,7 @@ public class CommandMessageProcessor implements MessageProcessor {
                     handleAddTagCommand(args);
                     break;
                 case Command.choose_course:
-                    handleSetGroupCommand();
-                    break;
-                case Command.info:
-                    handleInfoCommand();
+                    handleSetCourseCommand();
                     break;
                 case Command.help:
                     handleHelpCommand();
@@ -126,11 +126,11 @@ public class CommandMessageProcessor implements MessageProcessor {
                 case Command.start:
                     handleStartCommand();
                     break;
-                case Command.choose_course:
-                    handleSetGroupCommand();
+                case Command.menu:
+                    handleMenuCommand();
                     break;
-                case Command.info:
-                    handleInfoCommand();
+                case Command.choose_course:
+                    handleSetCourseCommand();
                     break;
                 case Command.help:
                     handleHelpCommand();
@@ -146,11 +146,23 @@ public class CommandMessageProcessor implements MessageProcessor {
 
         private void handleStartCommand() {
             log.info(CMD_LOG, userId, Command.start);
+            ChatUtils.sendMessage(userId,
+                    """
+                            Здравствуйте!
+                            
+                            Вас приветствует, бот-помощник курсов
+                            Школы Аюрведы и здорового образа жизни "Tulasi"
+                            """);
+            ChatUtils.sendMainMenu(userId);
+        }
+
+        private void handleMenuCommand() {
+            log.info(CMD_LOG, userId, Command.menu);
             ChatUtils.sendMainMenu(userId);
         }
 
 
-        private void handleSetGroupCommand() {
+        private void handleSetCourseCommand() {
             log.info(CMD_LOG, userId, Command.choose_course);
             InlineKeyboardMarkup allGroupKeyboard = ChatUtils.getAllTagKeyboard(Action.chooseTag);
 
@@ -163,7 +175,7 @@ public class CommandMessageProcessor implements MessageProcessor {
             if (hasExceptedGroup(allGroupKeyboard)) {
                 ChatUtils.sendMessage(userId, "Бот не входит в группы помеченные '!', либо не админ в них");
             }
-            ChatUtils.sendInlineKeyboard(userId, "Выберите группу", allGroupKeyboard);
+            ChatUtils.sendInlineKeyboard(userId, "Выберите курс", allGroupKeyboard);
         }
 
         private void handleSetTagCommand() {
@@ -253,10 +265,6 @@ public class CommandMessageProcessor implements MessageProcessor {
 
             InlineKeyboardMarkup allGroupKeyboard = ChatUtils.getAllGroupKeyboard(Action.delGroup, userId);
             ChatUtils.sendInlineKeyboard(userId, "Выберете группу для удаления", allGroupKeyboard);
-        }
-
-        private void handleInfoCommand() {
-            ChatUtils.sendMessage(userId, Main.dataUtils.getInfo());
         }
 
         private void handleHelpCommand() {

@@ -26,15 +26,17 @@ public class AddingInGroupMessageProcessor implements MessageProcessor {
     @Override
     public void process(Update update) {
         ChatMemberUpdated myChatMember = update.getMyChatMember();
-        if (myChatMember.getNewChatMember().getStatus().equalsIgnoreCase("left")
-                || myChatMember.getNewChatMember().getStatus().equalsIgnoreCase("kicked"))
+        String status = myChatMember.getNewChatMember().getStatus();
+        if (status.equalsIgnoreCase("left")
+                || status.equalsIgnoreCase("kicked"))
             processChatLeft(
                     myChatMember.getChat().getId(),
                     myChatMember.getChat().getTitle(),
                     myChatMember.getFrom().getId(),
                     myChatMember.getChat().getType()
             );
-        else {
+        else if (status.equalsIgnoreCase("administrator")
+                || status.equalsIgnoreCase("creator")) {
             processChatAddition(
                     myChatMember.getChat().getId(),
                     myChatMember.getChat().getTitle(),

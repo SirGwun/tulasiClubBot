@@ -3,6 +3,9 @@ package bot.core.util;
 import bot.core.Main;
 import bot.core.model.Session;
 import bot.core.model.Group;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.joran.JoranConfigurator;
+import ch.qos.logback.core.util.StatusPrinter;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +16,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Utility class that stores configuration and helper data for the bot.
@@ -25,7 +29,6 @@ public final class DataUtils {
     private final String configPath;
     private final String groupListPath;
     private final String helpPath;
-    private final String infoPath;
     private final String paymentFolderPath;
     private final String catalogPath;
     private final String tagListPath;
@@ -34,7 +37,6 @@ public final class DataUtils {
     private String botToken;
     private long adminChatID;
     private long favoriteGroupID;
-    private String info;
     private String help;
     private final Properties config = new Properties();
     private List<Group> groupList = new ArrayList<>();
@@ -49,12 +51,12 @@ public final class DataUtils {
         this.configPath = base + "config.properties";
         this.groupListPath = base + "groupList.ser";
         this.helpPath = base + "help.txt";
-        this.infoPath = base + "info.txt";
         this.paymentFolderPath = base + "Payment info/";
         this.catalogPath = base + "catalog.txt";
         this.tagListPath = base + "tagList.txt";
 
         if (amvera) {
+            loadProdLogger();
             botToken = System.getenv("BOTTOCKEN");
             botName = System.getenv("BOTNAME");
             log.info("Запущено в AMVERA");
@@ -75,7 +77,34 @@ public final class DataUtils {
 
         loadConfig();
         loadGroupList();
-        saveGroupList(); // временно для перехода
+
+        // временно для перехода
+        AtomicBoolean needResave = new AtomicBoolean(false);
+        groupList.forEach(group -> {
+            if (group.getTag() == null || group.getTag().isEmpty()) {
+                group.setTag(getGroupTag());
+                needResave.set(true);
+            }
+        });
+        if (needResave.get()) saveGroupList();
+    }
+
+    private void loadProdLogger() {
+        LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
+        context.reset(); // сброс текущей конфигурации
+        JoranConfigurator configurator = new JoranConfigurator();
+        configurator.setContext(context);
+        try (InputStream configStream = Thread.currentThread()
+                .getContextClassLoader()
+                .getResourceAsStream("logback-prod.xml")) {
+            if (configStream == null) {
+                throw new IllegalArgumentException("Logback config not found: " + "logback-prod.xml");
+            }
+            configurator.doConfigure(configStream); // загружаем как stream
+        } catch (Exception e) {
+            e.printStackTrace();
+            StatusPrinter.printInCaseOfErrorsOrWarnings(context);
+        }
     }
 
     public boolean updateConfig(String key, String value) {
@@ -162,10 +191,6 @@ public final class DataUtils {
     private void loadGroupList() {
         List<Group> list = (List<Group>) load("groupList");
         if (list != null) {
-            list.forEach(group -> {
-                if (group.getTag() == null || group.getTag().isEmpty()) // временно для перехода
-                    group.setTag(getGroupTag());
-            });
             groupList = list;
         }
     }
@@ -232,27 +257,6 @@ public final class DataUtils {
         }
     }
 
-    public String getInfo() {
-        if (info == null) {
-            try (InputStream input = new FileInputStream(infoPath)) {
-                info = IOUtils.toString(input, StandardCharsets.UTF_8);
-            } catch (FileNotFoundException e) {
-                log.error("Не удалось загрузить info.txt", e);
-            } catch (IOException e) {
-                log.error("Не удалось прочитать info.txt", e);
-            }
-        }
-        return info;
-    }
-
-    public void setInfo(String info) {
-        this.info = info;
-        try (OutputStream output = new FileOutputStream(infoPath)) {
-            IOUtils.write(info, output, StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            log.error("Не удалось сохранить info.txt", e);
-        }
-    }
 
     public String getHistoryId() {
         return (String) config.get("history");

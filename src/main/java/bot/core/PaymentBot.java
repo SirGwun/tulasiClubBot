@@ -1,6 +1,7 @@
-package bot.core.control;
+package bot.core;
 
-import bot.core.Main;
+import bot.core.control.Command;
+import bot.core.control.Validator;
 import bot.core.control.messageProcessing.CallbackProcessor;
 import bot.core.control.messageProcessing.*;
 
@@ -48,7 +49,7 @@ public class PaymentBot extends TelegramLongPollingBot {
 
         for (MessageProcessor processor : processors) {
             if (processor.canProcess(update)) {
-                log.info("Запущен процессор {}", processor.getClass());
+                log.debug("Запущен процессор {}", processor.getClass());
                 processor.process(update);
                 return;
             }
@@ -70,7 +71,8 @@ public class PaymentBot extends TelegramLongPollingBot {
     private void setBotCommands() {
         // Команды для всех пользователей
         List<BotCommand> defaultCommands = new ArrayList<>();
-        defaultCommands.add(new BotCommand("/" + Command.choose_course, "Выбрать группу"));
+        defaultCommands.add(new BotCommand("/" + Command.menu, "Главное меню"));
+        defaultCommands.add(new BotCommand("/" + Command.choose_course, "Выбрать курс"));
 
         // Команды для администраторов
         List<BotCommand> adminCommands = new ArrayList<>(); //todo добавить startEditCatalog endEditCatalog
@@ -82,6 +84,7 @@ public class PaymentBot extends TelegramLongPollingBot {
         adminCommands.add(new BotCommand("/" + Command.edit_help, "Изменить помощь"));
         adminCommands.add(new BotCommand("/" + Command.cancel, "Отменить действие"));
         adminCommands.add(new BotCommand("/" + Command.say, "Отправить сообщение пользователю (@<username> <text>)"));
+        adminCommands.add(new BotCommand("/" + Command.menu, "Главное меню"));
         try {
             execute(new SetMyCommands(defaultCommands, new BotCommandScopeAllPrivateChats(), null));
             execute(new SetMyCommands(adminCommands, new BotCommandScopeChat(Long.toString(Main.dataUtils.getAdminId())), null));

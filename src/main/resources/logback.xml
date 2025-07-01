@@ -1,24 +1,19 @@
 <configuration>
-
-    <!-- Конфигурация аппендера для вывода логов в консоль -->
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss} %highlight(%-5level) %class %method\(%file:%line\) - %highlight(%msg%n)</pattern>
         </encoder>
     </appender>
 
-    <!-- Конфигурация аппендера для записи логов в файл -->
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-        <file>logs/app.log</file>
+        <file>data/logs/app.log</file>
         <encoder>
             <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
 
-    <!-- Основная конфигурация логирования -->
     <root level="info">
-        <appender-ref ref="STDOUT" />
-        <appender-ref ref="FILE" />
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="FILE"/>
     </root>
-
 </configuration>

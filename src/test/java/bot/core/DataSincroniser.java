@@ -17,8 +17,7 @@ public class DataSincroniser {
     private static final List<String> dataFilesNames = Arrays.asList(
             "catalog.txt",
             "config.properties",
-            "help.txt",
-            "info.txt"
+            "help.txt"
     );
     public static void sincronise() {
          for (String fileName : dataFilesNames) {

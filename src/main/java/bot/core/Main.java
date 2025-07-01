@@ -1,6 +1,5 @@
 package bot.core;
 
-import bot.core.control.PaymentBot;
 import bot.core.control.SessionController;
 import bot.core.util.DataUtils;
 import org.slf4j.LoggerFactory;
@@ -9,9 +8,6 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 import org.slf4j.Logger;
-
-import java.util.HashMap;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class Main {
     public static final Logger log = LoggerFactory.getLogger(Main.class);
@@ -36,6 +32,7 @@ public class Main {
             SessionController.getInstance();
             if (isTest) {
                 log.info("Тестовый режим");
+                log.warn("123");
                 dataUtils.testMode();
             }
             bot = new PaymentBot(dataUtils.getBotToken());

@@ -1,0 +1,29 @@
+<configuration>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss} %highlight(%-5level) %class - %highlight(%msg%n)</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="ROLLING_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>/data/logs/app.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- Архив по дням -->
+            <fileNamePattern>data/logs/app.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <!-- Хранить только последние 90 дней -->
+            <maxHistory>90</maxHistory>
+            <!-- Ограничить общий размер логов (опционально, например 1 ГБ) -->
+            <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="info">
+        <appender-ref ref="STDOUT" />
+        <appender-ref ref="ROLLING_FILE" />
+    </root>
+
+</configuration>

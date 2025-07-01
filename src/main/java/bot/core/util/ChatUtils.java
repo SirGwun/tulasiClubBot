@@ -50,11 +50,8 @@ public final class ChatUtils {
 
     public static void sendMainMenu(long chatId) {
         String text = """
-        Здравствуйте!
-        Вас приветствует, бот-помощник курсов
-        Школы Аюрведы и здорового образа жизни "Tulasi"
-
         Вы находитесь в главном меню: 
+        
         Если вы хотите узнать подробнее о курсах, получить инструкции или выбрать курс — 
         воспользуйтесь кнопками ниже.
         """;
@@ -62,6 +59,7 @@ public final class ChatUtils {
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
         InlineKeyboardButton coursesDescription = new InlineKeyboardButton("Описание курсов и лекций");
         coursesDescription.setCallbackData(Action.getCourseDescription + "_" + chatId);
+        coursesDescription.setUrl("https://t.me/c/2388702610/1039");
 
         InlineKeyboardButton getInstruction = new InlineKeyboardButton("Инструкция");
         getInstruction.setCallbackData(Action.getInstruction + "_" + chatId);
@@ -110,8 +108,8 @@ public final class ChatUtils {
 
     public static InlineKeyboardMarkup getTaggedGroupKeyboard(Action callBack, Long userId, String tag) {
         List<InlineKeyboardButton> buttons = new ArrayList<>();
-
-        for (Group group : Main.dataUtils.getGroupList()) {
+        List<Group> groupList = Main.dataUtils.getGroupList();
+        for (Group group : groupList) {
             if (group.getTag().equals(tag) || tag == null) {
                 String groupName = group.getName();
                 Long groupId = group.getId();
