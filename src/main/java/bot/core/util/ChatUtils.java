@@ -57,9 +57,12 @@ public final class ChatUtils {
         """;
         String paymentInfo = Main.dataUtils.getPaymentInfo();
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
+
         InlineKeyboardButton coursesDescription = new InlineKeyboardButton("Описание курсов и лекций");
         coursesDescription.setCallbackData(Action.getCourseDescription + "_" + chatId);
         coursesDescription.setUrl("https://t.me/c/2388702610/1039");
+        InlineKeyboardButton chooseCourse = new InlineKeyboardButton("Выбрать курс");
+        chooseCourse.setCallbackData(Action.chooseCourse + "_" + chatId);
 
         InlineKeyboardButton getInstruction = new InlineKeyboardButton("Инструкция");
         getInstruction.setCallbackData(Action.getInstruction + "_" + chatId);
@@ -67,12 +70,10 @@ public final class ChatUtils {
         InlineKeyboardButton getPaymentInstruction = new InlineKeyboardButton("Способы оплаты");
         getPaymentInstruction.setCallbackData(Action.getPaymentInstruction + "_" + chatId);
 
-        InlineKeyboardButton chooseCourse = new InlineKeyboardButton("Выбрать курс");
-        chooseCourse.setCallbackData(Action.chooseCourse + "_" + chatId);
 
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
-        rows.add(Arrays.asList(coursesDescription, getInstruction, getPaymentInstruction));
-        rows.add(Collections.singletonList(chooseCourse));
+        rows.add(Arrays.asList(coursesDescription, chooseCourse));
+        rows.add(Arrays.asList(getInstruction, getPaymentInstruction));
         keyboardMarkup.setKeyboard(rows);
 
         log.debug("Sent main menu to {}", chatId);

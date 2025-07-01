@@ -10,7 +10,7 @@ public class GetCourseDescriptionHandler extends AbstractCallbackHandler {
 
     @Override
     public void handle(Update update) {
-        ChatUtils.sendMessage(update.getCallbackQuery().getFrom().getId(),
-                "Описание курсов будет добавлено вскоре");
+        //ChatUtils.sendMessage(update.getCallbackQuery().getFrom().getId(),
+         //       "Описание курсов будет добавлено вскоре");
     }
 }
