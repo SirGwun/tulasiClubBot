@@ -20,7 +20,7 @@ public class SetTagHandler implements CallbackHandler {
 
     @Override
     public boolean match(Update update) {
-        return update.hasCallbackQuery() && update.getCallbackQuery().getData().startsWith(Action.setTag.toString() + "_");
+        return update.hasCallbackQuery() && update.getCallbackQuery().getData().startsWith(Action.setTag + "_");
     }
 
     @Override
@@ -53,5 +53,7 @@ public class SetTagHandler implements CallbackHandler {
         log.info("User {} set tag {}", userId, tag);
         Main.dataUtils.setGroupTag(tag);
         ChatUtils.deleteMessage(userId, messageId);
+        ChatUtils.sendMessage(userId,
+                "Тег успешно выбран - " + tag);
     }
 }

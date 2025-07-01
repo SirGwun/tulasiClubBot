@@ -49,22 +49,31 @@ public final class ChatUtils {
     }
 
     public static void sendMainMenu(long chatId) {
-        String text =
-                """
-                Главное меню, описание кнопок и что тут происходит        
-                """;
+        String text = """
+        Здравствуйте!
+        Вас приветствует, бот-помощник курсов
+        Школы Аюрведы и здорового образа жизни "Tulasi"
+
+        Вы находитесь в главном меню: 
+        Если вы хотите узнать подробнее о курсах, получить инструкции или выбрать курс — 
+        воспользуйтесь кнопками ниже.
+        """;
+        String paymentInfo = Main.dataUtils.getPaymentInfo();
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
         InlineKeyboardButton coursesDescription = new InlineKeyboardButton("Описание курсов и лекций");
-        coursesDescription.setCallbackData("getCourseDescription_" + chatId);
+        coursesDescription.setCallbackData(Action.getCourseDescription + "_" + chatId);
 
         InlineKeyboardButton getInstruction = new InlineKeyboardButton("Инструкция");
-        getInstruction.setCallbackData(Action.getInstruction.toString() + "_" + chatId);
+        getInstruction.setCallbackData(Action.getInstruction + "_" + chatId);
+
+        InlineKeyboardButton getPaymentInstruction = new InlineKeyboardButton("Способы оплаты");
+        getPaymentInstruction.setCallbackData(Action.getPaymentInstruction + "_" + chatId);
 
         InlineKeyboardButton chooseCourse = new InlineKeyboardButton("Выбрать курс");
-        chooseCourse.setCallbackData(Action.chooseCourse.toString() + "_" + chatId);
+        chooseCourse.setCallbackData(Action.chooseCourse + "_" + chatId);
 
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
-        rows.add(Arrays.asList(coursesDescription, getInstruction));
+        rows.add(Arrays.asList(coursesDescription, getInstruction, getPaymentInstruction));
         rows.add(Collections.singletonList(chooseCourse));
         keyboardMarkup.setKeyboard(rows);
 
@@ -95,11 +104,11 @@ public final class ChatUtils {
     /**
      * Keyboard containing all groups available for user.
      */
-    public static InlineKeyboardMarkup getAllGroupKeyboard(String callBack, Long userId) {
+    public static InlineKeyboardMarkup getAllGroupKeyboard(Action callBack, Long userId) {
        return getTaggedGroupKeyboard(callBack, userId, null);
     }
 
-    public static InlineKeyboardMarkup getTaggedGroupKeyboard(String callBack, Long userId, String tag) {
+    public static InlineKeyboardMarkup getTaggedGroupKeyboard(Action callBack, Long userId, String tag) {
         List<InlineKeyboardButton> buttons = new ArrayList<>();
 
         for (Group group : Main.dataUtils.getGroupList()) {
@@ -121,15 +130,17 @@ public final class ChatUtils {
         return keyboard;
     }
 
-    public static InlineKeyboardMarkup getAllTagKeyboard(String callBack, Long userId) {
-        List<InlineKeyboardButton> buttons = new ArrayList<>();
+    public static InlineKeyboardMarkup getAllTagKeyboard(Action callback) {
         Map<Integer, String> tags = Main.dataUtils.getTagMap();
-        for (int i = 0; i < tags.size(); i++) {
-            buttons.add(createButton(tags.get(i), callBack + "_" + i));
+        List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
+        for (Map.Entry<Integer, String> entry : tags.entrySet()) {
+            InlineKeyboardButton button = new InlineKeyboardButton(entry.getValue());
+            button.setCallbackData(callback + "_" + entry.getKey());
+            buttons.add(Collections.singletonList(button));
         }
 
         InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup();
-        keyboard.setKeyboard(distributeButtons(buttons));
+        keyboard.setKeyboard(buttons);
         return keyboard;
     }
 

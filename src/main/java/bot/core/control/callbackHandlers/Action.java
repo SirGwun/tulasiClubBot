@@ -8,6 +8,8 @@ public enum Action {
     delGroup,
     getInstruction,
     getJoinRequestedLink,
-    setGroup,
+    chooseGroup,
+    getPaymentInstruction,
+    getCourseDescription,
     setTag
 }

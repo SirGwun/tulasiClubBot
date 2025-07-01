@@ -33,12 +33,12 @@ public class CommonMessageProcessor implements MessageProcessor {
         Session session = SessionController.getInstance()
                 .getUserSession(ctx.getFromId());
 
-        long userId = ctx.getChatId();
+        long chatId = ctx.getChatId();
 
         if (ctx.hasPayment()) {
             handlePayment(ctx, session);
         } else {
-            ChatUtils.sendMessage(userId, Main.dataUtils.getHelp());
+            ChatUtils.sendMainMenu(chatId);
         }
     }
 

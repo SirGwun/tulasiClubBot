@@ -9,8 +9,16 @@ import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
+/**
+ *
+ */
 public class ConfirmHandler implements CallbackHandler {
     private static final Logger log = LoggerFactory.getLogger(ConfirmHandler.class);
+
+    @Override
+    public String getFormat() {
+        return "confirm_<messageId>_<userId>";
+    }
 
     @Override
     public boolean match(Update update) {
@@ -50,10 +58,5 @@ public class ConfirmHandler implements CallbackHandler {
         }
         ChatUtils.deleteMessage(chatId, messageId);
         ChatUtils.deleteMessage(chatId, originMessageId);
-    }
-
-    @Override
-    public String getFormat() {
-        return "confirm_<messageId>_<userId>";
     }
 }

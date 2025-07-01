@@ -3,30 +3,32 @@ package bot.core.control.callbackHandlers;
 import bot.core.Main;
 import bot.core.control.SessionController;
 import bot.core.util.ChatUtils;
-import bot.core.control.callbackHandlers.Action;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
-public class SetGroupHandler implements CallbackHandler {
-    private static final Logger log = LoggerFactory.getLogger(SetGroupHandler.class);
+/**
+ * Приглашает в группу, запрашивает подтверждение
+ */
+public class ChooseGroupHandler implements CallbackHandler {
+    private static final Logger log = LoggerFactory.getLogger(ChooseGroupHandler.class);
 
     @Override
     public String getFormat() {
-        return "setGroup_<groupId>";
+        return Action.chooseGroup + "_<groupId>";
     }
 
     @Override
     public boolean match(Update update) {
-        return update.hasCallbackQuery() && update.getCallbackQuery().getData().startsWith(Action.setGroup.toString() + "_");
+        return update.hasCallbackQuery() && update.getCallbackQuery().getData().startsWith(Action.chooseGroup.toString());
     }
 
     @Override
     public boolean isFormatCorrect(String callback) {
         String[] data = callback.split("_");
         if (data.length != 2) return false;
-        if (!data[0].equalsIgnoreCase(Action.setGroup.toString())) return false;
+        if (!data[0].equalsIgnoreCase(Action.chooseGroup.toString())) return false;
         try {
             Long.parseLong(data[1]);
             return true;

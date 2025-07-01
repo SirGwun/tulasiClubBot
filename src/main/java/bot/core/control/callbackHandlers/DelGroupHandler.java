@@ -8,8 +8,13 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 
 public class DelGroupHandler implements CallbackHandler {
     @Override
+    public String getFormat() {
+        return "delGroup_<groupId>";
+    }
+
+    @Override
     public boolean match(Update update) {
-        return update.hasCallbackQuery() && update.getCallbackQuery().getData().startsWith(Action.delGroup.toString() + "_");
+        return update.hasCallbackQuery() && update.getCallbackQuery().getData().startsWith(Action.delGroup.toString());
     }
 
     @Override
@@ -40,10 +45,5 @@ public class DelGroupHandler implements CallbackHandler {
         } else {
             ChatUtils.sendMessage(userId, "Группа не найдена");
         }
-    }
-
-    @Override
-    public String getFormat() {
-        return "delGroup_<groupId>";
     }
 }

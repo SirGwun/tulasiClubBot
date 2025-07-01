@@ -2,8 +2,6 @@ package bot.core.control.callbackHandlers;
 
 import bot.core.Main;
 import bot.core.util.ChatUtils;
-import bot.core.control.callbackHandlers.Action;
-import bot.core.control.callbackHandlers.AbstractCallbackHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -11,14 +9,17 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Возвращает клавиатуру со всеми курсами
+ */
+public class ChooseAllCourseHandler extends AbstractCallbackHandler {
+    Logger log = LoggerFactory.getLogger(ChooseAllCourseHandler.class);
 
-public class ChooseCourseHandler extends AbstractCallbackHandler {
-    Logger log = LoggerFactory.getLogger(ChooseCourseHandler.class);
-
-    public ChooseCourseHandler() {
+    public ChooseAllCourseHandler() {
         super(Action.chooseCourse, 2);
     }
 
@@ -28,7 +29,8 @@ public class ChooseCourseHandler extends AbstractCallbackHandler {
         List<List<InlineKeyboardButton>> buttonRows = new ArrayList<>();
         for (Map.Entry<Integer, String> entry : tagMap.entrySet()) {
             InlineKeyboardButton button = new InlineKeyboardButton(entry.getValue());
-            button.setCallbackData(Action.chooseTag.toString() + "_"  + entry.getKey());
+            button.setCallbackData(Action.chooseTag + "_"  + entry.getKey());
+            buttonRows.add(Collections.singletonList(button));
         }
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
         keyboardMarkup.setKeyboard(buttonRows);
@@ -38,5 +40,4 @@ public class ChooseCourseHandler extends AbstractCallbackHandler {
                 "Выберете интересующий вас курс",
                 keyboardMarkup);
     }
-
 }

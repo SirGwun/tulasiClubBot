@@ -1,6 +1,7 @@
 package bot.core.control.messageProcessing;
 
 import bot.core.Main;
+import bot.core.control.Command;
 import bot.core.model.EditingActions;
 import bot.core.model.MessageContext;
 import bot.core.control.SessionController;
@@ -39,6 +40,7 @@ public class CommandMessageProcessor implements MessageProcessor {
 
     static class CommandHandler {
         private static final Logger log = LoggerFactory.getLogger(CommandHandler.class);
+        private static final String CMD_LOG = "User {} use {} command";
         private final SessionState state;
         private final long userId;
 
@@ -58,111 +60,99 @@ public class CommandMessageProcessor implements MessageProcessor {
             }
         }
 
-        public void handleCommand(String command, String args) {
-            if (userId == Main.dataUtils.getAdminId()) {
-                handleAdminCommand(command, args);
-            } else {
-               handleUserCommand(command);
+        public void handleCommand(String commandStr, String args) {
+            try {
+                Command command = Command.valueOf(commandStr.substring(1));
+                if (userId == Main.dataUtils.getAdminId()) {
+                    handleAdminCommand(command, args);
+                } else {
+                    handleUserCommand(command);
+                }
+            } catch (IllegalArgumentException e) {
+                handleUnknownCommand(commandStr);
             }
         }
 
-        private void handleAdminCommand(String command, String args) {
+        private void handleAdminCommand(Command command, String args) {
             switch (command) {
-                case "/start":
+                case Command.start:
                     handleStartCommand();
                     break;
-                case "/set_tag":
+                case Command.set_tag:
                     handleSetTagCommand();
                     break;
-                case "add_tag":
+                case Command.add_tag:
                     handleAddTagCommand(args);
                     break;
-                case "/set_group":
+                case Command.choose_course:
                     handleSetGroupCommand();
                     break;
-                case "/info":
+                case Command.info:
                     handleInfoCommand();
                     break;
-                case "/help":
+                case Command.help:
                     handleHelpCommand();
                     break;
-                case "/catalog":
+                case Command.catalog:
                     handleCatalogCommand();
                     break;
                 //***************
-                case "/cancel":
+                case Command.cancel:
                     handleCancelCommand();
                     break;
-                case "/edit_info":
+                case Command.edit_info:
                     handleEditInfoCommand();
                     break;
-                case "/edit_help":
+                case Command.edit_help:
                     handleEditHelpCommand();
                     break;
-                case "/set_payment_info":
+                case Command.set_payment_info:
                     handleSetPaymentInfo();
                     break;
-                case "/del":
+                case Command.del:
                     handleDelCommand();
                     break;
-                case "/say":
+                case Command.say:
                     handleSayCommand(args);
                     break;
                 default:
-                    handleUnknownCommand(command);
+                    log.warn("Неизвестная команда {}", command);
                     break;
             }
         }
 
-        private void handleUserCommand(String command) {
+        private void handleUserCommand(Command command) {
             switch (command) {
-                case "/start":
+                case Command.start:
                     handleStartCommand();
                     break;
-                case "/set_group":
+                case Command.choose_course:
                     handleSetGroupCommand();
                     break;
-                case "/info":
+                case Command.info:
                     handleInfoCommand();
                     break;
-                case "/help":
+                case Command.help:
                     handleHelpCommand();
                     break;
-                case "/catalog":
+                case Command.catalog:
                     handleCatalogCommand();
                     break;
                 default:
-                    handleUnknownCommand(command);
+                    log.warn("Неизвестная команда {}", command);
                     break;
             }
         }
 
         private void handleStartCommand() {
-            log.info("User {} use start command", userId);
-
-            String START_MESSAGE = """
-                    Здравствуйте!
-                    Вас приветствует, бот-помощник.
-                    
-                    Инструкция как попасть на лекцию
-                                    
-                    1. Нажимаете Меню
-                    2. Выбрать группу (/set_group)
-                    3. Выбираете интересующую вас лекцию.
-                    4. Отправляете чек об оплате (документ или скриншот, фото).
-                    5. Как только пройдёт проверка, получаете ссылку на доступ к лекции (проверка занимает до 2 часов, но мы стараемся как можно скорее)
-                                    
-                    🔹 Чеки в формате PDF проверяются автоматически — доступ в большинстве случаев открывается мгновенно.
-                    
-                    """;
-            String paymentInfo = Main.dataUtils.getPaymentInfo();
-            ChatUtils.sendMessage(userId, START_MESSAGE + paymentInfo);
+            log.info(CMD_LOG, userId, Command.start);
+            ChatUtils.sendMainMenu(userId);
         }
 
 
         private void handleSetGroupCommand() {
-            log.info("User {} set group", userId);
-            InlineKeyboardMarkup allGroupKeyboard = ChatUtils.getAllGroupKeyboard(Action.setGroup.toString(), userId);
+            log.info(CMD_LOG, userId, Command.choose_course);
+            InlineKeyboardMarkup allGroupKeyboard = ChatUtils.getAllTagKeyboard(Action.chooseTag);
 
             if (allGroupKeyboard.getKeyboard().isEmpty()) {
                 ChatUtils.sendMessage(userId, "Нет доступных групп");
@@ -177,8 +167,8 @@ public class CommandMessageProcessor implements MessageProcessor {
         }
 
         private void handleSetTagCommand() {
-            log.info("User {} use set_tag command", userId);
-            InlineKeyboardMarkup allTagKeyboard = ChatUtils.getAllTagKeyboard(Action.setTag.toString(), userId);
+            log.info(CMD_LOG, userId, Command.set_tag);
+            InlineKeyboardMarkup allTagKeyboard = ChatUtils.getAllTagKeyboard(Action.setTag);
 
             ChatUtils.sendInlineKeyboard(userId,
                     "Установите тег который будет присваиваться всем добавленным далее группам/каналам",
@@ -186,6 +176,7 @@ public class CommandMessageProcessor implements MessageProcessor {
         }
 
         private void handleAddTagCommand(String tagName) {
+            log.info(CMD_LOG, userId, Command.add_tag);
             if (tagName.isEmpty()) {
                 ChatUtils.sendMessage(userId, "Формат команды /addTag <new tag>");
                 return;
@@ -206,7 +197,7 @@ public class CommandMessageProcessor implements MessageProcessor {
         }
 
         private void handleCatalogCommand() {
-            log.info("user {} get /catalog command", userId);
+            log.info(CMD_LOG, userId, Command.catalog);
             String catalog = Main.dataUtils.getCatalog();
 
             if (catalog == null) {
@@ -247,20 +238,20 @@ public class CommandMessageProcessor implements MessageProcessor {
         }
 
         private void handleCancelCommand() {
-            log.info("User used {} cancel command", userId);
+            log.info(CMD_LOG, userId, Command.cancel);
             EditingActions action = state.cansel();
             ChatUtils.sendMessage(userId, "Режим работы над командой" + action.toString() + "отменен");
         }
 
         private void handleDelCommand() {
-            log.info("user {} get /del command", userId);
+            log.info(CMD_LOG, userId, Command.del);
 
             if (Main.dataUtils.getGroupList().isEmpty()) {
                 ChatUtils.sendMessage(userId, "Не найдено ни одной группы");
                 return;
             }
 
-            InlineKeyboardMarkup allGroupKeyboard = ChatUtils.getAllGroupKeyboard(Action.delGroup.toString(), userId);
+            InlineKeyboardMarkup allGroupKeyboard = ChatUtils.getAllGroupKeyboard(Action.delGroup, userId);
             ChatUtils.sendInlineKeyboard(userId, "Выберете группу для удаления", allGroupKeyboard);
         }
 
@@ -273,24 +264,25 @@ public class CommandMessageProcessor implements MessageProcessor {
         }
 
         private void handleEditInfoCommand() {
-            log.info("User {} edit info", userId);
+            log.info(CMD_LOG, userId, Command.edit_info);
             state.editInfo();
             ChatUtils.sendMessage(userId, "Введите новое описание группы");
         }
 
         private void handleEditHelpCommand() {
-            log.info("User {} edit help", userId);
+            log.info(CMD_LOG, userId, Command.edit_help);
             state.editHelp();
             ChatUtils.sendMessage(userId, "Введите новое сообщение помощи");
         }
 
         private void handleSetPaymentInfo() {
-            log.info("User {} is set's payment info", userId);
+            log.info(CMD_LOG, userId, Command.set_payment_info);
             state.editPaymentInfo();
             ChatUtils.sendMessage(userId, "Пришлите сообщение содержащее информацию о методах оплаты");
         }
 
         private void handleSayCommand(String args) {
+            log.info(CMD_LOG, userId, Command.say);
             if (args == null || args.isBlank()) {
                 ChatUtils.sendMessage(userId, "Формат: /say @username текст");
                 return;

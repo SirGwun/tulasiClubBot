@@ -28,13 +28,15 @@ public class CallbackProcessor implements MessageProcessor {
     private final List<CallbackHandler> handlers = Arrays.asList(
             new ConfirmHandler(),
             new DeclineHandler(),
-            new SetGroupHandler(),
+            new ChooseGroupHandler(),
             new SetTagHandler(),
             new DelGroupHandler(),
             new GetJoinRequestedLinkHandler(),
             new ChooseTagHandler(),
             new GetInstructionHandler(),
-            new ChooseCourseHandler()
+            new ChooseAllCourseHandler(),
+            new GetPaymentInstructionHandler(),
+            new GetCourseDescriptionHandler()
     );
 
     public void handleCallbackQuery(Update update) {

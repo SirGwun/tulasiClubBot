@@ -32,7 +32,6 @@ public final class DataUtils {
 
     private String botName;
     private String botToken;
-    private String groupTag;
     private long adminChatID;
     private long favoriteGroupID;
     private String info;
@@ -54,7 +53,6 @@ public final class DataUtils {
         this.paymentFolderPath = base + "Payment info/";
         this.catalogPath = base + "catalog.txt";
         this.tagListPath = base + "tagList.txt";
-        groupTag = "Второй поток"; //todo сериализовать и десериализовать
 
         if (amvera) {
             botToken = System.getenv("BOTTOCKEN");
@@ -77,6 +75,7 @@ public final class DataUtils {
 
         loadConfig();
         loadGroupList();
+        saveGroupList(); // временно для перехода
     }
 
     public boolean updateConfig(String key, String value) {
@@ -90,7 +89,7 @@ public final class DataUtils {
     }
 
     public boolean addNewGroup(String name, long id) {
-        groupList.add(new Group(name, id, groupTag));
+        groupList.add(new Group(name, id, getGroupTag()));
         saveGroupList();
         loadGroupList();
         return groupList.stream().anyMatch(g -> g.getName().equals(name));
@@ -163,6 +162,10 @@ public final class DataUtils {
     private void loadGroupList() {
         List<Group> list = (List<Group>) load("groupList");
         if (list != null) {
+            list.forEach(group -> {
+                if (group.getTag() == null || group.getTag().isEmpty()) // временно для перехода
+                    group.setTag(getGroupTag());
+            });
             groupList = list;
         }
     }
@@ -339,26 +342,32 @@ public final class DataUtils {
         return new File(paymentFolderPath + "paymentPhoto.jpg");
     }
 
+    public String getGroupTag() {
+        return getTagMap().get(Integer.parseInt(config.getProperty("groupTag")));
+    }
+
+    public void setGroupTag(String groupTag) {
+        for (Map.Entry<?, String> entry : getTagMap().entrySet()) {
+            if (entry.getValue().equalsIgnoreCase(groupTag)) {
+                config.setProperty("groupTag", String.valueOf(entry.getKey()));
+                saveConfig();
+                break;
+            }
+        }
+    }
+
     public Map<Integer, String> getTagMap() {
         Map<Integer, String> tags = new HashMap<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(tagListPath))) {
             while (reader.ready()) {
                 String input = reader.readLine();
                 tags.put(Integer.parseInt(input.substring(0, 1)),
-                        input.substring(2, input.length() - 1));
+                        input.substring(2));
             }
         } catch (IOException e) {
             log.error("Ошибка чтения tagList {}", e.getMessage());
         }
         return tags;
-    }
-
-    public String getGroupTag() {
-        return groupTag;
-    }
-
-    public void setGroupTag(String groupTag) {
-        this.groupTag = groupTag;
     }
 
     public void addNewTag(String tagName) {
