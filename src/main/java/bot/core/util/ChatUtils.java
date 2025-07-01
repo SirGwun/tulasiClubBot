@@ -122,11 +122,27 @@ public final class ChatUtils {
             }
         }
 
-        buttons.sort(Comparator.comparing(InlineKeyboardButton::getText));
+        buttons.sort(Comparator.comparingInt(o -> firstPositiveNumber(o.getText())));
 
         InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup();
         keyboard.setKeyboard(distributeButtons(buttons));
         return keyboard;
+    }
+
+    private static int firstPositiveNumber(String s) {
+        for (int i = 0, n = s.length(); i < n; i++) {
+            if (Character.isDigit(s.charAt(i))) {
+                int start = i;
+                // collect the full digit sequence
+                while (i < n && Character.isDigit(s.charAt(i))) i++;
+                // check that the sequence is not preceded by a minus sign
+                if (start == 0 || s.charAt(start - 1) != '-') {
+                    int value = Integer.parseInt(s.substring(start, i));
+                    if (value > 0) return value;   // positive number found
+                }
+            }
+        }
+        return -1;
     }
 
     public static InlineKeyboardMarkup getAllTagKeyboard(Action callback) {
