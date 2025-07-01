@@ -18,6 +18,11 @@ public abstract class AbstractCallbackHandler implements CallbackHandler {
     }
 
     @Override
+    public Action getAction() {
+        return action;
+    }
+
+    @Override
     public boolean match(Update update) {
         if (!update.hasCallbackQuery()) return false;
         return update.getCallbackQuery().getData().startsWith(action.toString());

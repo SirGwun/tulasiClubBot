@@ -13,10 +13,16 @@ import org.telegram.telegrambots.meta.api.objects.Update;
  */
 public class ChooseGroupHandler implements CallbackHandler {
     private static final Logger log = LoggerFactory.getLogger(ChooseGroupHandler.class);
+    private final Action action = Action.chooseGroup;
 
     @Override
     public String getFormat() {
-        return Action.chooseGroup + "_<groupId>";
+        return action + "_<groupId>";
+    }
+
+    @Override
+    public Action getAction() {
+        return action;
     }
 
     @Override

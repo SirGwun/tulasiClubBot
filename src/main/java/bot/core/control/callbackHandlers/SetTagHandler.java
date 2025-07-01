@@ -11,9 +11,15 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import java.util.Map;
 
 public class SetTagHandler implements CallbackHandler {
+    private final Action action = Action.setTag;
     @Override
     public String getFormat() {
-        return "setTag_<tagId>";
+        return action + "_<tagId>";
+    }
+
+    @Override
+    public Action getAction() {
+        return action;
     }
 
     private static final Logger log = LoggerFactory.getLogger(SetTagHandler.class);
