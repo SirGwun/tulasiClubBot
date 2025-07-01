@@ -77,16 +77,6 @@ public final class DataUtils {
 
         loadConfig();
         loadGroupList();
-
-        // временно для перехода
-        AtomicBoolean needResave = new AtomicBoolean(false);
-        groupList.forEach(group -> {
-            if (group.getTag() == null || group.getTag().isEmpty()) {
-                group.setTag(getGroupTag());
-                needResave.set(true);
-            }
-        });
-        if (needResave.get()) saveGroupList();
     }
 
     private void loadProdLogger() {

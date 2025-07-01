@@ -1,0 +1,242 @@
+2025-07-01 16:11:58 INFO  bot.core.util.DataUtils - Запущено в LOCAL
+2025-07-01 16:11:58 INFO  bot.core.Main - Тестовый режим
+2025-07-01 16:11:58 WARN  bot.core.Main - 123
+2025-07-01 16:12:00 INFO  bot.core.Main - Бот запущен
+2025-07-01 16:25:15 INFO  bot.core.util.DataUtils - Запущено в LOCAL
+2025-07-01 16:25:15 INFO  bot.core.Main - Тестовый режим
+2025-07-01 16:25:15 WARN  bot.core.Main - 123
+2025-07-01 16:25:16 INFO  bot.core.Main - Бот запущен
+2025-07-01 16:26:42 INFO  bot.core.util.DataUtils - Запущено в LOCAL
+2025-07-01 16:26:42 INFO  bot.core.Main - Тестовый режим
+2025-07-01 16:26:42 WARN  bot.core.Main - 123
+2025-07-01 16:26:44 INFO  bot.core.Main - Бот запущен
+2025-07-01 16:32:57 INFO  bot.core.util.DataUtils - Запущено в LOCAL
+2025-07-01 16:32:57 INFO  bot.core.Main - Тестовый режим
+2025-07-01 16:32:57 WARN  bot.core.Main - 123
+2025-07-01 16:32:59 INFO  bot.core.Main - Бот запущен
+2025-07-01 16:33:12 INFO  bot.core.PaymentBot - Получено новое сообщение от Tulasikl из Личных сообщений
+2025-07-01 16:33:12 INFO  bot.core.PaymentBot - Запущен процессор class bot.core.control.messageProcessing.CommandMessageProcessor
+2025-07-01 16:33:12 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - User 7066573077 use choose_course command
+2025-07-01 16:33:52 INFO  bot.core.util.DataUtils - Запущено в LOCAL
+2025-07-01 16:33:52 INFO  bot.core.Main - Тестовый режим
+2025-07-01 16:33:52 WARN  bot.core.Main - 123
+2025-07-01 16:33:54 INFO  bot.core.Main - Бот запущен
+2025-07-01 16:33:54 INFO  bot.core.PaymentBot - Получено новое сообщение от Tulasikl из Личных сообщений
+2025-07-01 16:33:54 INFO  bot.core.PaymentBot - Запущен процессор class bot.core.control.messageProcessing.CommandMessageProcessor
+2025-07-01 16:33:54 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - User 7066573077 use choose_course command
+2025-07-01 16:34:10 INFO  bot.core.PaymentBot - Запущен процессор class bot.core.control.messageProcessing.CallbackProcessor
+2025-07-01 16:34:22 INFO  bot.core.PaymentBot - Запущен процессор class bot.core.control.messageProcessing.CallbackProcessor
+2025-07-01 16:34:22 INFO  b.c.c.c.ChooseGroupHandler - User 7066573077 set group -1002683701775
+2025-07-01 16:34:29 INFO  bot.core.PaymentBot - Получено новое сообщение от Tulasikl из Личных сообщений
+2025-07-01 16:34:29 INFO  bot.core.PaymentBot - Запущен процессор class bot.core.control.messageProcessing.CommandMessageProcessor
+2025-07-01 16:34:29 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - User 7066573077 use choose_course command
+2025-07-01 16:34:31 INFO  bot.core.PaymentBot - Запущен процессор class bot.core.control.messageProcessing.CallbackProcessor
+2025-07-01 16:34:35 INFO  bot.core.PaymentBot - Запущен процессор class bot.core.control.messageProcessing.CallbackProcessor
+2025-07-01 16:34:35 INFO  b.c.c.c.ChooseGroupHandler - User 7066573077 set group -1002822306683
+2025-07-01 16:34:40 INFO  bot.core.PaymentBot - Получено новое сообщение от Tulasikl из Личных сообщений
+2025-07-01 16:34:40 INFO  bot.core.PaymentBot - Запущен процессор class bot.core.control.messageProcessing.CommandMessageProcessor
+2025-07-01 16:34:40 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - User 7066573077 use set_tag command
+2025-07-01 16:34:41 INFO  bot.core.PaymentBot - Запущен процессор class bot.core.control.messageProcessing.CallbackProcessor
+2025-07-01 16:34:41 INFO  b.c.c.callbackHandlers.SetTagHandler - User 7066573077 set tag Второй поток
+2025-07-01 16:35:55 INFO  bot.core.util.DataUtils - Запущено в LOCAL
+2025-07-01 16:35:55 INFO  bot.core.Main - Тестовый режим
+2025-07-01 16:35:55 WARN  bot.core.Main - 123
+2025-07-01 16:35:56 INFO  bot.core.Main - Бот запущен
+2025-07-01 16:36:01 INFO  bot.core.PaymentBot - Получено новое сообщение от Tulasikl из Личных сообщений
+2025-07-01 16:36:01 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - User 7066573077 use start command
+2025-07-01 16:36:25 INFO  b.c.c.c.ChooseGroupHandler - User 7066573077 set group -1002683701775
+2025-07-01 16:37:46 INFO  bot.core.PaymentBot - Получено новое сообщение от SkorokhodRadharaman из Личных сообщений
+2025-07-01 16:37:46 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - User 1144830564 use choose_course command
+2025-07-01 16:41:08 INFO  bot.core.util.DataUtils - Запущено в LOCAL
+2025-07-01 16:41:08 INFO  bot.core.Main - Тестовый режим
+2025-07-01 16:41:08 WARN  bot.core.Main - 123
+2025-07-01 16:41:10 INFO  bot.core.Main - Бот запущен
+2025-07-01 16:41:25 INFO  bot.core.util.DataUtils - Запущено в LOCAL
+2025-07-01 16:41:25 INFO  bot.core.Main - Тестовый режим
+2025-07-01 16:41:25 WARN  bot.core.Main - 123
+2025-07-01 16:41:26 INFO  bot.core.Main - Бот запущен
+2025-07-01 16:41:29 INFO  bot.core.PaymentBot - Получено новое сообщение от SkorokhodRadharaman из Личных сообщений
+2025-07-01 16:41:29 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - User 1144830564 use start command
+2025-07-01 16:44:23 INFO  bot.core.util.DataUtils - Запущено в LOCAL
+2025-07-01 16:44:23 INFO  bot.core.Main - Тестовый режим
+2025-07-01 16:44:23 WARN  bot.core.Main - 123
+2025-07-01 16:44:25 INFO  bot.core.Main - Бот запущен
+2025-07-01 16:44:27 INFO  bot.core.PaymentBot - Получено новое сообщение от SkorokhodRadharaman из Личных сообщений
+2025-07-01 16:44:27 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - User 1144830564 use menu command
+2025-07-01 16:48:22 INFO  bot.core.util.DataUtils - Запущено в LOCAL
+2025-07-01 16:48:22 INFO  bot.core.Main - Тестовый режим
+2025-07-01 16:48:22 WARN  bot.core.Main - 123
+2025-07-01 16:48:23 INFO  bot.core.Main - Бот запущен
+2025-07-01 16:48:25 INFO  bot.core.PaymentBot - Получено новое сообщение от SkorokhodRadharaman из Личных сообщений
+2025-07-01 16:48:25 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - User 1144830564 use menu command
+2025-07-01 17:11:09 INFO  bot.core.util.DataUtils - Запущено в LOCAL
+2025-07-01 17:11:09 INFO  bot.core.Main - Тестовый режим
+2025-07-01 17:11:09 WARN  bot.core.Main - 123
+2025-07-01 17:11:10 INFO  bot.core.Main - Бот запущен
+2025-07-01 17:11:39 INFO  bot.core.util.DataUtils - Запущено в LOCAL
+2025-07-01 17:11:39 INFO  bot.core.Main - Тестовый режим
+2025-07-01 17:11:39 WARN  bot.core.Main - 123
+2025-07-01 17:11:41 INFO  bot.core.Main - Бот запущен
+2025-07-01 17:11:45 INFO  bot.core.PaymentBot - Получено новое сообщение от Tulasikl из Личных сообщений
+2025-07-01 17:11:45 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - User 7066573077 use set_tag command
+2025-07-01 17:11:50 INFO  b.c.c.callbackHandlers.SetTagHandler - User 7066573077 set tag Второй поток
+2025-07-01 17:12:11 INFO  b.c.c.m.AddingInGroupMessageProcessor - Bot added to group: test
+2025-07-01 17:12:11 INFO  bot.core.PaymentBot - Получено новое сообщение от Tulasikl из test
+2025-07-01 17:12:15 INFO  b.c.c.m.AddingInGroupMessageProcessor - Bot added to group: test
+2025-07-01 17:12:33 INFO  bot.core.PaymentBot - Получено новое сообщение от Tulasikl из Личных сообщений
+2025-07-01 17:12:33 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - User 7066573077 use choose_course command
+2025-07-01 17:12:38 INFO  bot.core.PaymentBot - Получено новое сообщение от Tulasikl из Личных сообщений
+2025-07-01 17:12:38 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - User 7066573077 use del command
+2025-07-01 17:12:41 INFO  bot.core.util.DataUtils - Группа test удалена из списка
+2025-07-01 17:12:42 INFO  bot.core.PaymentBot - Получено новое сообщение от harmoniousNutritionBot из test
+2025-07-01 17:12:44 INFO  bot.core.PaymentBot - Получено новое сообщение от Tulasikl из Личных сообщений
+2025-07-01 17:12:44 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - User 7066573077 use choose_course command
+2025-07-01 17:12:46 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -4216898228
+2025-07-01 17:12:48 INFO  bot.core.PaymentBot - Получено новое сообщение от Tulasikl из Личных сообщений
+2025-07-01 17:12:48 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - User 7066573077 use del command
+2025-07-01 17:12:49 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -4216898228
+2025-07-01 17:12:50 INFO  bot.core.util.DataUtils - Группа test удалена из списка
+2025-07-01 17:15:38 INFO  bot.core.util.DataUtils - Запущено в LOCAL
+2025-07-01 17:15:38 INFO  bot.core.Main - Тестовый режим
+2025-07-01 17:15:38 WARN  bot.core.Main - 123
+2025-07-01 17:15:40 INFO  bot.core.Main - Бот запущен
+2025-07-01 17:15:50 INFO  bot.core.PaymentBot - Получено новое сообщение от Tulasikl из test
+2025-07-01 17:15:56 INFO  b.c.c.m.AddingInGroupMessageProcessor - Bot added to group: test
+2025-07-01 17:16:16 INFO  bot.core.PaymentBot - Получено новое сообщение от Tulasikl из Личных сообщений
+2025-07-01 17:16:16 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - User 7066573077 use choose_course command
+2025-07-01 17:16:21 INFO  bot.core.PaymentBot - Получено новое сообщение от Tulasikl из Личных сообщений
+2025-07-01 17:16:21 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - User 7066573077 use choose_course command
+2025-07-01 17:16:41 INFO  bot.core.util.DataUtils - Запущено в LOCAL
+2025-07-01 17:16:41 INFO  bot.core.Main - Тестовый режим
+2025-07-01 17:16:41 WARN  bot.core.Main - 123
+2025-07-01 17:16:42 INFO  bot.core.Main - Бот запущен
+2025-07-01 17:17:46 INFO  bot.core.PaymentBot - Получено новое сообщение от Tulasikl из Личных сообщений
+2025-07-01 17:17:46 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - User 7066573077 use menu command
+2025-07-01 21:17:35 INFO  bot.core.util.DataUtils - Запущено в LOCAL
+2025-07-01 21:17:36 INFO  bot.core.Main - Тестовый режим
+2025-07-01 21:17:36 WARN  bot.core.Main - 123
+2025-07-01 21:17:37 INFO  bot.core.Main - Бот запущен
+2025-07-01 21:18:18 INFO  bot.core.PaymentBot - Получено новое сообщение от GangaDatta из Личных сообщений
+2025-07-01 21:18:18 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - User 479530347 use start command
+2025-07-01 21:18:28 INFO  bot.core.PaymentBot - Получено новое сообщение от SkorokhodRadharaman из Личных сообщений
+2025-07-01 21:18:28 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - User 1144830564 use menu command
+2025-07-01 21:22:00 INFO  bot.core.PaymentBot - Получено новое сообщение от GangaDatta из Личных сообщений
+2025-07-01 21:22:00 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - User 479530347 use menu command
+2025-07-01 21:23:31 INFO  b.c.c.c.ChooseGroupHandler - User 479530347 set group -1002822306683
+2025-07-01 21:23:32 WARN  b.c.c.c.ChooseTagHandler - Вызов getTaggedGroupKeyboard без доступных групп
+2025-07-01 21:28:01 INFO  bot.core.PaymentBot - Получено новое сообщение от Tulasikl из Личных сообщений
+2025-07-01 21:28:01 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - User 7066573077 use set_tag command
+2025-07-01 21:28:07 INFO  b.c.c.callbackHandlers.SetTagHandler - User 7066573077 set tag Второй поток
+2025-07-01 21:28:44 INFO  bot.core.PaymentBot - Получено новое сообщение от Tulasikl из Личных сообщений
+2025-07-01 21:28:44 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - User 7066573077 use add_tag command
+2025-07-01 21:30:08 INFO  bot.core.PaymentBot - Получено новое сообщение от Tulasikl из Личных сообщений
+2025-07-01 21:30:08 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - User 7066573077 use set_tag command
+2025-07-01 21:30:09 INFO  b.c.c.callbackHandlers.SetTagHandler - User 7066573077 set tag Второй поток
+2025-07-01 21:32:31 INFO  bot.core.PaymentBot - Получено новое сообщение от Tulasikl из Личных сообщений
+2025-07-01 21:32:31 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - User 7066573077 use say command
+2025-07-01 21:32:57 INFO  bot.core.PaymentBot - Получено новое сообщение от Tulasikl из Личных сообщений
+2025-07-01 21:32:57 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - User 7066573077 use say command
+2025-07-01 21:32:57 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - Admin 7066573077 use say command to @GangaDatta
+2025-07-01 22:51:52 INFO  bot.core.util.DataUtils - Запущено в LOCAL
+2025-07-01 22:51:52 INFO  bot.core.Main - Тестовый режим
+2025-07-01 22:51:52 WARN  bot.core.Main - 123
+2025-07-01 22:51:53 INFO  bot.core.Main - Бот запущен
+2025-07-01 22:51:54 ERROR b.c.c.m.CallbackProcessor - Ошибка при отправке ответа на CallbackQuery
+org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException: Error executing org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery query: [400] Bad Request: query is too old and response timeout expired or query ID is invalid
+	at org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod.deserializeResponseInternal(PartialBotApiMethod.java:54)
+	at org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod.deserializeResponse(PartialBotApiMethod.java:34)
+	at org.telegram.telegrambots.meta.api.methods.botapimethods.BotApiMethodBoolean.deserializeResponse(BotApiMethodBoolean.java:19)
+	at org.telegram.telegrambots.meta.api.methods.botapimethods.BotApiMethodBoolean.deserializeResponse(BotApiMethodBoolean.java:14)
+	at org.telegram.telegrambots.bots.DefaultAbsSender.sendApiMethod(DefaultAbsSender.java:1115)
+	at org.telegram.telegrambots.meta.bots.AbsSender.execute(AbsSender.java:64)
+	at bot.core.control.messageProcessing.CallbackProcessor.handleCallbackQuery(CallbackProcessor.java:76)
+	at bot.core.control.messageProcessing.CallbackProcessor.process(CallbackProcessor.java:25)
+	at bot.core.PaymentBot.onUpdateReceived(PaymentBot.java:53)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1597)
+	at org.telegram.telegrambots.meta.generics.LongPollingBot.onUpdatesReceived(LongPollingBot.java:27)
+	at org.telegram.telegrambots.updatesreceivers.DefaultBotSession$HandlerThread.run(DefaultBotSession.java:312)
+2025-07-01 22:51:55 ERROR b.c.c.m.CallbackProcessor - Ошибка при отправке ответа на CallbackQuery
+org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException: Error executing org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery query: [400] Bad Request: query is too old and response timeout expired or query ID is invalid
+	at org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod.deserializeResponseInternal(PartialBotApiMethod.java:54)
+	at org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod.deserializeResponse(PartialBotApiMethod.java:34)
+	at org.telegram.telegrambots.meta.api.methods.botapimethods.BotApiMethodBoolean.deserializeResponse(BotApiMethodBoolean.java:19)
+	at org.telegram.telegrambots.meta.api.methods.botapimethods.BotApiMethodBoolean.deserializeResponse(BotApiMethodBoolean.java:14)
+	at org.telegram.telegrambots.bots.DefaultAbsSender.sendApiMethod(DefaultAbsSender.java:1115)
+	at org.telegram.telegrambots.meta.bots.AbsSender.execute(AbsSender.java:64)
+	at bot.core.control.messageProcessing.CallbackProcessor.handleCallbackQuery(CallbackProcessor.java:76)
+	at bot.core.control.messageProcessing.CallbackProcessor.process(CallbackProcessor.java:25)
+	at bot.core.PaymentBot.onUpdateReceived(PaymentBot.java:53)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1597)
+	at org.telegram.telegrambots.meta.generics.LongPollingBot.onUpdatesReceived(LongPollingBot.java:27)
+	at org.telegram.telegrambots.updatesreceivers.DefaultBotSession$HandlerThread.run(DefaultBotSession.java:312)
+2025-07-01 22:51:55 ERROR b.c.c.m.CallbackProcessor - Ошибка при отправке ответа на CallbackQuery
+org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException: Error executing org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery query: [400] Bad Request: query is too old and response timeout expired or query ID is invalid
+	at org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod.deserializeResponseInternal(PartialBotApiMethod.java:54)
+	at org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod.deserializeResponse(PartialBotApiMethod.java:34)
+	at org.telegram.telegrambots.meta.api.methods.botapimethods.BotApiMethodBoolean.deserializeResponse(BotApiMethodBoolean.java:19)
+	at org.telegram.telegrambots.meta.api.methods.botapimethods.BotApiMethodBoolean.deserializeResponse(BotApiMethodBoolean.java:14)
+	at org.telegram.telegrambots.bots.DefaultAbsSender.sendApiMethod(DefaultAbsSender.java:1115)
+	at org.telegram.telegrambots.meta.bots.AbsSender.execute(AbsSender.java:64)
+	at bot.core.control.messageProcessing.CallbackProcessor.handleCallbackQuery(CallbackProcessor.java:76)
+	at bot.core.control.messageProcessing.CallbackProcessor.process(CallbackProcessor.java:25)
+	at bot.core.PaymentBot.onUpdateReceived(PaymentBot.java:53)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1597)
+	at org.telegram.telegrambots.meta.generics.LongPollingBot.onUpdatesReceived(LongPollingBot.java:27)
+	at org.telegram.telegrambots.updatesreceivers.DefaultBotSession$HandlerThread.run(DefaultBotSession.java:312)
+2025-07-01 22:53:28 INFO  bot.core.PaymentBot - Получено новое сообщение от GangaDatta из Личных сообщений
+2025-07-01 22:53:28 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - User 479530347 use menu command
+2025-07-01 22:56:25 INFO  bot.core.PaymentBot - Получено новое сообщение от SkorokhodRadharaman из Личных сообщений
+2025-07-01 22:56:25 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - User 1144830564 use choose_course command
+2025-07-01 22:56:30 INFO  b.c.c.c.ChooseGroupHandler - User 1144830564 set group -1002683701775
+2025-07-01 22:56:37 INFO  bot.core.PaymentBot - Получено новое сообщение от SkorokhodRadharaman из Личных сообщений
+2025-07-01 22:56:37 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - User 1144830564 use menu command
+2025-07-01 22:59:20 INFO  bot.core.PaymentBot - Получено новое сообщение от Tulasikl из Личных сообщений
+2025-07-01 22:59:20 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - User 7066573077 use set_tag command
+2025-07-01 22:59:21 INFO  b.c.c.callbackHandlers.SetTagHandler - User 7066573077 set tag Второй поток
+2025-07-01 23:24:08 INFO  bot.core.util.DataUtils - Запущено в LOCAL
+2025-07-01 23:24:08 INFO  bot.core.Main - Тестовый режим
+2025-07-01 23:24:08 WARN  bot.core.Main - 123
+2025-07-01 23:24:10 INFO  bot.core.Main - Бот запущен
+2025-07-01 23:24:36 INFO  bot.core.PaymentBot - Получено новое сообщение от Tulasikl из Личных сообщений
+2025-07-01 23:24:36 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - User 7066573077 send unknown command /addTag
+2025-07-02 00:10:40 INFO  bot.core.util.DataUtils - Запущено в LOCAL
+2025-07-02 00:10:40 INFO  bot.core.Main - Тестовый режим
+2025-07-02 00:10:41 ERROR bot.core.PaymentBot - Error setting bot commands Error executing org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands query: [400] Bad Request: BOT_COMMAND_INVALID
+2025-07-02 00:10:41 INFO  bot.core.Main - Бот запущен
+2025-07-02 00:10:43 INFO  bot.core.PaymentBot - Получено новое сообщение от Tulasikl из Личных сообщений
+2025-07-02 00:10:43 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - User 7066573077 send unknown command /choose_course
+2025-07-02 00:11:01 INFO  bot.core.util.DataUtils - Запущено в LOCAL
+2025-07-02 00:11:01 INFO  bot.core.Main - Тестовый режим
+2025-07-02 00:11:02 ERROR bot.core.PaymentBot - Error setting bot commands Error executing org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands query: [400] Bad Request: BOT_COMMAND_INVALID
+2025-07-02 00:11:02 INFO  bot.core.Main - Бот запущен
+2025-07-02 00:13:15 INFO  bot.core.util.DataUtils - Запущено в LOCAL
+2025-07-02 00:13:15 INFO  bot.core.Main - Тестовый режим
+2025-07-02 00:14:06 ERROR bot.core.PaymentBot - Error setting bot commands Error executing org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands query: [400] Bad Request: BOT_COMMAND_INVALID
+2025-07-02 00:14:40 INFO  bot.core.util.DataUtils - Запущено в LOCAL
+2025-07-02 00:14:40 INFO  bot.core.Main - Тестовый режим
+2025-07-02 00:14:40 WARN  bot.core.Main - 123
+2025-07-02 00:14:42 INFO  bot.core.Main - Бот запущен
+2025-07-02 00:16:25 INFO  bot.core.util.DataUtils - Запущено в LOCAL
+2025-07-02 00:16:25 INFO  bot.core.Main - Тестовый режим
+2025-07-02 00:16:27 INFO  bot.core.Main - Бот запущен
+2025-07-02 00:16:27 INFO  bot.core.PaymentBot - Получено новое сообщение от Tulasikl из Личных сообщений
+2025-07-02 00:16:27 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - User 7066573077 use add_tag command
+2025-07-02 00:17:17 INFO  bot.core.util.DataUtils - Запущено в LOCAL
+2025-07-02 00:17:17 INFO  bot.core.Main - Тестовый режим
+2025-07-02 00:17:18 INFO  bot.core.Main - Бот запущен
+2025-07-02 00:17:21 INFO  bot.core.PaymentBot - Получено новое сообщение от Tulasikl из Личных сообщений
+2025-07-02 00:17:21 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - User 7066573077 use set_tag command
+2025-07-02 00:17:32 INFO  bot.core.PaymentBot - Получено новое сообщение от Tulasikl из Личных сообщений
+2025-07-02 00:17:32 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - User 7066573077 use menu command
+2025-07-02 00:17:55 INFO  bot.core.PaymentBot - Получено новое сообщение от SkorokhodRadharaman из Личных сообщений
+2025-07-02 00:17:55 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - User 1144830564 use menu command
+2025-07-02 00:30:21 INFO  b.c.c.c.ChooseGroupHandler - User 7066573077 set group -1002822306683
+2025-07-02 01:13:54 INFO  bot.core.util.DataUtils - Запущено в LOCAL
+2025-07-02 01:13:54 ERROR bot.core.util.DataUtils - Не удалось найти файл data/groupList.ser
+2025-07-02 01:13:54 INFO  bot.core.Main - Тестовый режим
+2025-07-02 01:13:56 INFO  bot.core.Main - Бот запущен
+2025-07-02 01:14:01 INFO  bot.core.PaymentBot - Получено новое сообщение от Tulasikl из Личных сообщений
+2025-07-02 01:14:01 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - User 7066573077 use choose_course command
+2025-07-02 01:14:02 WARN  b.c.c.c.ChooseTagHandler - Вызов getTaggedGroupKeyboard без доступных групп
+2025-07-02 01:14:13 INFO  b.c.c.m.AddingInGroupMessageProcessor - Попытка удалить несуществующую группу: testK
+2025-07-02 01:14:23 INFO  b.c.c.m.AddingInGroupMessageProcessor - Bot added to group: testK
