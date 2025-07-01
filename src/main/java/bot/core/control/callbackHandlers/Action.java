@@ -11,5 +11,5 @@ public enum Action {
     chooseGroup,
     getPaymentInstruction,
     getCourseDescription,
-    setTag
+    rightPointer, lefrPointer, setTag
 }

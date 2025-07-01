@@ -32,7 +32,6 @@ public class Main {
             SessionController.getInstance();
             if (isTest) {
                 log.info("Тестовый режим");
-                log.warn("123");
                 dataUtils.testMode();
             }
             bot = new PaymentBot(dataUtils.getBotToken());

@@ -193,6 +193,7 @@ public class CommandMessageProcessor implements MessageProcessor {
                 ChatUtils.sendMessage(userId, "Формат команды /addTag <new tag>");
                 return;
             }
+            ChatUtils.sendMessage(userId, "Новый курс добавлен " + tagName);
             Main.dataUtils.addNewTag(tagName);
         }
 

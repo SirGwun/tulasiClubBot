@@ -34,7 +34,7 @@ public class DeclineHandler implements CallbackHandler {
 
     @Override
     public boolean match(Update update) {
-        return update.hasCallbackQuery() && update.getCallbackQuery().getData().startsWith(Action.decline.toString() + "_");
+        return update.hasCallbackQuery() && update.getCallbackQuery().getData().startsWith(Action.decline.toString());
     }
 
     @Override
