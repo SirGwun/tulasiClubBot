@@ -14,10 +14,16 @@ import org.telegram.telegrambots.meta.api.objects.Update;
  */
 public class ConfirmHandler implements CallbackHandler {
     private static final Logger log = LoggerFactory.getLogger(ConfirmHandler.class);
+    private final Action action = Action.confirm;
 
     @Override
     public String getFormat() {
-        return "confirm_<messageId>_<userId>";
+        return action + "_<messageId>_<userId>";
+    }
+
+    @Override
+    public Action getAction() {
+        return action;
     }
 
     @Override

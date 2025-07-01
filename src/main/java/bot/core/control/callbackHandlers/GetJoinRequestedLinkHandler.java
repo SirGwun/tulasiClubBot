@@ -6,6 +6,7 @@ import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 public class GetJoinRequestedLinkHandler implements CallbackHandler {
+    private final Action action = Action.getJoinRequestedLink;
     @Override
     public boolean match(Update update) {
         return update.hasCallbackQuery() && update.getCallbackQuery().getData().startsWith(Action.getJoinRequestedLink.toString() + "_");
@@ -31,6 +32,11 @@ public class GetJoinRequestedLinkHandler implements CallbackHandler {
 
     @Override
     public String getFormat() {
-        return "getJoinRequestedLink_<link>_<chatId>";
+        return action + "_<link>_<chatId>";
+    }
+
+    @Override
+    public Action getAction() {
+        return action;
     }
 }

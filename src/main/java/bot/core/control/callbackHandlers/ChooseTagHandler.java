@@ -22,7 +22,7 @@ public class ChooseTagHandler extends AbstractCallbackHandler {
 
     @Override
     public String getFormat() {
-        return "chooseTag_<tag>";
+        return action + "_<tag>";
     }
 
     @Override

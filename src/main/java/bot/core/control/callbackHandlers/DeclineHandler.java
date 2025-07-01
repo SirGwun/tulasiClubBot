@@ -20,10 +20,16 @@ import java.time.Instant;
 
 public class DeclineHandler implements CallbackHandler {
     private static final Logger log = LoggerFactory.getLogger(DeclineHandler.class);
+    private final Action action = Action.decline;
 
     @Override
     public String getFormat() {
-        return "decline_<messageId>_<userId>";
+        return action + "_<messageId>_<userId>";
+    }
+
+    @Override
+    public Action getAction() {
+        return action;
     }
 
     @Override

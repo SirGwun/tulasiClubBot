@@ -7,9 +7,15 @@ import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 public class DelGroupHandler implements CallbackHandler {
+    private final Action action = Action.delGroup;
     @Override
     public String getFormat() {
-        return "delGroup_<groupId>";
+        return action + "_<groupId>";
+    }
+
+    @Override
+    public Action getAction() {
+        return action;
     }
 
     @Override
