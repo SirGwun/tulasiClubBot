@@ -20,7 +20,6 @@ public class CommonMessageProcessor implements MessageProcessor {
         MessageContext ctx = new MessageContext(update.getMessage());
         Session session = SessionController.getInstance()
                 .openSessionIfNeeded(update.getMessage().getFrom());
-        //todo проверить
         return !ctx.isCommand() && !ctx.isFromGroup() && session.getState().isCommonState();
     }
 

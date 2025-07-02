@@ -171,7 +171,6 @@ public class CommandMessageProcessor implements MessageProcessor {
                 return;
             }
 
-            //todo научится различать такие группы и по разному их обрабатывать
             if (hasExceptedGroup(allGroupKeyboard)) {
                 ChatUtils.sendMessage(userId, "Бот не входит в группы помеченные '!', либо не админ в них");
             }

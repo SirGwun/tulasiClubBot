@@ -66,7 +66,7 @@ public class AddingInGroupMessageProcessor implements MessageProcessor {
             log.info("Bot added to group: " + chatName);
             Main.dataUtils.addNewGroup(chatName, chatId);
             ChatUtils.sendMessage(fromId, "Вы успешно добавили бота в " + chatType + " " + chatName);
-        } else { //todo определять добавили или удалили и не отправлять во втором случае
+        } else {
             ChatUtils.sendMessage(fromId,
                     "Вы только что добавили в бота в группу " + chatName +
                             "\n имя которой совпадает с уже существующей\n\n" +

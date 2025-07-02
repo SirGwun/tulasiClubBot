@@ -48,6 +48,7 @@ public final class ChatUtils {
         execute(sendMessage);
     }
 
+    //todo скрывать клавиатуры после нажатия по одной из ее кнопок
     public static void sendMainMenu(long chatId) {
         String text = """
         Вы находитесь в главном меню: 
