@@ -138,7 +138,7 @@ public final class DataUtils {
         }
     }
 
-    public List<Group> getGroupList() {
+    public synchronized List<Group> getGroupList() {
         return groupList;
     }
 
@@ -290,6 +290,15 @@ public final class DataUtils {
     public Group getGroupByName(String name) {
         for (Group group : groupList) {
             if (group.getName().equals(name)) {
+                return group;
+            }
+        }
+        return null;
+    }
+
+    public Group getGroupById(Long id) {
+        for (Group group : groupList) {
+            if (group.getId() == (id)) {
                 return group;
             }
         }

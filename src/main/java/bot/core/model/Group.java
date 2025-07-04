@@ -1,6 +1,7 @@
 package bot.core.model;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class Group implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -33,8 +34,26 @@ public class Group implements Serializable {
     public String getName() {
         return name;
     }
-
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public boolean equals(Object group) {
+        if (group == null) return false;
+        if (!(group instanceof Group)) return false;
+        if (group == this) return true;
+        return ((Group) group).getId() == this.getId()
+                && ((Group) group).getName().equals(this.getName());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getName());
+    }
+
+    @Override
+    public String toString() {
+        return "id: " + getId() + " name: " + getName() + " tag: " + getTag();
     }
 }

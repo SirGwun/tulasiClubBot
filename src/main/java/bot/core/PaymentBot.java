@@ -40,7 +40,7 @@ public class PaymentBot extends TelegramLongPollingBot {
             Message message = update.getMessage();
             String chatTitle = message.getChat().getTitle();
             if (chatTitle == null) chatTitle = "Личных сообщений";
-            log.info("Получено новое сообщение от {} из {}", message.getFrom().getUserName(), chatTitle);
+            log.debug("Получено новое сообщение от {} из {}", message.getFrom().getUserName(), chatTitle);
         }
 
         if (historyForwardProcessor.canProcess(update)) {
