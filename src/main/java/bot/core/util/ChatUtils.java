@@ -93,22 +93,33 @@ public final class ChatUtils {
      * Keyboard with confirmation/decline buttons for payment check.
      */
     public static InlineKeyboardMarkup getValidationKeyboard(int messageId, long userId) {
-        InlineKeyboardButton confirm = createConfirmButton(messageId, userId);
-        InlineKeyboardButton decline = createDeclineButton(messageId, userId);
+        InlineKeyboardButton confirm = Utils.createConfirmButton(messageId, userId);
+        InlineKeyboardButton decline = Utils.createDeclineButton(messageId, userId);
 
         InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup();
         keyboard.setKeyboard(Collections.singletonList(Arrays.asList(confirm, decline)));
         return keyboard;
     }
 
-    /**
-     * Keyboard containing all groups available for user.
-     */
+
+
     public static InlineKeyboardMarkup getAllGroupKeyboard(Action callBack, Long userId) {
-       return getTaggedGroupKeyboard(callBack, userId, null);
+        return getTaggedGroupKeyboard(callBack, userId, null);
     }
 
     public static InlineKeyboardMarkup getTaggedGroupKeyboard(Action callBack, Long userId, String tag) {
+        List<InlineKeyboardButton> buttons = getTagetButtonList(callBack, userId, tag);
+        buttons.sort(Comparator.comparingInt(o -> Utils.firstPositiveNumber(o.getText())));
+
+        InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup();
+        if (buttons.size() > 10)
+            keyboard.setKeyboard(arrowedStyleKeyboard(buttons, tag, 0, Action.none));
+        else
+            keyboard.setKeyboard(distributeButtons(buttons));
+        return keyboard;
+    }
+
+    public static List<InlineKeyboardButton> getTagetButtonList(Action callBack, Long userId, String tag) {
         List<InlineKeyboardButton> buttons = new ArrayList<>();
         List<Group> groupList = Main.dataUtils.getGroupList();
         for (Group group : groupList) {
@@ -116,85 +127,52 @@ public final class ChatUtils {
                 String groupName = group.getName();
                 Long groupId = group.getId();
                 if (isBotAdminInGroup(groupId)) {
-                    buttons.add(createButton(groupName, callBack + "_" + groupId));
+                    buttons.add(Utils.createButton(groupName, callBack + "_" + groupId));
                 } else if (Main.dataUtils.getAdminId() == userId) {
-                    buttons.add(createButton("!" + groupName, callBack + "_" + groupId));
+                    buttons.add(Utils.createButton("!" + groupName, callBack + "_" + groupId));
                 }
             }
         }
+        return buttons;
+    }
 
-        buttons.sort(Comparator.comparingInt(o -> firstPositiveNumber(o.getText())));
+    public static List<List<InlineKeyboardButton>> arrowedStyleKeyboard(List<InlineKeyboardButton> buttons, String tag, int index, Action action) {
+        int MAX_BUTTONS_IN_PAGE = 10;
+        List<InlineKeyboardButton> page = new ArrayList<>(MAX_BUTTONS_IN_PAGE);
+        int left = 0, right = 9;
+        if (action == Action.rightArrow) {
+            left = index - 1;
+            right = Math.min(index + 10, buttons.size() - 1);
+        }
+        if (action == Action.leftArrow) {
+            left = Math.max(index - 10, 0);
+            right = index - 1;
+        }
 
-        InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup();
-        keyboard.setKeyboard(distributeButtons(buttons));
+        List<InlineKeyboardButton> arrows = new ArrayList<>(2);
+        if (left > 0) {
+            InlineKeyboardButton leftArrow = new InlineKeyboardButton("⬅️");
+            leftArrow.setCallbackData(Action.leftArrow.toString() + Main.dataUtils.getTagId(tag) + left); //try
+            arrows.add(leftArrow);
+        }
+        if (right < buttons.size() - 1) {
+            InlineKeyboardButton rightArrow = new InlineKeyboardButton("➡️");
+            rightArrow.setCallbackData(Action.rightArrow.toString() + Main.dataUtils.getTagId(tag) + right);
+            arrows.add(rightArrow);
+        }
+
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>(12);
+        for (int i = left; i <= right; i++) {
+            keyboard.add(Collections.singletonList(buttons.get(i)));
+        }
+        keyboard.add(arrows);
         return keyboard;
     }
 
-    private static int firstPositiveNumber(String s) {
-        for (int i = 0, n = s.length(); i < n; i++) {
-            if (Character.isDigit(s.charAt(i))) {
-                int start = i;
-                // collect the full digit sequence
-                while (i < n && Character.isDigit(s.charAt(i))) i++;
-                // check that the sequence is not preceded by a minus sign
-                if (start == 0 || s.charAt(start - 1) != '-') {
-                    int value = Integer.parseInt(s.substring(start, i));
-                    if (value > 0) return value;   // positive number found
-                }
-            }
-        }
-        return -1;
-    }
-
-    public static InlineKeyboardMarkup getAllTagKeyboard(Action callback) {
-        Map<Integer, String> tags = Main.dataUtils.getTagMap();
-        List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
-        for (Map.Entry<Integer, String> entry : tags.entrySet()) {
-            InlineKeyboardButton button = new InlineKeyboardButton(entry.getValue());
-            button.setCallbackData(callback + "_" + entry.getKey());
-            buttons.add(Collections.singletonList(button));
-        }
-
-        InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup();
-        keyboard.setKeyboard(buttons);
-        return keyboard;
-    }
-
-    private static InlineKeyboardButton createButton(String text, String callback) {
-        InlineKeyboardButton button = new InlineKeyboardButton();
-        button.setText(text);
-        button.setCallbackData(callback);
-        return button;
-    }
-
-    /**
-     * Create button used to confirm forwarded payment.
-     * Callback format: {@code confirm_<messageId>_<userId>}.
-     */
-    private static InlineKeyboardButton createConfirmButton(int messageId, long userId) {
-        return createButton("Принимаю", Action.confirm.toString() + "_" + messageId + "_" + userId);
-    }
-
-    /**
-     * Create button used to decline forwarded payment.
-     * Callback format: {@code decline_<messageId>_<userId>}.
-     */
-    private static InlineKeyboardButton createDeclineButton(int messageId, long userId) {
-        return createButton("Отказываю", Action.decline.toString() + "_" + messageId + "_" + userId);
-    }
-
-    private static int getColumnCount(int size) {
-        if (size <= 10) {
-            return 1;
-        } else if (size <= 20) {
-            return 2;
-        }
-        return 3;
-    }
-
+    //todo поменять логику или удалить
     private static List<List<InlineKeyboardButton>> distributeButtons(List<InlineKeyboardButton> buttons) {
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
-        int columnCount = getColumnCount(buttons.size());
+        int columnCount = Utils.getColumnCount(buttons.size());
 
         int totalRows = (int) Math.ceil((double) buttons.size() / columnCount);
         for (int rowIndex = 0; rowIndex < totalRows; rowIndex++) {
@@ -208,6 +186,21 @@ public final class ChatUtils {
             rows.add(row);
         }
         return rows;
+    }
+
+
+    public static InlineKeyboardMarkup getAllTagKeyboard(Action callback) {
+        Map<Integer, String> tags = Main.dataUtils.getTagMap();
+        List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
+        for (Map.Entry<Integer, String> entry : tags.entrySet()) {
+            InlineKeyboardButton button = new InlineKeyboardButton(entry.getValue());
+            button.setCallbackData(callback + "_" + entry.getKey());
+            buttons.add(Collections.singletonList(button));
+        }
+
+        InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup();
+        keyboard.setKeyboard(buttons);
+        return keyboard;
     }
 
     public static void deleteMessage(long chatId, int messageId) {

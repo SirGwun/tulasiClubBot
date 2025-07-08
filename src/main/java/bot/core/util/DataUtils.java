@@ -382,6 +382,21 @@ public final class DataUtils {
             log.error("Ошибка при добавлении нового тега {}", e.getMessage());
         }
     }
+
+    public Integer getTagId(String tag) {
+        Map<Integer, String> tags = getTagMap();
+        if (!tags.containsValue(tag)) {
+            log.warn("Попытка прочитать не существующий тег {}", tag);
+            return -1;
+        }
+
+        for (Map.Entry<Integer, String> entry : tags.entrySet()) {
+            if (entry.getValue().equalsIgnoreCase(tag))
+                return entry.getKey();
+        }
+        log.warn("Попытка прочитать не существующий тег {}", tag);
+        return -1;
+    }
 }
 
 
