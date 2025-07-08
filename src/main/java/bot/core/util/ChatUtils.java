@@ -11,6 +11,7 @@ import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatMem
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -101,8 +102,6 @@ public final class ChatUtils {
         return keyboard;
     }
 
-
-
     public static InlineKeyboardMarkup getAllGroupKeyboard(Action callBack, Long userId) {
         return getTaggedGroupKeyboard(callBack, userId, null);
     }
@@ -126,7 +125,7 @@ public final class ChatUtils {
             if (group.getTag().equals(tag) || tag == null) {
                 String groupName = group.getName();
                 Long groupId = group.getId();
-                if (isBotAdminInGroup(groupId)) {
+                if (group.isBotAdmin()) {
                     buttons.add(Utils.createButton(groupName, callBack + "_" + groupId));
                 } else if (Main.dataUtils.getAdminId() == userId) {
                     buttons.add(Utils.createButton("!" + groupName, callBack + "_" + groupId));
@@ -139,25 +138,25 @@ public final class ChatUtils {
     public static List<List<InlineKeyboardButton>> arrowedStyleKeyboard(List<InlineKeyboardButton> buttons, String tag, int index, Action action) {
         int MAX_BUTTONS_IN_PAGE = 10;
         List<InlineKeyboardButton> page = new ArrayList<>(MAX_BUTTONS_IN_PAGE);
-        int left = 0, right = 9;
+        int left = 0, right = MAX_BUTTONS_IN_PAGE - 1;
         if (action == Action.rightArrow) {
             left = index - 1;
-            right = Math.min(index + 10, buttons.size() - 1);
+            right = Math.min(index + MAX_BUTTONS_IN_PAGE, buttons.size() - 1);
         }
         if (action == Action.leftArrow) {
-            left = Math.max(index - 10, 0);
+            left = Math.max(index - MAX_BUTTONS_IN_PAGE, 0);
             right = index - 1;
         }
 
         List<InlineKeyboardButton> arrows = new ArrayList<>(2);
         if (left > 0) {
-            InlineKeyboardButton leftArrow = new InlineKeyboardButton("⬅️");
-            leftArrow.setCallbackData(Action.leftArrow.toString() + Main.dataUtils.getTagId(tag) + left); //try
+            InlineKeyboardButton leftArrow = new InlineKeyboardButton("⬅️ Назад");
+            leftArrow.setCallbackData(Action.leftArrow + "_" + Main.dataUtils.getTagId(tag) + "_" + left); //try
             arrows.add(leftArrow);
         }
         if (right < buttons.size() - 1) {
-            InlineKeyboardButton rightArrow = new InlineKeyboardButton("➡️");
-            rightArrow.setCallbackData(Action.rightArrow.toString() + Main.dataUtils.getTagId(tag) + right);
+            InlineKeyboardButton rightArrow = new InlineKeyboardButton("Далее ➡️");
+            rightArrow.setCallbackData(Action.rightArrow + "_" + Main.dataUtils.getTagId(tag) + "_" + right);
             arrows.add(rightArrow);
         }
 
@@ -216,27 +215,19 @@ public final class ChatUtils {
 
     public static boolean isBotAdminInGroup(Long groupId) {
         try {
-            // Проверяем, что группа существует, получив количество участников
-            GetChatMemberCount getChatMemberCount = new GetChatMemberCount(String.valueOf(groupId));
-            int memberCount = Main.bot.execute(getChatMemberCount);
-            if (memberCount > 0) {
-                // Получаем список администраторов группы
-                GetChatAdministrators getChatAdministrators = new GetChatAdministrators();
-                getChatAdministrators.setChatId(groupId);
-                List<ChatMember> admins = Main.bot.execute(getChatAdministrators);
-
-                // Проверяем, есть ли бот среди администраторов
-                String botUsername = Main.dataUtils.getBotName();
-                for (ChatMember admin : admins) {
-                    if (admin.getUser().getUserName().equals(botUsername)) {
-                        return true; // Бот является администратором в группе
-                    }
+            GetChatAdministrators getChatAdministrators = new GetChatAdministrators();
+            getChatAdministrators.setChatId(groupId);
+            List<ChatMember> admins = Main.bot.execute(getChatAdministrators);
+            String botUsername = Main.dataUtils.getBotName();
+            for (ChatMember admin : admins) {
+                if (admin.getUser().getUserName().equals(botUsername)) {
+                    return true;
                 }
             }
         } catch (TelegramApiException e) {
             log.info("Бот не адмистратор в группе {}", groupId);
         }
-        return false; // Группа не существует или бот не является администратором
+        return false;
     }
 
     public static void addInGroup(long userId, Long groupId, String reason) {
@@ -316,6 +307,26 @@ public final class ChatUtils {
 
         Main.bot.execute(msg);
     }
+
+    /**
+     * Обновляет текст и inline-клавиатуру одного сообщения.
+     * library: org.telegram.telegrambots:telegrambots-spring-boot-starter   // если ещё не используете, придётся подключить
+     */
+    public static void updateMessageWithKeyboard(long chatId,
+                                                 int messageId,
+                                                 String text,
+                                                 InlineKeyboardMarkup keyboard) throws TelegramApiException {
+
+        EditMessageText edit = EditMessageText.builder()
+                .chatId(chatId)
+                .messageId(messageId)
+                .text(text)
+                .replyMarkup(keyboard)
+                .build();
+
+        Main.bot.execute(edit);          // метод execute() идёт из AbsSender / TelegramLongPollingBot
+    }
+
 
     public static void sendPhoto(SendPhoto sendPhoto) {
         try {

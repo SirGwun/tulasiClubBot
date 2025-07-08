@@ -302,3 +302,225 @@ org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException: Error exe
 2025-07-05 03:00:45 INFO  bot.core.PaymentBot - Получено новое сообщение от slawaanna21 из Второй поток ОМОЛОЖЕНИЕ и БАЗОВЫЕ ОСНОВЫ АЮРВЕДЫ
 2025-07-05 03:00:45 INFO  bot.core.PaymentBot - Получено новое сообщение от null из Второй поток ОМОЛОЖЕНИЕ и БАЗОВЫЕ ОСНОВЫ АЮРВЕДЫ
 2025-07-05 03:00:45 INFO  bot.core.PaymentBot - Получено новое сообщение от GroupAnonymousBot из Второй поток ОМОЛОЖЕНИЕ и БАЗОВЫЕ ОСНОВЫ АЮРВЕДЫ
+2025-07-08 12:48:37 INFO  bot.core.util.DataUtils - Запущено в LOCAL
+2025-07-08 12:48:37 INFO  bot.core.Main - Тестовый режим
+2025-07-08 12:48:39 INFO  bot.core.Main - Бот запущен
+2025-07-08 12:48:58 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - User 7066573077 use choose_course command
+2025-07-08 12:49:04 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002694553645
+2025-07-08 12:49:04 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002664546928
+2025-07-08 12:49:04 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002665831242
+2025-07-08 12:49:04 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002692826863
+2025-07-08 12:49:05 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002691709838
+2025-07-08 12:49:05 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002723537707
+2025-07-08 12:49:05 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002760438191
+2025-07-08 12:49:06 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002561619118
+2025-07-08 12:49:06 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002719674917
+2025-07-08 12:49:07 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002763990480
+2025-07-08 12:50:27 INFO  bot.core.util.DataUtils - Запущено в LOCAL
+2025-07-08 12:50:27 INFO  bot.core.Main - Тестовый режим
+2025-07-08 12:50:29 INFO  bot.core.Main - Бот запущен
+2025-07-08 12:50:36 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002694553645
+2025-07-08 12:50:36 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002664546928
+2025-07-08 12:50:36 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002665831242
+2025-07-08 12:50:36 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002692826863
+2025-07-08 12:50:36 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002691709838
+2025-07-08 12:50:37 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002723537707
+2025-07-08 12:50:37 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002760438191
+2025-07-08 12:50:37 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002561619118
+2025-07-08 12:50:37 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002719674917
+2025-07-08 12:50:37 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002763990480
+2025-07-08 12:50:47 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -4903155423
+2025-07-08 12:50:48 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -4854734172
+2025-07-08 12:50:48 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002669448693
+2025-07-08 12:50:48 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -4871790529
+2025-07-08 12:50:48 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -4875558151
+2025-07-08 12:50:49 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002688403762
+2025-07-08 12:50:49 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002764225169
+2025-07-08 12:50:49 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002077329956
+2025-07-08 12:50:49 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002001861986
+2025-07-08 12:50:50 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1001995307122
+2025-07-08 12:50:50 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002030870299
+2025-07-08 12:50:50 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002047805285
+2025-07-08 12:50:50 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002119787207
+2025-07-08 12:50:50 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002144257408
+2025-07-08 12:50:51 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1001997994173
+2025-07-08 12:50:51 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002033020035
+2025-07-08 12:50:51 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002095784965
+2025-07-08 12:50:52 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002157918103
+2025-07-08 12:50:52 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002186153984
+2025-07-08 12:50:52 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002224159296
+2025-07-08 12:50:52 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002227179913
+2025-07-08 12:50:53 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002181576607
+2025-07-08 12:50:53 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002387434938
+2025-07-08 12:50:54 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002452600612
+2025-07-08 12:50:54 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002495761121
+2025-07-08 12:50:54 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002460418488
+2025-07-08 12:50:54 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002442841171
+2025-07-08 12:50:54 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002440051782
+2025-07-08 12:50:54 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002494349954
+2025-07-08 12:50:55 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002440209699
+2025-07-08 12:50:55 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002444502699
+2025-07-08 12:50:55 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002263608550
+2025-07-08 12:50:56 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002456004359
+2025-07-08 12:50:56 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002213212228
+2025-07-08 12:50:56 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002215593378
+2025-07-08 12:50:56 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002190153279
+2025-07-08 12:50:56 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002195363343
+2025-07-08 12:50:57 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002198337736
+2025-07-08 12:50:57 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002205827004
+2025-07-08 12:50:58 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002163955072
+2025-07-08 12:50:58 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002222315313
+2025-07-08 12:50:58 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002073688222
+2025-07-08 12:51:35 ERROR b.c.c.m.CallbackProcessor - Unknown callback action rightArrow19
+2025-07-08 12:51:35 ERROR b.c.c.m.CallbackProcessor - No handler for action rightArrow19
+2025-07-08 12:52:34 INFO  bot.core.util.DataUtils - Запущено в LOCAL
+2025-07-08 12:52:34 INFO  bot.core.Main - Тестовый режим
+2025-07-08 12:52:36 INFO  bot.core.Main - Бот запущен
+2025-07-08 12:52:40 ERROR b.c.c.m.CallbackProcessor - Unknown callback action rightArrow19
+2025-07-08 12:52:40 ERROR b.c.c.m.CallbackProcessor - No handler for action rightArrow19
+2025-07-08 12:52:47 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - User 7066573077 use choose_course command
+2025-07-08 12:52:50 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -4903155423
+2025-07-08 12:52:50 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -4854734172
+2025-07-08 12:52:50 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002669448693
+2025-07-08 12:52:50 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -4871790529
+2025-07-08 12:52:50 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -4875558151
+2025-07-08 12:52:51 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002688403762
+2025-07-08 12:52:51 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002764225169
+2025-07-08 12:52:52 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002077329956
+2025-07-08 12:52:52 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002001861986
+2025-07-08 12:52:53 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1001995307122
+2025-07-08 12:52:53 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002030870299
+2025-07-08 12:52:53 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002047805285
+2025-07-08 12:52:54 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002119787207
+2025-07-08 12:52:54 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002144257408
+2025-07-08 12:52:54 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1001997994173
+2025-07-08 12:52:55 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002033020035
+2025-07-08 12:52:55 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002095784965
+2025-07-08 12:52:55 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002157918103
+2025-07-08 12:52:55 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002186153984
+2025-07-08 12:52:55 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002224159296
+2025-07-08 12:52:55 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002227179913
+2025-07-08 12:52:56 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002181576607
+2025-07-08 12:52:56 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002387434938
+2025-07-08 12:52:56 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002452600612
+2025-07-08 12:52:56 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002495761121
+2025-07-08 12:52:57 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002460418488
+2025-07-08 12:52:57 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002442841171
+2025-07-08 12:52:57 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002440051782
+2025-07-08 12:52:57 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002494349954
+2025-07-08 12:52:58 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002440209699
+2025-07-08 12:52:58 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002444502699
+2025-07-08 12:52:58 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002263608550
+2025-07-08 12:52:58 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002456004359
+2025-07-08 12:52:59 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002213212228
+2025-07-08 12:52:59 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002215593378
+2025-07-08 12:52:59 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002190153279
+2025-07-08 12:52:59 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002195363343
+2025-07-08 12:52:59 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002198337736
+2025-07-08 12:53:00 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002205827004
+2025-07-08 12:53:00 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002163955072
+2025-07-08 12:53:00 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002222315313
+2025-07-08 12:53:00 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002073688222
+2025-07-08 12:53:03 ERROR b.c.c.m.CallbackProcessor - No handler for action rightArrow
+2025-07-08 12:54:16 INFO  bot.core.util.DataUtils - Запущено в LOCAL
+2025-07-08 12:54:16 INFO  bot.core.Main - Тестовый режим
+2025-07-08 12:54:20 INFO  bot.core.Main - Бот запущен
+2025-07-08 12:54:21 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -4903155423
+2025-07-08 12:54:21 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -4854734172
+2025-07-08 12:54:21 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002669448693
+2025-07-08 12:54:22 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -4871790529
+2025-07-08 12:54:22 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -4875558151
+2025-07-08 12:54:22 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002688403762
+2025-07-08 12:54:22 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002764225169
+2025-07-08 12:54:22 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002077329956
+2025-07-08 12:54:22 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002001861986
+2025-07-08 12:54:22 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1001995307122
+2025-07-08 12:54:23 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002030870299
+2025-07-08 12:54:24 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002047805285
+2025-07-08 12:54:24 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002119787207
+2025-07-08 12:54:24 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002144257408
+2025-07-08 12:54:24 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1001997994173
+2025-07-08 12:54:25 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002033020035
+2025-07-08 12:54:25 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002095784965
+2025-07-08 12:54:25 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002157918103
+2025-07-08 12:54:25 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002186153984
+2025-07-08 12:54:25 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002224159296
+2025-07-08 12:54:26 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002227179913
+2025-07-08 12:54:26 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002181576607
+2025-07-08 12:54:26 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002387434938
+2025-07-08 12:54:26 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002452600612
+2025-07-08 12:54:26 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002495761121
+2025-07-08 12:54:26 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002460418488
+2025-07-08 12:54:27 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002442841171
+2025-07-08 12:54:27 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002440051782
+2025-07-08 12:54:27 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002494349954
+2025-07-08 12:54:27 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002440209699
+2025-07-08 12:54:27 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002444502699
+2025-07-08 12:54:27 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002263608550
+2025-07-08 12:54:27 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002456004359
+2025-07-08 12:54:28 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002213212228
+2025-07-08 12:54:28 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002215593378
+2025-07-08 12:54:28 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002190153279
+2025-07-08 12:54:28 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002195363343
+2025-07-08 12:54:29 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002198337736
+2025-07-08 12:54:29 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002205827004
+2025-07-08 12:54:30 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002163955072
+2025-07-08 12:54:31 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002222315313
+2025-07-08 12:54:31 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002073688222
+2025-07-08 12:54:37 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -4903155423
+2025-07-08 12:54:37 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -4854734172
+2025-07-08 12:54:38 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002669448693
+2025-07-08 12:54:38 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -4871790529
+2025-07-08 12:54:38 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -4875558151
+2025-07-08 12:54:38 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002688403762
+2025-07-08 12:54:38 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002764225169
+2025-07-08 12:54:38 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002077329956
+2025-07-08 12:54:38 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002001861986
+2025-07-08 12:54:39 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1001995307122
+2025-07-08 12:54:39 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002030870299
+2025-07-08 12:54:39 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002047805285
+2025-07-08 12:54:39 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002119787207
+2025-07-08 12:54:40 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002144257408
+2025-07-08 12:54:40 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1001997994173
+2025-07-08 12:54:40 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002033020035
+2025-07-08 12:54:40 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002095784965
+2025-07-08 12:54:40 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002157918103
+2025-07-08 12:54:40 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002186153984
+2025-07-08 12:54:40 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002224159296
+2025-07-08 12:54:40 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002227179913
+2025-07-08 12:54:41 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002181576607
+2025-07-08 12:54:41 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002387434938
+2025-07-08 12:54:41 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002452600612
+2025-07-08 12:54:43 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002495761121
+2025-07-08 12:54:43 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002460418488
+2025-07-08 12:54:43 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002442841171
+2025-07-08 12:54:43 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002440051782
+2025-07-08 12:54:44 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002494349954
+2025-07-08 12:54:44 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002440209699
+2025-07-08 12:54:44 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002444502699
+2025-07-08 12:54:44 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002263608550
+2025-07-08 12:54:44 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002456004359
+2025-07-08 12:54:45 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002213212228
+2025-07-08 12:54:45 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002215593378
+2025-07-08 12:54:45 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002190153279
+2025-07-08 12:54:45 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002195363343
+2025-07-08 12:54:45 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002198337736
+2025-07-08 12:54:45 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002205827004
+2025-07-08 12:54:46 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002163955072
+2025-07-08 12:54:46 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002222315313
+2025-07-08 12:54:46 INFO  bot.core.util.ChatUtils - Бот не адмистратор в группе -1002073688222
+2025-07-08 13:46:26 INFO  bot.core.util.DataUtils - Запущено в LOCAL
+2025-07-08 13:46:26 INFO  bot.core.Main - Тестовый режим
+2025-07-08 13:46:28 INFO  bot.core.Main - Бот запущен
+2025-07-08 13:46:37 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - User 7066573077 use choose_course command
+2025-07-08 13:47:31 INFO  bot.core.util.DataUtils - Запущено в LOCAL
+2025-07-08 13:47:31 INFO  bot.core.Main - Тестовый режим
+2025-07-08 13:47:33 INFO  bot.core.Main - Бот запущен
+2025-07-08 13:52:34 INFO  bot.core.util.DataUtils - Запущено в LOCAL
+2025-07-08 13:52:34 INFO  bot.core.Main - Тестовый режим
+2025-07-08 13:52:37 INFO  bot.core.Main - Бот запущен
+2025-07-08 13:52:37 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - User 7066573077 use choose_course command
+2025-07-08 13:54:11 INFO  bot.core.util.DataUtils - Запущено в LOCAL
+2025-07-08 13:54:11 INFO  bot.core.Main - Тестовый режим
+2025-07-08 13:54:15 INFO  bot.core.Main - Бот запущен
+2025-07-08 13:54:22 INFO  b.c.c.c.ChooseGroupHandler - User 7066573077 set group -1001997994173

@@ -16,7 +16,6 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Utility class that stores configuration and helper data for the bot.
@@ -75,8 +74,10 @@ public final class DataUtils {
             }
         }
 
+        //todo рассмотреть возможность вынесения это в отдельный контроллер
         loadConfig();
         loadGroupList();
+        saveGroupList();
     }
 
     private void loadProdLogger() {
@@ -101,17 +102,19 @@ public final class DataUtils {
         if (config.containsKey(key)) {
             config.setProperty(key, value);
             saveConfig();
-            loadConfig();
             return true;
         }
         return false;
     }
 
-    public boolean addNewGroup(String name, long id) {
-        groupList.add(new Group(name, id, getGroupTag()));
+    public void addNewGroup(String groupName, long groupId) {
+        Group newGroup = new Group(
+                groupName,
+                groupId,
+                getGroupTag(),
+                ChatUtils.isBotAdminInGroup(groupId));
+        groupList.add(newGroup);
         saveGroupList();
-        loadGroupList();
-        return groupList.stream().anyMatch(g -> g.getName().equals(name));
     }
 
     public void setDefaultGroup(long groupId) {
@@ -180,9 +183,10 @@ public final class DataUtils {
 
     private void loadGroupList() {
         List<Group> list = (List<Group>) load("groupList");
-        if (list != null) {
-            groupList = list;
+        for (Group group : groupList) {
+            group.setIsBotAdmin(ChatUtils.isBotAdminInGroup(group.getId()));
         }
+        groupList = list;
     }
 
     public void saveGroupList() {

@@ -3,14 +3,18 @@ package bot.core.control.callbackHandlers;
 import bot.core.Main;
 import bot.core.util.ChatUtils;
 import bot.core.util.Utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.Comparator;
 import java.util.List;
 
 public class RightPointerButtonHandler implements CallbackHandler {
+    private static final Logger log = LoggerFactory.getLogger(RightPointerButtonHandler.class);
     @Override
     public Action getAction() {
         return Action.rightArrow;
@@ -51,9 +55,17 @@ public class RightPointerButtonHandler implements CallbackHandler {
                 Integer.parseInt(data[2]),
                 Action.rightArrow));
 
-        ChatUtils.sendInlineKeyboard(
-                userId,
-                "Выберете интересующую вас группу",
-                keyboard);
+
+        var msg = update.getCallbackQuery().getMessage();
+        try {
+            ChatUtils.updateMessageWithKeyboard(
+                    msg.getChatId(),
+                    msg.getMessageId(),
+                    "Выберите интересующую вас группу",
+                    keyboard
+            );
+        } catch (TelegramApiException e) {
+            log.error("Ошибка при обновлении списка листанием {}", e.getMessage());
+        }
     }
 }

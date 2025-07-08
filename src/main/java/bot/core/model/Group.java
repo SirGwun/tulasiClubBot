@@ -8,11 +8,21 @@ public class Group implements Serializable {
     long id;
     String name;
     String tag;
+    boolean isBotAdmin;
 
-    public Group(String name, long id, String tag) {
+    public Group(String name, long id, String tag, boolean isBotAdmin) {
         this.id = id;
         this.name = name;
         this.tag = tag;
+        this.isBotAdmin = isBotAdmin;
+    }
+
+    public boolean isBotAdmin() {
+        return isBotAdmin;
+    }
+
+    public void setIsBotAdmin(boolean isBotAdmin) {
+        this.isBotAdmin = isBotAdmin;
     }
 
     public String getTag() {
@@ -32,6 +42,7 @@ public class Group implements Serializable {
     }
 
     public String getName() {
+        if (name == null) return "не удалось найти имя";
         return name;
     }
     public void setName(String name) {

@@ -2,6 +2,7 @@ package bot.core.control.callbackHandlers;
 
 import bot.core.Main;
 import bot.core.control.SessionController;
+import bot.core.model.Group;
 import bot.core.util.ChatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,22 +50,22 @@ public class ChooseGroupHandler implements CallbackHandler {
         String[] data = cq.getData().split("_");
         Long groupId = Long.parseLong(data[1]);
         long userId = cq.getMessage().getChatId();
-        int messageId = cq.getMessage().getMessageId();
-
         log.info("User {} set group {}", userId, groupId);
 
         if (!Main.dataUtils.containsGroupId(groupId)) {
             ChatUtils.sendMessage(userId, "Группа не найдена");
+            log.warn("Группа не найдена {}", groupId);
             return;
         }
-        String groupName = Main.dataUtils.getGroupName(groupId);
 
-        if (ChatUtils.isBotAdminInGroup(groupId)) {
+        Group group = Main.dataUtils.getGroupById(groupId);
+
+        if (group.isBotAdmin()) {
             if (isItFavoriteUser(userId)) {
                 ChatUtils.addInGroup(userId, groupId, "Член избранной группы");
             } else {
                 SessionController.getInstance().setUserGroupId(userId, groupId);
-                ChatUtils.sendMessage(userId, "Выбрана группа: " + groupName + "\nТеперь пришлите подтверждение оплаты");
+                ChatUtils.sendMessage(userId, "Выбрана группа: " + group.getName() + "\nТеперь пришлите подтверждение оплаты");
             }
         } else {
             ChatUtils.sendMessage(userId, "Бот не выходит в группу или не является в ней администратором");

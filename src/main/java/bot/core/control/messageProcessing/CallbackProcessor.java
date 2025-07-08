@@ -39,7 +39,9 @@ public class CallbackProcessor implements MessageProcessor {
                 new GetInstructionHandler(),
                 new ChooseAllCourseHandler(),
                 new GetPaymentInstructionHandler(),
-                new GetCourseDescriptionHandler()
+                new GetCourseDescriptionHandler(),
+                new LeftPointerButtonHandler(),
+                new RightPointerButtonHandler()
         };
         for (CallbackHandler handler : list) {
             handlers.put(handler.getAction(), handler);
