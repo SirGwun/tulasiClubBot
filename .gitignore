@@ -5,6 +5,9 @@ target/
 src/main/resources/secret.properties
 /shelf/
 /workspace.xml
+/data/logs/app.log
+/data/
+
 
 
 ### IntelliJ IDEA ###
@@ -39,7 +42,6 @@ build/
 ### VS Code ###
 .vscode/
 
-### Mac OS ###
 .DS_Store
 /logs/app.log
 /dependency-reduced-pom.xml
