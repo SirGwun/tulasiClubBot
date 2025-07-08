@@ -44,7 +44,8 @@ public class ChooseTagHandler extends AbstractCallbackHandler {
                     user.getId(),
                     "Выберете интересующую вас группу",
                     keyboard);
+            ChatUtils.deleteMessage(update.getCallbackQuery().getFrom().getId(),
+                    update.getCallbackQuery().getMessage().getMessageId());
         }
-
     }
 }
