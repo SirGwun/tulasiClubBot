@@ -1,76 +1,85 @@
 package bot.core.control;
 
+import bot.core.Main;
 import bot.core.util.ChatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.Serial;
+import java.io.Serializable;
+import java.time.Instant;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class TimerController {
     private static final Logger log = LoggerFactory.getLogger(TimerController.class);
-    private static final List<Timer> timers = new ArrayList<>();
-    public static final long STANDARD_TIME = 7200000;
+    private static final Map<Timer, Thread> timers = new ConcurrentHashMap<>();
+    public static final long STANDARD_TIME_SEC = 7200;
 
-    public static void addTimer(long userId, long groupId, long ms) {
-        Timer timer = new Timer(userId, groupId, ms);
-        if (!timers.contains(timer)) {
+    public static void addTimer(long userId, long groupId, long sec) {
+        Timer timer = new Timer(userId, groupId, sec);
+        if (!timers.containsKey(timer)) {
             log.info("Новый таймер добавлен");
-            timers.add(timer);
-            timer.start();
+            timers.put(timer, new Thread(timer));
+            Main.dataUtils.storeTimer(timer);
+            timers.get(timer).start();
             return;
         }
         log.info("Попытка добавления уже существующего таймера");
     }
 
     public static void stopTimer(long userId, long groupId) {
-        for (int i = 0; i < timers.size(); i++) {
-            Timer timer = timers.get(i);
-            if (timer.matches(userId, groupId)) {
-                log.info("timer stop");
-                timer.stop();
-                timers.remove(timer);
-                return;
-            }
+        Timer timer = getTimer(userId, groupId);
+        if (timer == null) {
+            log.info("Timer for {} {} not find", userId, groupId);
+            return;
         }
+        log.info("timer stop");
+        Main.dataUtils.unstoreTimer(timer);
+        timers.get(timer).interrupt();
     }
 
     public static boolean hasTimer(long userId, long groupId) {
-        for (Timer timer : timers) {
-            if (timer.matches(userId, groupId)) {
-                return true;
-            }
-        }
-        return false;
+        return getTimer(userId, groupId) != null;
     }
 
-    public static class Timer {
+    private static Timer getTimer(long userId, long groupId) {
+        for (Timer timer : timers.keySet()) {
+            if (timer.matches(userId, groupId)) {
+                return timer;
+            }
+        }
+        return null;
+    }
+
+    public static class Timer implements Serializable, Runnable {
         private final long userId;
         private final long groupId;
-        private long time;
-        Thread thread;
+        private final long time_sec;
+        private final long startTime;
+        @Serial
+        private static final long serialVersionUID = 1L;
 
-        public Timer(long userId, long groupId, long ms) {
+        public Timer(long userId, long groupId, long sec) {
             this.userId = userId;
             this.groupId = groupId;
-            time = ms;
+            time_sec = sec;
+            startTime = Instant.now().getEpochSecond();
         }
 
-        public void start() {
-            thread = new Thread(() -> {
-                try {
-                    Thread.sleep(time);
+        @Override
+        public void run() {
+            try {
+                Thread.sleep(time_sec * 1000);
+                if (!Thread.interrupted()) {
+                    log.info("user {} added in group {} by timer", userId, Main.dataUtils.getGroupName(groupId));
                     ChatUtils.addInGroup(userId, groupId, "Добавлен по таймеру");
-                    timers.remove(this);
-                } catch (InterruptedException e) {
-                    return;
                 }
-            });
-            thread.start();
-        }
-
-        public void stop() {
-            thread.interrupt();
+            } catch (InterruptedException e) {
+                log.info("timer interupted");
+            } finally {
+                timers.remove(this);
+            }
         }
 
         @Override
@@ -80,8 +89,29 @@ public class TimerController {
             return ((Timer) object).userId == userId && ((Timer) object).groupId == groupId;
         }
 
+        @Override
+        public int hashCode() {
+            return Objects.hash(userId, groupId);
+        }
+
         public boolean matches(long userId, long groupId) {
             return this.userId == userId && this.groupId == groupId;
+        }
+
+        public long getStartTime() {
+            return startTime;
+        }
+
+        public long getTime_sec() {
+            return time_sec;
+        }
+
+        public long getUserId() {
+            return userId;
+        }
+
+        public long getGroupId() {
+            return groupId;
         }
     }
 }

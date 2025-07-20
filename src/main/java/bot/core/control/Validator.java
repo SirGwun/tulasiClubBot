@@ -3,7 +3,6 @@ package bot.core.control;
 import bot.core.Main;
 import bot.core.model.MessageContext;
 import bot.core.util.ChatUtils;
-import com.sun.jdi.request.StepRequest;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
@@ -17,7 +16,6 @@ import org.telegram.telegrambots.meta.api.objects.Document;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -53,7 +51,7 @@ public class Validator {
         long userId = ctx.getFromId();
         Long groupId = SessionController.getInstance().getUserSession(ctx.getFromId()).getGroupId();
 
-        TimerController.addTimer(userId, groupId, TimerController.STANDARD_TIME);
+        TimerController.addTimer(userId, groupId, TimerController.STANDARD_TIME_SEC);
 
         try {
             ForwardMessage forwardMessage = new ForwardMessage();

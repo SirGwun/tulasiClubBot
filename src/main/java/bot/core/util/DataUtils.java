@@ -1,6 +1,7 @@
 package bot.core.util;
 
 import bot.core.Main;
+import bot.core.control.TimerController;
 import bot.core.model.Session;
 import bot.core.model.Group;
 import ch.qos.logback.classic.LoggerContext;
@@ -14,6 +15,8 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.sql.*;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -77,7 +80,8 @@ public final class DataUtils {
         //todo рассмотреть возможность вынесения это в отдельный контроллер
         loadConfig();
         loadGroupList();
-        saveGroupList();
+        saveGroupList(); //убрать после следующего обнволения
+        loadTimers();
     }
 
     private void loadProdLogger() {
@@ -400,6 +404,64 @@ public final class DataUtils {
         }
         log.warn("Попытка прочитать не существующий тег {}", tag);
         return -1;
+    }
+
+    public void storeTimer(TimerController.Timer timer) {
+        String sql = "INSERT INTO timers(userId, groupId, time, start_time) VALUES (?, ?, ?, ?)";
+        try (Connection connection = DriverManager.getConnection("jdbc:sqlite:" + base + "DataBase.db");
+             PreparedStatement stmt = connection.prepareStatement(sql);)
+        {
+            stmt.setLong(1, timer.getUserId());
+            stmt.setLong(2, timer.getGroupId());
+            stmt.setLong(3, timer.getTime_sec());
+            stmt.setLong(4, timer.getStartTime());
+            stmt.executeUpdate();
+        } catch (SQLException ex) {
+            log.warn("Not success insertion for userId={}, groupId={}",
+                    timer.getUserId(), timer.getGroupId());
+        }
+    }
+
+    public void unstoreTimer(TimerController.Timer timer) {
+        String sql = "DELETE FROM timers WHERE userId=? AND groupId=?;";
+        try (Connection connection = DriverManager.getConnection("jdbc:sqlite:" + base + "DataBase.db");
+             PreparedStatement stmt = connection.prepareStatement(sql);)
+        {
+            stmt.setLong(1, timer.getUserId());
+            stmt.setLong(2, timer.getGroupId());
+            int affectedRows = stmt.executeUpdate();
+            if (affectedRows == 0) {
+                log.debug("No records deleted for userId={}, groupId={}",
+                        timer.getUserId(), timer.getGroupId());
+            }
+        } catch (SQLException ex) {
+            log.warn("Failed to delete timer for userId={}, groupId={}: {}",
+                    timer.getUserId(), timer.getGroupId(), ex.getMessage());
+        }
+    }
+
+    private void loadTimers() {
+        try (Connection connection = DriverManager.getConnection("jdbc:sqlite:" + base + "DataBase.db");
+             Statement statement = connection.createStatement();) {
+            ResultSet resultSet = statement.executeQuery("SELECT * FROM timers");
+            while (resultSet.next()) {
+                long userId = resultSet.getLong(1);
+                long groupId = resultSet.getLong(2);
+                long time = resultSet.getLong(3);
+                long startTime = resultSet.getLong(4);
+
+                long elapsedTime = Instant.now().getEpochSecond() - startTime;
+                if (time > elapsedTime) {
+                    TimerController.addTimer(userId, groupId, time - elapsedTime);
+                } else {
+                    log.info("user {} added in group {} by timer", userId, Main.dataUtils.getGroupName(groupId));
+                    ChatUtils.addInGroup(userId, groupId, "Добавлен по таймеру");
+                }
+            }
+            resultSet.getLong(1);
+        } catch (SQLException ex) {
+            log.warn("Failed to load timers");
+        }
     }
 }
 

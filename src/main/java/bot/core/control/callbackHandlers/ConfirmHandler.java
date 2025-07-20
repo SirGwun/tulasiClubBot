@@ -1,13 +1,17 @@
 package bot.core.control.callbackHandlers;
 
+import bot.core.Main;
 import bot.core.control.SessionController;
 import bot.core.control.TimerController;
 import bot.core.util.ChatUtils;
 import bot.core.control.callbackHandlers.Action;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatMember;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 /**
  *
@@ -56,7 +60,7 @@ public class ConfirmHandler implements CallbackHandler {
 
         log.info("Admin {} confirm {}", chatId, targetUserId);
         Long groupId = SessionController.getInstance().getUserSession(targetUserId).getGroupId();
-        if (TimerController.hasTimer(targetUserId, groupId)) {
+        if (TimerController.hasTimer(targetUserId, groupId) || !isUserAdded(targetUserId, groupId)) {
             TimerController.stopTimer(targetUserId, groupId);
             ChatUtils.addInGroup(targetUserId, groupId, "Одобрение админа");
         } else {
@@ -64,5 +68,16 @@ public class ConfirmHandler implements CallbackHandler {
         }
         ChatUtils.deleteMessage(chatId, messageId);
         ChatUtils.deleteMessage(chatId, originMessageId);
+    }
+
+    private boolean isUserAdded(long userId, Long groupId) {
+        GetChatMember getChatMember = new GetChatMember(String.valueOf(groupId), userId);
+        try {
+            ChatMember chatMember = Main.bot.execute(getChatMember);
+            return chatMember != null;
+        } catch (TelegramApiException e) {
+            log.warn("User not added");
+            return false;
+        }
     }
 }
