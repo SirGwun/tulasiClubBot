@@ -4,7 +4,6 @@ import bot.core.Main;
 import bot.core.control.TimerController;
 import bot.core.model.Session;
 import bot.core.model.Group;
-import bot.core.model.User;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import org.apache.commons.io.IOUtils;
@@ -481,10 +480,6 @@ public final class DataUtils {
         } catch (SQLException ex) {
             log.warn("Failed to load timers");
         }
-    }
-
-    public void storeUser(User user) {
-
     }
 }
 

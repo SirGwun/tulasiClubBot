@@ -1,5 +1,4 @@
 package bot.core.model;
-import bot.core.Main;
 
 public class User {
     private final long id;
@@ -12,10 +11,6 @@ public class User {
         this.userName = username;
         this.firstName = firstName;
         this.lastName = lastName;
-    }
-
-    public String getFirstName() {
-        return firstName;
     }
 
     public long getId() {

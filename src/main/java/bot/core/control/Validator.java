@@ -3,8 +3,6 @@ package bot.core.control;
 import bot.core.Main;
 import bot.core.model.MessageContext;
 import bot.core.util.ChatUtils;
-import bot.core.util.DataUtils;
-import ch.qos.logback.core.encoder.JsonEscapeUtil;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
