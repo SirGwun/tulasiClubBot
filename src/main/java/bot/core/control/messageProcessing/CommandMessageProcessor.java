@@ -40,7 +40,7 @@ public class CommandMessageProcessor implements MessageProcessor {
 
     static class CommandHandler {
         private static final Logger log = LoggerFactory.getLogger(CommandHandler.class);
-        private static final String CMD_LOG = "User {} use {} command";
+        private static final String CMD_LOG = "User {} use {}";
         private final SessionState state;
         private final long userId;
 
@@ -48,7 +48,6 @@ public class CommandMessageProcessor implements MessageProcessor {
             this.state = state;
             this.userId = userId;
         }
-
         public void handle(MessageContext message) {
             if (message.isCommand()) {
                 String[] data = message.getText().split(" ", 2);
@@ -114,6 +113,9 @@ public class CommandMessageProcessor implements MessageProcessor {
                     break;
                 case Command.say:
                     handleSayCommand(args);
+                    break;
+                case Command.set_timer:
+                    handleSetTimerCommand(args);
                     break;
                 default:
                     log.warn("Неизвестная команда {}", command);
@@ -218,17 +220,17 @@ public class CommandMessageProcessor implements MessageProcessor {
                 return;
             }
 
-            List<String> messages = splitMessage(catalog, 4096);
+            List<String> messages = splitMessage(catalog);
             for (String message : messages) {
                 ChatUtils.sendMessage(userId, message);
             }
         }
 
-        private List<String> splitMessage(String text, int maxLength) {
+        private List<String> splitMessage(String text) {
             List<String> messages = new ArrayList<>();
             int start = 0;
             while (start < text.length()) {
-                int end = Math.min(start + maxLength, text.length());
+                int end = Math.min(start + 4096, text.length());
 
                 if (end < text.length() && !Character.isWhitespace(text.charAt(end))) {
                     int lastSpace = text.lastIndexOf(' ', end);
@@ -324,6 +326,33 @@ public class CommandMessageProcessor implements MessageProcessor {
 
             ChatUtils.sendMessage(targetId, text);
             ChatUtils.sendMessage(userId, "Сообщение отправлено пользователю @" + username);
+        }
+
+        private void handleSetTimerCommand(String args) {
+            int MAX_TIMER_MINUTES = 525600;
+            int TIMER_DISABLED = -1;
+            log.info(CMD_LOG, userId, (Command.set_timer + " args: " + args));
+            try {
+                int timeMin = Integer.parseInt(args);
+
+                if ((timeMin > 0 && timeMin <= MAX_TIMER_MINUTES) || timeMin == TIMER_DISABLED) {
+                    Main.dataUtils.setTimerMinutes(timeMin);
+                    String message = timeMin == TIMER_DISABLED
+                            ? "Новые таймеры теперь не будут добавляться"
+                            : "Установлено, теперь новые таймеры будут срабатывать через " + timeMin + " минут после добавления";
+                    ChatUtils.sendMessage(userId, message);
+                } else {
+                    ChatUtils.sendMessage(userId,
+                            "Время должно быть положительным числом от 1 до " + MAX_TIMER_MINUTES +
+                                    " или " + TIMER_DISABLED + " для отключения таймера");
+                }
+            } catch (NumberFormatException e) {
+                if (args.isEmpty())
+                    log.error("No args on set_timer");
+                else
+                    log.error("Failed to parse timer value: {}", args);
+                ChatUtils.sendMessage(userId, "Формат - /set_timer <время в минутах>");
+            }
         }
 
         private void handleUnknownCommand(String message) {

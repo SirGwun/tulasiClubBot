@@ -75,15 +75,17 @@ public class PaymentBot extends TelegramLongPollingBot {
 
         // Команды для администраторов
         List<BotCommand> adminCommands = new ArrayList<>();
+        adminCommands.add(new BotCommand("/" + Command.menu, "Главное меню"));
         adminCommands.add(new BotCommand("/" + Command.choose_course, "Выбрать курс"));
         adminCommands.add(new BotCommand("/" + Command.set_tag, "Установить тег с которым будет добавляться группа"));
         adminCommands.add(new BotCommand("/" + Command.add_tag, "Добавить тег"));
-        adminCommands.add(new BotCommand("/" + Command.del, "Удалить группу"));
         adminCommands.add(new BotCommand("/" + Command.set_payment_info, "Установить информацию об оплате в /start"));
+        adminCommands.add(new BotCommand("/" + Command.say, "Отправить сообщение пользователю (@<username> <text>)"));
+        adminCommands.add(new BotCommand("/" + Command.del, "Удалить группу"));
         adminCommands.add(new BotCommand("/" + Command.edit_help, "Изменить помощь"));
         adminCommands.add(new BotCommand("/" + Command.cancel, "Отменить действие"));
-        adminCommands.add(new BotCommand("/" + Command.say, "Отправить сообщение пользователю (@<username> <text>)"));
-        adminCommands.add(new BotCommand("/" + Command.menu, "Главное меню"));
+        adminCommands.add(new BotCommand("/" + Command.set_timer, "Установить время для таймеров (в минутах)"));
+
         try {
             execute(new SetMyCommands(defaultCommands, new BotCommandScopeAllPrivateChats(), null));
             execute(new SetMyCommands(adminCommands, new BotCommandScopeChat(Long.toString(Main.dataUtils.getAdminId())), null));

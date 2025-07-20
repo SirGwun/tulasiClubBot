@@ -4,6 +4,7 @@ import bot.core.Main;
 import bot.core.control.TimerController;
 import bot.core.model.Session;
 import bot.core.model.Group;
+import bot.core.model.User;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import org.apache.commons.io.IOUtils;
@@ -37,6 +38,7 @@ public final class DataUtils {
     private String botToken;
     private long adminChatID;
     private long favoriteGroupID;
+    private int timerMinutes;
     private String help;
     private final Properties config = new Properties();
     private List<Group> groupList = new ArrayList<>();
@@ -77,7 +79,6 @@ public final class DataUtils {
 
         loadConfig();
         loadGroupList();
-        loadTimers();
     }
 
     public void checkAdminRights() {
@@ -134,6 +135,7 @@ public final class DataUtils {
             config.load(configInput);
             adminChatID = Long.parseLong(config.getProperty("adminChatID"));
             favoriteGroupID = Long.parseLong(config.getProperty("favoriteGroupID"));
+            timerMinutes = Integer.parseInt(config.getProperty("timeMinutes"));
         } catch (FileNotFoundException ex) {
             log.error("Не удалось загрузить конфиг {}", ex.getMessage());
         } catch (IOException ex) {
@@ -413,8 +415,18 @@ public final class DataUtils {
         return -1;
     }
 
+    public int getTimerMinutes() {
+        return timerMinutes;
+    }
+
+    public void setTimerMinutes(int timerMinutes) {
+        this.timerMinutes = timerMinutes;
+        config.setProperty("timeMinutes", String.valueOf(timerMinutes));
+        saveConfig();
+    }
+
     public void storeTimer(TimerController.Timer timer) {
-        String sql = "INSERT INTO timers(userId, groupId, time, start_time) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO timers(userId, groupId, time, startTime) VALUES (?, ?, ?, ?)";
         try (Connection connection = DriverManager.getConnection("jdbc:sqlite:" + base + "DataBase.db");
              PreparedStatement stmt = connection.prepareStatement(sql))
         {
@@ -424,8 +436,8 @@ public final class DataUtils {
             stmt.setLong(4, timer.getStartTime());
             stmt.executeUpdate();
         } catch (SQLException ex) {
-            log.warn("Not success insertion for userId={}, groupId={}",
-                    timer.getUserId(), timer.getGroupId());
+            log.warn("Not success insertion for userId={}, groupId={}: \n{}",
+                    timer.getUserId(), timer.getGroupId(), ex.getMessage());
         }
     }
 
@@ -447,7 +459,7 @@ public final class DataUtils {
         }
     }
 
-    private void loadTimers() {
+    public void loadTimers() {
         try (Connection connection = DriverManager.getConnection("jdbc:sqlite:" + base + "DataBase.db");
              Statement statement = connection.createStatement()) {
             ResultSet resultSet = statement.executeQuery("SELECT * FROM timers");
@@ -459,7 +471,7 @@ public final class DataUtils {
 
                 long elapsedTime = Instant.now().getEpochSecond() - startTime;
                 if (time > elapsedTime) {
-                    TimerController.addTimer(userId, groupId, time - elapsedTime);
+                    TimerController.restoreTimer(userId, groupId, time - elapsedTime);
                 } else {
                     log.info("user {} added in group {} by timer", userId, Main.dataUtils.getGroupName(groupId));
                     ChatUtils.addInGroup(userId, groupId, "Добавлен по таймеру");
@@ -469,6 +481,10 @@ public final class DataUtils {
         } catch (SQLException ex) {
             log.warn("Failed to load timers");
         }
+    }
+
+    public void storeUser(User user) {
+
     }
 }
 

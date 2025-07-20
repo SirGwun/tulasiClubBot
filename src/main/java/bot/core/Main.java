@@ -34,6 +34,7 @@ public class Main {
 
             bot = new PaymentBot(dataUtils.getBotToken());
             dataUtils.checkAdminRights();
+            dataUtils.loadTimers();
 
             TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
             telegramBotsApi.registerBot(bot);

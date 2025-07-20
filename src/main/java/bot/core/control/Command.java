@@ -14,6 +14,7 @@ public enum Command {
     help,
     catalog,
     edit_info,
-    menu
+    menu,
+    set_timer
 }
 

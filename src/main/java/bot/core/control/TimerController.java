@@ -14,18 +14,25 @@ import java.util.concurrent.ConcurrentHashMap;
 public class TimerController {
     private static final Logger log = LoggerFactory.getLogger(TimerController.class);
     private static final Map<Timer, Thread> timers = new ConcurrentHashMap<>();
-    public static final long STANDARD_TIME_SEC = 7200;
 
-    public static void addTimer(long userId, long groupId, long sec) {
-        Timer timer = new Timer(userId, groupId, sec);
+    public static void addTimer(long userId, long groupId, long min) {
+        Timer timer = new Timer(userId, groupId, min * 60);
         if (!timers.containsKey(timer)) {
-            log.info("Новый таймер добавлен");
+            log.info("Таймер добавлен");
             timers.put(timer, new Thread(timer));
             Main.dataUtils.storeTimer(timer);
             timers.get(timer).start();
             return;
         }
         log.info("Попытка добавления уже существующего таймера");
+    }
+
+    public static void restoreTimer(long userId, long groupId, long sec) {
+        Timer timer = new Timer(userId, groupId, sec);
+        if (!timers.containsKey(timer)) {
+            timers.put(timer, new Thread(timer));
+            timers.get(timer).start();
+        }
     }
 
     public static void stopTimer(long userId, long groupId) {

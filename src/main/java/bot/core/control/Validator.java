@@ -3,6 +3,8 @@ package bot.core.control;
 import bot.core.Main;
 import bot.core.model.MessageContext;
 import bot.core.util.ChatUtils;
+import bot.core.util.DataUtils;
+import ch.qos.logback.core.encoder.JsonEscapeUtil;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
@@ -51,7 +53,11 @@ public class Validator {
         long userId = ctx.getFromId();
         Long groupId = SessionController.getInstance().getUserSession(ctx.getFromId()).getGroupId();
 
-        TimerController.addTimer(userId, groupId, TimerController.STANDARD_TIME_SEC);
+        if (Main.dataUtils.getTimerMinutes() != -1) {
+            TimerController.addTimer(userId, groupId, Main.dataUtils.getTimerMinutes());
+        } else {
+            log.debug("Таймер не добавлен тк отключен");
+        }
 
         try {
             ForwardMessage forwardMessage = new ForwardMessage();
