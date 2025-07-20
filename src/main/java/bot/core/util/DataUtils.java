@@ -77,8 +77,21 @@ public final class DataUtils {
 
         loadConfig();
         loadGroupList();
-        saveGroupList(); //убрать после следующего обновления
         loadTimers();
+    }
+
+    public void checkAdminRights() {
+        boolean needToStore = false;
+        for (Group group : groupList) {
+            boolean realAdminRight = ChatUtils.isBotAdminInGroup(group.getId());
+            if (realAdminRight != group.isBotAdmin()) {
+                group.setIsBotAdmin(realAdminRight);
+                needToStore = true;
+            }
+        }
+        if (needToStore) {
+            saveGroupList();
+        }
     }
 
     private void loadProdLogger() {
@@ -190,7 +203,6 @@ public final class DataUtils {
                 log.warn("Loaded object is not a Group");
                 return;
             }
-            group.setIsBotAdmin(ChatUtils.isBotAdminInGroup(group.getId()));
             groupList.add(group);
         }
         this.groupList = groupList;

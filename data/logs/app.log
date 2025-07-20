@@ -550,3 +550,120 @@ org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException: Error exe
 2025-07-08 17:53:06 WARN  bot.core.Main - worn
 2025-07-08 17:53:06 ERROR bot.core.Main - 1234
 2025-07-08 17:53:08 INFO  bot.core.Main - Бот запущен
+2025-07-20 18:24:26 INFO  bot.core.util.DataUtils - Запущено в LOCAL
+2025-07-20 19:22:44 INFO  bot.core.util.DataUtils - Запущено в LOCAL
+2025-07-20 19:22:45 INFO  bot.core.Main - Тестовый режим
+2025-07-20 19:22:45 WARN  bot.core.Main - worn
+2025-07-20 19:22:45 ERROR bot.core.Main - 1234
+2025-07-20 19:22:47 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -1002694553645
+2025-07-20 19:22:47 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -1002664546928
+2025-07-20 19:22:47 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -1002665831242
+2025-07-20 19:22:48 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -1002692826863
+2025-07-20 19:22:48 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -1002691709838
+2025-07-20 19:22:48 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -1002723537707
+2025-07-20 19:22:49 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -1002760438191
+2025-07-20 19:22:49 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -1002561619118
+2025-07-20 19:22:49 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -1002719674917
+2025-07-20 19:22:50 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -1002763990480
+2025-07-20 19:22:50 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -4903155423
+2025-07-20 19:22:50 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -4854734172
+2025-07-20 19:22:50 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -1002669448693
+2025-07-20 19:22:50 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -4871790529
+2025-07-20 19:22:51 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -4875558151
+2025-07-20 19:22:51 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -1002688403762
+2025-07-20 19:22:51 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -1002764225169
+2025-07-20 19:22:51 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -1002077329956
+2025-07-20 19:22:52 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -1002001861986
+2025-07-20 19:22:53 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -1001995307122
+2025-07-20 19:22:53 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -1002030870299
+2025-07-20 19:22:54 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -1002047805285
+2025-07-20 19:22:54 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -1002119787207
+2025-07-20 19:22:54 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -1002144257408
+2025-07-20 19:22:56 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -1001997994173
+2025-07-20 19:22:56 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -1002033020035
+2025-07-20 19:22:56 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -1002095784965
+2025-07-20 19:22:57 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -1002157918103
+2025-07-20 19:22:57 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -1002186153984
+2025-07-20 19:22:57 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -1002224159296
+2025-07-20 19:22:58 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -1002227179913
+2025-07-20 19:22:58 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -1002181576607
+2025-07-20 19:22:58 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -1002387434938
+2025-07-20 19:22:58 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -1002452600612
+2025-07-20 19:22:58 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -1002495761121
+2025-07-20 19:22:59 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -1002460418488
+2025-07-20 19:22:59 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -1002442841171
+2025-07-20 19:22:59 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -1002440051782
+2025-07-20 19:23:00 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -1002494349954
+2025-07-20 19:23:00 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -1002440209699
+2025-07-20 19:23:00 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -1002444502699
+2025-07-20 19:23:01 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -1002263608550
+2025-07-20 19:23:01 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -1002456004359
+2025-07-20 19:23:01 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -1002213212228
+2025-07-20 19:23:02 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -1002215593378
+2025-07-20 19:23:02 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -1002190153279
+2025-07-20 19:23:02 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -1002195363343
+2025-07-20 19:23:03 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -1002198337736
+2025-07-20 19:23:03 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -1002205827004
+2025-07-20 19:23:03 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -1002163955072
+2025-07-20 19:23:04 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -1002222315313
+2025-07-20 19:23:04 INFO  bot.core.util.ChatUtils - Бот не администратор в группе -1002073688222
+2025-07-20 19:23:05 INFO  bot.core.Main - Бот запущен
+2025-07-20 19:28:16 INFO  bot.core.util.DataUtils - Запущено в LOCAL
+2025-07-20 19:28:17 INFO  bot.core.Main - Тестовый режим
+2025-07-20 19:28:33 INFO  bot.core.Main - Бот запущен
+2025-07-20 20:06:09 INFO  bot.core.util.DataUtils - Запущено в LOCAL
+2025-07-20 20:06:10 INFO  bot.core.Main - Тестовый режим
+2025-07-20 20:06:30 INFO  bot.core.Main - Бот запущен
+2025-07-20 20:06:31 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - User 7066573077 use choose_course command
+2025-07-20 20:06:46 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - User 7066573077 use choose_course command
+2025-07-20 20:11:49 INFO  bot.core.util.DataUtils - Запущено в LOCAL
+2025-07-20 20:11:49 INFO  bot.core.Main - Тестовый режим
+2025-07-20 20:12:01 INFO  bot.core.Main - Бот запущен
+2025-07-20 20:12:11 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - User 7066573077 use choose_course command
+2025-07-20 20:13:19 ERROR b.c.c.m.CallbackProcessor - Ошибка при отправке ответа на CallbackQuery
+org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException: Error executing org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery query: [400] Bad Request: query is too old and response timeout expired or query ID is invalid
+	at org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod.deserializeResponseInternal(PartialBotApiMethod.java:54)
+	at org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod.deserializeResponse(PartialBotApiMethod.java:34)
+	at org.telegram.telegrambots.meta.api.methods.botapimethods.BotApiMethodBoolean.deserializeResponse(BotApiMethodBoolean.java:19)
+	at org.telegram.telegrambots.meta.api.methods.botapimethods.BotApiMethodBoolean.deserializeResponse(BotApiMethodBoolean.java:14)
+	at org.telegram.telegrambots.bots.DefaultAbsSender.sendApiMethod(DefaultAbsSender.java:1115)
+	at org.telegram.telegrambots.meta.bots.AbsSender.execute(AbsSender.java:64)
+	at bot.core.control.messageProcessing.CallbackProcessor.handleCallbackQuery(CallbackProcessor.java:78)
+	at bot.core.control.messageProcessing.CallbackProcessor.process(CallbackProcessor.java:25)
+	at bot.core.PaymentBot.onUpdateReceived(PaymentBot.java:52)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1597)
+	at org.telegram.telegrambots.meta.generics.LongPollingBot.onUpdatesReceived(LongPollingBot.java:27)
+	at org.telegram.telegrambots.updatesreceivers.DefaultBotSession$HandlerThread.run(DefaultBotSession.java:312)
+2025-07-20 20:17:44 ERROR o.t.t.u.DefaultBotSession - Remote host terminated the handshake
+javax.net.ssl.SSLHandshakeException: Remote host terminated the handshake
+	at java.base/sun.security.ssl.SSLSocketImpl.handleEOF(SSLSocketImpl.java:1715)
+	at java.base/sun.security.ssl.SSLSocketImpl.decode(SSLSocketImpl.java:1515)
+	at java.base/sun.security.ssl.SSLSocketImpl.readHandshakeRecord(SSLSocketImpl.java:1422)
+	at java.base/sun.security.ssl.SSLSocketImpl.startHandshake(SSLSocketImpl.java:455)
+	at java.base/sun.security.ssl.SSLSocketImpl.startHandshake(SSLSocketImpl.java:426)
+	at org.apache.http.conn.ssl.SSLConnectionSocketFactory.createLayeredSocket(SSLConnectionSocketFactory.java:436)
+	at org.apache.http.conn.ssl.SSLConnectionSocketFactory.connectSocket(SSLConnectionSocketFactory.java:384)
+	at org.apache.http.impl.conn.DefaultHttpClientConnectionOperator.connect(DefaultHttpClientConnectionOperator.java:142)
+	at org.apache.http.impl.conn.PoolingHttpClientConnectionManager.connect(PoolingHttpClientConnectionManager.java:376)
+	at org.apache.http.impl.execchain.MainClientExec.establishRoute(MainClientExec.java:393)
+	at org.apache.http.impl.execchain.MainClientExec.execute(MainClientExec.java:236)
+	at org.apache.http.impl.execchain.ProtocolExec.execute(ProtocolExec.java:186)
+	at org.apache.http.impl.execchain.RetryExec.execute(RetryExec.java:89)
+	at org.apache.http.impl.execchain.RedirectExec.execute(RedirectExec.java:110)
+	at org.apache.http.impl.client.InternalHttpClient.doExecute(InternalHttpClient.java:185)
+	at org.apache.http.impl.client.CloseableHttpClient.execute(CloseableHttpClient.java:83)
+	at org.telegram.telegrambots.updatesreceivers.DefaultBotSession$ReaderThread.getUpdatesFromServer(DefaultBotSession.java:249)
+	at org.telegram.telegrambots.updatesreceivers.DefaultBotSession$ReaderThread.run(DefaultBotSession.java:188)
+Caused by: java.io.EOFException: SSL peer shut down incorrectly
+	at java.base/sun.security.ssl.SSLSocketInputRecord.read(SSLSocketInputRecord.java:494)
+	at java.base/sun.security.ssl.SSLSocketInputRecord.readHeader(SSLSocketInputRecord.java:483)
+	at java.base/sun.security.ssl.SSLSocketInputRecord.decode(SSLSocketInputRecord.java:160)
+	at java.base/sun.security.ssl.SSLTransport.decode(SSLTransport.java:111)
+	at java.base/sun.security.ssl.SSLSocketImpl.decode(SSLSocketImpl.java:1507)
+	... 16 common frames omitted
+2025-07-20 20:18:01 INFO  bot.core.util.DataUtils - Запущено в LOCAL
+2025-07-20 20:18:01 INFO  bot.core.Main - Тестовый режим
+2025-07-20 20:19:14 INFO  bot.core.util.DataUtils - Запущено в LOCAL
+2025-07-20 20:19:14 INFO  bot.core.Main - Тестовый режим
+2025-07-20 20:19:25 INFO  bot.core.Main - Бот запущен
+2025-07-20 20:19:30 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - User 7066573077 use choose_course command

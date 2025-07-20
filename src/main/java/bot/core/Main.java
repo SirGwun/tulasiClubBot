@@ -27,14 +27,14 @@ public class Main {
     public static void init(boolean isTest) {
         try {
             dataUtils = new DataUtils();
-            //dataUtils.saveSessions(new ConcurrentHashMap<>());
             if (isTest) {
                 log.info("Тестовый режим");
-                log.warn("worn");
-                log.error("1234");
                 dataUtils.testMode();
             }
+
             bot = new PaymentBot(dataUtils.getBotToken());
+            dataUtils.checkAdminRights();
+
             TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
             telegramBotsApi.registerBot(bot);
             log.info("Бот запущен");

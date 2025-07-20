@@ -135,7 +135,7 @@ public final class ChatUtils {
         int MAX_BUTTONS_IN_PAGE = 10;
         int left = 0, right = MAX_BUTTONS_IN_PAGE - 1;
         if (action == Action.rightArrow) {
-            left = index - 1;
+            left = index + 1;
             right = Math.min(index + MAX_BUTTONS_IN_PAGE, buttons.size() - 1);
         }
         if (action == Action.leftArrow) {
@@ -159,6 +159,7 @@ public final class ChatUtils {
         for (int i = left; i <= right; i++) {
             keyboard.add(Collections.singletonList(buttons.get(i)));
         }
+
         keyboard.add(arrows);
         return keyboard;
     }
@@ -219,7 +220,7 @@ public final class ChatUtils {
                 }
             }
         } catch (TelegramApiException e) {
-            log.info("Бот не администратор в группе {}", groupId);
+            log.debug("Бот не входит в группу или не админ {}", groupId);
         }
         return false;
     }
