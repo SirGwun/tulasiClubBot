@@ -1,6 +1,5 @@
 package bot.core;
 
-import bot.core.control.SessionController;
 import bot.core.util.DataUtils;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
@@ -29,7 +28,6 @@ public class Main {
         try {
             dataUtils = new DataUtils();
             //dataUtils.saveSessions(new ConcurrentHashMap<>());
-            SessionController.getInstance();
             if (isTest) {
                 log.info("Тестовый режим");
                 log.warn("worn");
@@ -42,7 +40,6 @@ public class Main {
             log.info("Бот запущен");
         } catch (TelegramApiException e) {
             log.error("Ошибка при инициализации бота {}", e.getMessage());
-            e.printStackTrace();
         }
     }
 }

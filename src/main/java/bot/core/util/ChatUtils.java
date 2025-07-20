@@ -7,10 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.CreateChatInviteLink;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatAdministrators;
-import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatMember;
-import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatMemberCount;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
@@ -50,15 +47,13 @@ public final class ChatUtils {
         execute(sendMessage);
     }
 
-    //todo скрывать клавиатуры после нажатия по одной из ее кнопок
     public static void sendMainMenu(long chatId) {
         String text = """
-        Вы находитесь в главном меню: 
+        Вы находитесь в главном меню:
         
-        Если вы хотите узнать подробнее о курсах, получить инструкции или выбрать курс — 
+        Если вы хотите узнать подробнее о курсах, получить инструкции или выбрать курс —
         воспользуйтесь кнопками ниже.
         """;
-        String paymentInfo = Main.dataUtils.getPaymentInfo();
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
 
         InlineKeyboardButton coursesDescription = new InlineKeyboardButton("Описание курсов и лекций");
@@ -138,7 +133,6 @@ public final class ChatUtils {
 
     public static List<List<InlineKeyboardButton>> arrowedStyleKeyboard(List<InlineKeyboardButton> buttons, String tag, int index, Action action) {
         int MAX_BUTTONS_IN_PAGE = 10;
-        List<InlineKeyboardButton> page = new ArrayList<>(MAX_BUTTONS_IN_PAGE);
         int left = 0, right = MAX_BUTTONS_IN_PAGE - 1;
         if (action == Action.rightArrow) {
             left = index - 1;
@@ -169,7 +163,6 @@ public final class ChatUtils {
         return keyboard;
     }
 
-    //todo поменять логику или удалить
     private static List<List<InlineKeyboardButton>> distributeButtons(List<InlineKeyboardButton> buttons) {
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
         int columnCount = Utils.getColumnCount(buttons.size());
@@ -226,7 +219,7 @@ public final class ChatUtils {
                 }
             }
         } catch (TelegramApiException e) {
-            log.info("Бот не адмистратор в группе {}", groupId);
+            log.info("Бот не администратор в группе {}", groupId);
         }
         return false;
     }
@@ -243,7 +236,7 @@ public final class ChatUtils {
                 .getUserName();
 
         try {
-            String historyLink = getJoinRequestedLink(groupId, groupName);
+            String historyLink = getJoinRequestedLink(groupId);
             sendToHistoryChat(userName, groupName, historyLink, reason);
 
             String userInviteLink = createOneTimeInviteLink(groupId);
@@ -253,7 +246,7 @@ public final class ChatUtils {
         }
     }
 
-    private static String getJoinRequestedLink(Long groupId, String groupName) throws TelegramApiException {
+    private static String getJoinRequestedLink(Long groupId) throws TelegramApiException {
         CreateChatInviteLink link = new CreateChatInviteLink();
         link.setChatId(groupId);
         link.setCreatesJoinRequest(true);
@@ -296,8 +289,8 @@ public final class ChatUtils {
 
         InlineKeyboardButton button = new InlineKeyboardButton();
         button.setText("Я вступил, но не могу найти группу");
-        button.setCallbackData(Action.getJoinRequestedLink.toString() + "_"
-                + getJoinRequestedLink(groupId, groupName) + "_"
+        button.setCallbackData(Action.getJoinRequestedLink + "_"
+                + getJoinRequestedLink(groupId) + "_"
                 + userId);
 
         InlineKeyboardMarkup replyMarkup = new InlineKeyboardMarkup();
@@ -328,12 +321,5 @@ public final class ChatUtils {
     }
 
 
-    public static void sendPhoto(SendPhoto sendPhoto) {
-        try {
-            Main.bot.execute(sendPhoto);
-        } catch (TelegramApiException e) {
-            log.error("Ошибка при отправке фото {}", e.getMessage());
-        }
-    }
 }
 

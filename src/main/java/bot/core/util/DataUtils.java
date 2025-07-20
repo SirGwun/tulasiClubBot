@@ -6,7 +6,6 @@ import bot.core.model.Session;
 import bot.core.model.Group;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
-import ch.qos.logback.core.util.StatusPrinter;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +17,6 @@ import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Utility class that stores configuration and helper data for the bot.
@@ -77,10 +75,9 @@ public final class DataUtils {
             }
         }
 
-        //todo рассмотреть возможность вынесения это в отдельный контроллер
         loadConfig();
         loadGroupList();
-        saveGroupList(); //убрать после следующего обнволения
+        saveGroupList(); //убрать после следующего обновления
         loadTimers();
     }
 
@@ -97,18 +94,8 @@ public final class DataUtils {
             }
             configurator.doConfigure(configStream); // загружаем как stream
         } catch (Exception e) {
-            e.printStackTrace();
-            StatusPrinter.printInCaseOfErrorsOrWarnings(context);
+            log.error("Failed to configure logging context", e);
         }
-    }
-
-    public boolean updateConfig(String key, String value) {
-        if (config.containsKey(key)) {
-            config.setProperty(key, value);
-            saveConfig();
-            return true;
-        }
-        return false;
     }
 
     public void addNewGroup(String groupName, long groupId) {
@@ -119,10 +106,6 @@ public final class DataUtils {
                 ChatUtils.isBotAdminInGroup(groupId));
         groupList.add(newGroup);
         saveGroupList();
-    }
-
-    public void setDefaultGroup(long groupId) {
-        updateConfig("groupID", String.valueOf(groupId));
     }
 
     private void saveConfig() {
@@ -149,17 +132,6 @@ public final class DataUtils {
         return groupList;
     }
 
-    private void save(Object object, String name) {
-        if (!(object instanceof Serializable))
-            throw new IllegalArgumentException();
-
-        try (ObjectOutputStream output = new ObjectOutputStream(new FileOutputStream(base + name + ".ser"))) {
-            output.writeObject(object);
-        } catch (IOException ex) {
-            log.error("Can't save {} \n {}", name, ex.getMessage());
-        }
-    }
-
     private Object load(String name) {
         try (ObjectInputStream input = new ObjectInputStream(new FileInputStream(base + name + ".ser"))) {
             return input.readObject();
@@ -168,29 +140,60 @@ public final class DataUtils {
         } catch (IOException ex) {
             log.error("Unable to read {} : {}", name, ex.getMessage());
         } catch (ClassNotFoundException e) {
-            log.error("Unable find class: {}", e.getMessage());;
+            log.error("Unable find class: {}", e.getMessage());
         }
         return null;
     }
 
     public void saveSessions(Map<Long, Session> sessionByUser) {
-        save(sessionByUser, "sessions");
+        try (ObjectOutputStream output = new ObjectOutputStream(new FileOutputStream(base + "sessions" + ".ser"))) {
+            output.writeObject(sessionByUser);
+        } catch (IOException ex) {
+            log.error("Can't save {} \n {}", "sessions", ex.getMessage());
+        }
     }
 
     public Map<Long, Session> loadSessions() {
         Object ses = load("sessions");
-        if (ses instanceof ConcurrentHashMap<?, ?>)
-            return (Map<Long, Session>) ses;
-        else
-            throw new RuntimeException("Не удалось загрузить сессии!");
+        if (!(ses instanceof Map<?, ?> rawMap)) {
+            log.warn("Loaded object is not a Map");
+            return Collections.emptyMap();
+        }
+
+        Map<Long, Session> result = new HashMap<>();
+
+        for (Map.Entry<?, ?> entry : rawMap.entrySet()) {
+            if (!(entry.getKey() instanceof Long)) {
+                log.warn("Invalid key type: {}", entry.getKey());
+                continue;
+            }
+            if (!(entry.getValue() instanceof Session)) {
+                log.warn("Invalid value type for key {}", entry.getKey());
+                continue;
+            }
+            result.put((Long) entry.getKey(), (Session) entry.getValue());
+        }
+
+        return result;
     }
 
+
     private void loadGroupList() {
-        List<Group> list = (List<Group>) load("groupList");
-        for (Group group : groupList) {
-            group.setIsBotAdmin(ChatUtils.isBotAdminInGroup(group.getId()));
+        Object list =  load("groupList");
+        if (!(list instanceof List<?> lodedList)) {
+            log.warn("Loaded object is not a List");
+            return;
         }
-        groupList = list;
+        List<Group> groupList = new ArrayList<>();
+        for (Object object : lodedList) {
+            if (!(object instanceof Group group)) {
+                log.warn("Loaded object is not a Group");
+                return;
+            }
+            group.setIsBotAdmin(ChatUtils.isBotAdminInGroup(group.getId()));
+            groupList.add(group);
+        }
+        this.groupList = groupList;
     }
 
     public void saveGroupList() {
@@ -328,10 +331,6 @@ public final class DataUtils {
         return null;
     }
 
-    public Long getDefaultGroup() {
-        return Long.parseLong(config.getProperty("groupID"));
-    }
-
     public void setPaymentInfo(String text) {
         try (OutputStream out = new FileOutputStream(paymentFolderPath + "paymentText.txt")) {
             IOUtils.write(text, out, StandardCharsets.UTF_8);
@@ -347,10 +346,6 @@ public final class DataUtils {
             log.error("Ошибка при чтении paymentInfo", e);
         }
         return "";
-    }
-
-    public File getPaymentPhoto() {
-        return new File(paymentFolderPath + "paymentPhoto.jpg");
     }
 
     public String getGroupTag() {
@@ -409,7 +404,7 @@ public final class DataUtils {
     public void storeTimer(TimerController.Timer timer) {
         String sql = "INSERT INTO timers(userId, groupId, time, start_time) VALUES (?, ?, ?, ?)";
         try (Connection connection = DriverManager.getConnection("jdbc:sqlite:" + base + "DataBase.db");
-             PreparedStatement stmt = connection.prepareStatement(sql);)
+             PreparedStatement stmt = connection.prepareStatement(sql))
         {
             stmt.setLong(1, timer.getUserId());
             stmt.setLong(2, timer.getGroupId());
@@ -425,7 +420,7 @@ public final class DataUtils {
     public void unstoreTimer(TimerController.Timer timer) {
         String sql = "DELETE FROM timers WHERE userId=? AND groupId=?;";
         try (Connection connection = DriverManager.getConnection("jdbc:sqlite:" + base + "DataBase.db");
-             PreparedStatement stmt = connection.prepareStatement(sql);)
+             PreparedStatement stmt = connection.prepareStatement(sql))
         {
             stmt.setLong(1, timer.getUserId());
             stmt.setLong(2, timer.getGroupId());
@@ -442,7 +437,7 @@ public final class DataUtils {
 
     private void loadTimers() {
         try (Connection connection = DriverManager.getConnection("jdbc:sqlite:" + base + "DataBase.db");
-             Statement statement = connection.createStatement();) {
+             Statement statement = connection.createStatement()) {
             ResultSet resultSet = statement.executeQuery("SELECT * FROM timers");
             while (resultSet.next()) {
                 long userId = resultSet.getLong(1);

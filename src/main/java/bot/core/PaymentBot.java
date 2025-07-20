@@ -18,7 +18,6 @@ import java.util.*;
 
 public class PaymentBot extends TelegramLongPollingBot {
     private static final Logger log = LoggerFactory.getLogger(PaymentBot.class);
-    CallbackProcessor callbackHandler = new CallbackProcessor();
     Validator validator;
     HistoryForwardProcessor historyForwardProcessor  = new HistoryForwardProcessor();
     List<MessageProcessor> processors = Arrays.asList(
@@ -75,7 +74,7 @@ public class PaymentBot extends TelegramLongPollingBot {
         defaultCommands.add(new BotCommand("/" + Command.choose_course, "Выбрать курс"));
 
         // Команды для администраторов
-        List<BotCommand> adminCommands = new ArrayList<>(); //todo добавить startEditCatalog endEditCatalog
+        List<BotCommand> adminCommands = new ArrayList<>();
         adminCommands.add(new BotCommand("/" + Command.choose_course, "Выбрать курс"));
         adminCommands.add(new BotCommand("/" + Command.set_tag, "Установить тег с которым будет добавляться группа"));
         adminCommands.add(new BotCommand("/" + Command.add_tag, "Добавить тег"));

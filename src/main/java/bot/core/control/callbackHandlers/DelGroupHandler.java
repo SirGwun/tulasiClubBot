@@ -2,7 +2,6 @@ package bot.core.control.callbackHandlers;
 
 import bot.core.Main;
 import bot.core.util.ChatUtils;
-import bot.core.control.callbackHandlers.Action;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
@@ -40,7 +39,7 @@ public class DelGroupHandler implements CallbackHandler {
     public void handle(Update update) {
         CallbackQuery cq = update.getCallbackQuery();
         String[] data = cq.getData().split("_");
-        Long groupId = Long.parseLong(data[1]);
+        long groupId = Long.parseLong(data[1]);
         long userId = cq.getMessage().getChatId();
         int messageId = cq.getMessage().getMessageId();
 

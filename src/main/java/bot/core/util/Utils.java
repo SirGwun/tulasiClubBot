@@ -33,7 +33,7 @@ public class Utils {
      * Callback format: {@code confirm_<messageId>_<userId>}.
      */
     static InlineKeyboardButton createConfirmButton(int messageId, long userId) {
-        return createButton("Принимаю", Action.confirm.toString() + "_" + messageId + "_" + userId);
+        return createButton("Принимаю", Action.confirm + "_" + messageId + "_" + userId);
     }
 
     /**
@@ -41,7 +41,7 @@ public class Utils {
      * Callback format: {@code decline_<messageId>_<userId>}.
      */
     static InlineKeyboardButton createDeclineButton(int messageId, long userId) {
-        return createButton("Отказываю", Action.decline.toString() + "_" + messageId + "_" + userId);
+        return createButton("Отказываю", Action.decline + "_" + messageId + "_" + userId);
     }
 
     static int getColumnCount(int size) {

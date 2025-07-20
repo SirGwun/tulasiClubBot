@@ -535,3 +535,18 @@ org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException: Error exe
 2025-07-08 14:04:42 INFO  bot.core.util.DataUtils - Запущено в LOCAL
 2025-07-08 14:04:42 INFO  bot.core.Main - Тестовый режим
 2025-07-08 14:04:45 INFO  bot.core.Main - Бот запущен
+2025-07-08 14:43:31 INFO  bot.core.util.DataUtils - Запущено в LOCAL
+2025-07-08 14:43:31 INFO  bot.core.Main - Тестовый режим
+2025-07-08 14:43:32 INFO  bot.core.Main - Бот запущен
+2025-07-08 14:44:13 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - User 7066573077 use choose_course command
+2025-07-08 17:43:43 INFO  bot.core.util.DataUtils - Запущено в LOCAL
+2025-07-08 17:43:43 INFO  bot.core.Main - Тестовый режим
+2025-07-08 17:43:45 INFO  bot.core.Main - Бот запущен
+2025-07-08 17:43:50 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - User 7066573077 use choose_course command
+2025-07-08 17:48:46 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - User 7066573077 use edit_help command
+2025-07-08 17:49:05 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - User 7066573077 use cancel command
+2025-07-08 17:53:06 INFO  bot.core.util.DataUtils - Запущено в LOCAL
+2025-07-08 17:53:06 INFO  bot.core.Main - Тестовый режим
+2025-07-08 17:53:06 WARN  bot.core.Main - worn
+2025-07-08 17:53:06 ERROR bot.core.Main - 1234
+2025-07-08 17:53:08 INFO  bot.core.Main - Бот запущен

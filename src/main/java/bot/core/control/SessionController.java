@@ -20,7 +20,6 @@ public class SessionController {
     }
 
     public void setUserGroupId(Long userId, Long groupId) {
-        //todo проерять что это реальня группа
         sessionMap.get(userId).setGroupId(groupId);
         Main.dataUtils.saveSessions(sessionMap);
     }

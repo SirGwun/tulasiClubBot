@@ -3,12 +3,7 @@ package bot.core.model;
 import bot.core.Main;
 import org.telegram.telegrambots.meta.api.objects.Message;
 
-public class MessageContext  {
-    private final Message message;
-
-    public MessageContext(Message message) {
-        this.message = message;
-    }
+public record MessageContext(Message message) {
 
     public boolean isFromAdmin() {
         return message.getFrom().getId() == Main.dataUtils.getAdminId();
@@ -18,13 +13,9 @@ public class MessageContext  {
         return message.hasText() && message.getText().startsWith("/");
     }
 
-    public boolean isFromGroup() {
+    public boolean notFromGroup() {
         String type = message.getChat().getType();
-        return type.equals("group") || type.equals("supergroup") || message.getChat().isChannelChat() || message.isChannelMessage();
-    }
-
-    public String getChatName() {
-        return message.getChat().getTitle();
+        return !type.equals("group") && !type.equals("supergroup") && !message.getChat().isChannelChat() && !message.isChannelMessage();
     }
 
     public String getText() {
@@ -43,10 +34,6 @@ public class MessageContext  {
         return message.hasText();
     }
 
-    public Message getMessage() {
-        return message;
-    }
-
     public long getFromId() {
         return message.getFrom().getId();
     }
@@ -55,7 +42,4 @@ public class MessageContext  {
         return message.getChatId();
     }
 
-    public boolean hasPhoto() {
-        return message.hasPhoto();
-    }
 }

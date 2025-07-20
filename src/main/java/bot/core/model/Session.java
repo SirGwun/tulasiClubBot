@@ -33,16 +33,8 @@ public class Session implements Serializable {
         this.groupId = groupId;
     }
 
-    public void unSetGroupId() {
-        groupId = null;
-    }
-
     public SessionState getState() {
         return state;
-    }
-
-    public void setState(SessionState state) {
-        this.state = state;
     }
 
     public long getUserId() {
@@ -66,9 +58,5 @@ public class Session implements Serializable {
             }
         }
         return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
     }
 }

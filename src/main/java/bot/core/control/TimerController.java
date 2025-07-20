@@ -76,7 +76,7 @@ public class TimerController {
                     ChatUtils.addInGroup(userId, groupId, "Добавлен по таймеру");
                 }
             } catch (InterruptedException e) {
-                log.info("timer interupted");
+                log.info("timer interrupted");
             } finally {
                 timers.remove(this);
             }

@@ -4,7 +4,6 @@ import bot.core.Main;
 import bot.core.control.SessionController;
 import bot.core.control.TimerController;
 import bot.core.util.ChatUtils;
-import bot.core.control.callbackHandlers.Action;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.BanChatMember;

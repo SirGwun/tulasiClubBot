@@ -2,7 +2,6 @@ package bot.core.control.callbackHandlers;
 
 import bot.core.Main;
 import bot.core.util.ChatUtils;
-import bot.core.control.callbackHandlers.Action;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;

@@ -52,13 +52,13 @@ public class ChooseGroupHandler implements CallbackHandler {
         long userId = cq.getMessage().getChatId();
         log.info("User {} set group {}", userId, groupId);
 
-        if (!Main.dataUtils.containsGroupId(groupId)) {
+        Group group = Main.dataUtils.getGroupById(groupId);
+
+        if (group == null) {
             ChatUtils.sendMessage(userId, "Группа не найдена");
             log.warn("Группа не найдена {}", groupId);
             return;
         }
-
-        Group group = Main.dataUtils.getGroupById(groupId);
 
         if (group.isBotAdmin()) {
             if (isItFavoriteUser(userId)) {

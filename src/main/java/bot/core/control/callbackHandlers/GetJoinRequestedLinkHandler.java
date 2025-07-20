@@ -1,7 +1,6 @@
 package bot.core.control.callbackHandlers;
 
 import bot.core.util.ChatUtils;
-import bot.core.control.callbackHandlers.Action;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
@@ -9,7 +8,7 @@ public class GetJoinRequestedLinkHandler implements CallbackHandler {
     private final Action action = Action.getJoinRequestedLink;
     @Override
     public boolean match(Update update) {
-        return update.hasCallbackQuery() && update.getCallbackQuery().getData().startsWith(Action.getJoinRequestedLink.toString() + "_");
+        return update.hasCallbackQuery() && update.getCallbackQuery().getData().startsWith(Action.getJoinRequestedLink + "_");
     }
 
     @Override

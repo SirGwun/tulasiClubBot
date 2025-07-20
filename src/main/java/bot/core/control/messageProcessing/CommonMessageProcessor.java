@@ -1,6 +1,5 @@
 package bot.core.control.messageProcessing;
 
-import bot.core.Main;
 import bot.core.control.SessionController;
 import bot.core.model.Session;
 import bot.core.model.MessageContext;
@@ -20,7 +19,7 @@ public class CommonMessageProcessor implements MessageProcessor {
         MessageContext ctx = new MessageContext(update.getMessage());
         Session session = SessionController.getInstance()
                 .openSessionIfNeeded(update.getMessage().getFrom());
-        return !ctx.isCommand() && !ctx.isFromGroup() && session.getState().isCommonState();
+        return !ctx.isCommand() && ctx.notFromGroup() && session.getState().isCommonState();
     }
 
     @Override
@@ -52,15 +51,16 @@ public class CommonMessageProcessor implements MessageProcessor {
             return;
         }
 
-        //todo иногда валидатор отрабатывает долго, мб какой-то прогресс бар
 
-        if (validator.isValidPayment(ctx.getMessage())) {
+        if (validator.isValidPayment(ctx.message())) {
             ChatUtils.addInGroup(userId, session.getGroupId(), "Автоматическая проверка");
             log.info("Автоматическая проверка подтвердила оплату");
         } else {
             validator.sendOuHumanValidation(ctx);
-            ChatUtils.sendMessage(userId, "Ваше подтверждение отправлено на проверку. Пожалуйста, подождите.\n \n" +
-                    "Как только проверка завершится, бот пришлет вам ссылку для вступления в группу.");
+            ChatUtils.sendMessage(userId, """
+                    Ваше подтверждение отправлено на проверку. Пожалуйста, подождите.
+                    \s
+                    Как только проверка завершится, бот пришлет вам ссылку для вступления в группу.""");
         }
     }
 }

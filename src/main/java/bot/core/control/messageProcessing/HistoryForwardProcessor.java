@@ -23,7 +23,7 @@ public class HistoryForwardProcessor implements MessageProcessor {
         return !message.isCommand() &&
                 !state.isEditingHelp() &&
                 !state.isEditingInfo() &&
-                !message.isFromGroup() &&
+                message.notFromGroup() &&
                 (message.hasText() || message.hasPayment());
     }
 
@@ -32,11 +32,9 @@ public class HistoryForwardProcessor implements MessageProcessor {
     public void process(Update update) {
         if (!update.hasMessage()) return;
         MessageContext message = new MessageContext(update.getMessage());
-        Session session = SessionController.getInstance()
-                .getUserSession(message.getFromId());
         ForwardMessage forwardMessage = new ForwardMessage();
         forwardMessage.setChatId(Main.dataUtils.getHistoryId());
-        forwardMessage.setMessageId(message.getMessage().getMessageId());
+        forwardMessage.setMessageId(message.message().getMessageId());
         forwardMessage.setFromChatId(message.getChatId());
 
         try {

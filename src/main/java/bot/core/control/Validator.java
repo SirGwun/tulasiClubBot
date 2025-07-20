@@ -18,7 +18,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
+import java.net.URI;
 
 
 public class Validator {
@@ -35,7 +35,7 @@ public class Validator {
                     String fileId = document.getFileId();
                     GetFile getFileMethod = new GetFile(fileId);
                     String fileUrl = Main.bot.execute(getFileMethod).getFileUrl(Main.dataUtils.getBotToken());
-                    documentText = extractTextFromPDF(new URL(fileUrl).openStream());
+                    documentText = extractTextFromPDF(URI.create(fileUrl).toURL().openStream());
                     return validatePDFText();
                 } catch (TelegramApiException e) {
                     Main.log.error("Ошибка при получении файла {}", fileName);
@@ -57,7 +57,7 @@ public class Validator {
             ForwardMessage forwardMessage = new ForwardMessage();
             forwardMessage.setChatId(Main.dataUtils.getAdminId());
             forwardMessage.setFromChatId(ctx.getChatId());
-            forwardMessage.setMessageId(ctx.getMessage().getMessageId());
+            forwardMessage.setMessageId(ctx.message().getMessageId());
             Message forwardedMessage = Main.bot.execute(forwardMessage);
 
             SendMessage sendMessage = new SendMessage();
