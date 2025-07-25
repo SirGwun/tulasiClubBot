@@ -1,6 +1,5 @@
 package quizbot.core;
 
-import bot.core.Main;
 import bot.core.util.DataUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +15,6 @@ import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 import quizbot.model.Session;
@@ -24,7 +22,10 @@ import quizbot.test.TestLoader;
 import quizbot.test.Test;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.Optional;
 import java.util.Properties;
 
@@ -117,6 +118,7 @@ public class QuizBot extends TelegramLongPollingBot {
                 if (test != null) {
                     test.registerAnswer(score);
                     sendNextQuestion(session, cb.getMessage().getChatId());
+                    sessions.save();
                 } else {
                     SendMessage sm = SendMessage.builder()
                             .chatId(cb.getMessage().getChatId().toString())
@@ -165,14 +167,24 @@ public class QuizBot extends TelegramLongPollingBot {
             sm.setReplyMarkup(KeyboardFactory.answerButtons());
             execute(sm);
         } else if (test.isFinished()) {
+            Path path = Paths.get(data, "result.txt");
+            try {
+                Files.createDirectories(path.getParent());
+                Files.writeString(path, test.result().toString() + System.lineSeparator(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+            } catch (IOException e) {
+                log.error("Ошибка при записи результата теста");
+            }
+
             SendMessage sm = new SendMessage();
             sm.setChatId(String.valueOf(chatId));
             sm.setText(test.result().toString());
+
             execute(sm);
             sessions.remove(session.getUserId());
 
             sendMainMenu("Если хотите - выберете следующий тест", chatId);
         }
+
     }
 
     private void sendMainMenu(String text, Long chatId) throws TelegramApiException {

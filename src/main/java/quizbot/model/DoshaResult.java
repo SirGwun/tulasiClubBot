@@ -7,11 +7,17 @@ public class DoshaResult {
     private final int vata;
     private final int pitta;
     private final int kapha;
+    private final int vataPeak;
+    private final int pittaPeak;
+    private final int kaphaPeak;
 
-    public DoshaResult(int vata, int pitta, int kapha) {
+    public DoshaResult(int vata, int pitta, int kapha, int vataPeak, int pittaPeak, int kaphaPeak) {
         this.vata = vata;
         this.pitta = pitta;
         this.kapha = kapha;
+        this.vataPeak = vataPeak;
+        this.pittaPeak = pittaPeak;
+        this.kaphaPeak = kaphaPeak;
     }
 
     public int getVata() {
@@ -52,9 +58,9 @@ public class DoshaResult {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("Вата: ").append(vata).append("\n")
-          .append("Питта: ").append(pitta).append("\n")
-          .append("Капха: ").append(kapha).append("\n\n");
+        sb.append("Вата: ").append(vata).append(" ,точных совпадений - ").append(vataPeak).append("\n")
+          .append("Питта: ").append(pitta).append(" ,точных совпадений - ").append(pittaPeak).append("\n")
+          .append("Капха: ").append(kapha).append(" ,точных совпадений - ").append(kaphaPeak).append("\n\n");
         sb.append("Превалирует - ").append(dominant()).append('.');
         return sb.toString();
     }
