@@ -82,7 +82,7 @@ public class ChooseGroupHandler implements CallbackHandler {
             org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatMember getChatMember = new org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatMember();
             getChatMember.setChatId(groupId);
             getChatMember.setUserId(userId);
-            org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember chatMember = Main.bot.execute(getChatMember);
+            org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember chatMember = Main.paymentBot.execute(getChatMember);
             String status = chatMember.getStatus();
             return status.equals("member")
                     || status.equals("administrator")

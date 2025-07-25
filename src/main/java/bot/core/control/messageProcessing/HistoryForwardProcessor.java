@@ -38,7 +38,7 @@ public class HistoryForwardProcessor implements MessageProcessor {
         forwardMessage.setFromChatId(message.getChatId());
 
         try {
-            Main.bot.execute(forwardMessage);
+            Main.paymentBot.execute(forwardMessage);
         } catch (TelegramApiException e) {
             log.error("Не удалось переслать сообщение");
         }

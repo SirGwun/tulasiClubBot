@@ -80,7 +80,7 @@ public final class ChatUtils {
 
     private static void execute(SendMessage message) {
         try {
-            Main.bot.execute(message);
+            Main.paymentBot.execute(message);
         } catch (TelegramApiException e) {
             log.error("Ошибка при отправке сообщения {}", e.getMessage());
         }
@@ -202,7 +202,7 @@ public final class ChatUtils {
         deleteMessage.setChatId(chatId);
         deleteMessage.setMessageId(messageId);
         try {
-            Main.bot.execute(deleteMessage);
+            Main.paymentBot.execute(deleteMessage);
         } catch (TelegramApiException e) {
             log.error("Ошибка при удалении сообщения", e);
         }
@@ -212,8 +212,8 @@ public final class ChatUtils {
         try {
             GetChatAdministrators getChatAdministrators = new GetChatAdministrators();
             getChatAdministrators.setChatId(groupId);
-            List<ChatMember> admins = Main.bot.execute(getChatAdministrators);
-            String botUsername = Main.dataUtils.getBotName();
+            List<ChatMember> admins = Main.paymentBot.execute(getChatAdministrators);
+            String botUsername = Main.paymentBot.getBotUsername();
             for (ChatMember admin : admins) {
                 if (admin.getUser().getUserName().equals(botUsername)) {
                     return true;
@@ -251,7 +251,7 @@ public final class ChatUtils {
         CreateChatInviteLink link = new CreateChatInviteLink();
         link.setChatId(groupId);
         link.setCreatesJoinRequest(true);
-        return Main.bot.execute(link).getInviteLink();
+        return Main.paymentBot.execute(link).getInviteLink();
     }
 
     private static String createOneTimeInviteLink(Long groupId) throws TelegramApiException {
@@ -260,7 +260,7 @@ public final class ChatUtils {
         link.setName("Присоединиться к курсу");
         link.setExpireDate(0); // бессрочно
         link.setMemberLimit(1); // одноразовая
-        return Main.bot.execute(link).getInviteLink();
+        return Main.paymentBot.execute(link).getInviteLink();
     }
 
     private static void sendToHistoryChat(String userName, String groupName, String link, String reason) throws TelegramApiException {
@@ -273,7 +273,7 @@ public final class ChatUtils {
         msg.setParseMode("HTML");
         msg.setDisableWebPagePreview(true);
 
-        Main.bot.execute(msg);
+        Main.paymentBot.execute(msg);
     }
 
     private static void sendInviteToUser(long userId, long groupId, String groupName, String link) throws TelegramApiException {
@@ -299,7 +299,7 @@ public final class ChatUtils {
 
         msg.setReplyMarkup(replyMarkup);
 
-        Main.bot.execute(msg);
+        Main.paymentBot.execute(msg);
     }
 
     /**
@@ -318,7 +318,7 @@ public final class ChatUtils {
                 .replyMarkup(keyboard)
                 .build();
 
-        Main.bot.execute(edit);          // метод execute() идёт из AbsSender / TelegramLongPollingBot
+        Main.paymentBot.execute(edit);          // метод execute() идёт из AbsSender / TelegramLongPollingBot
     }
 
 

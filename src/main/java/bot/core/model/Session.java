@@ -45,7 +45,7 @@ public class Session implements Serializable {
         if (userName == null) {
             GetChat getChat = new GetChat(String.valueOf(userId));
             try {
-                Chat chat = Main.bot.execute(getChat);
+                Chat chat = Main.paymentBot.execute(getChat);
                 userName = chat.getUserName();
                 String firstName = chat.getFirstName();
                 String lastName = chat.getLastName();

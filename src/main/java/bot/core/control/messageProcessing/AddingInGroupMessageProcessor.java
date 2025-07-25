@@ -23,7 +23,7 @@ public class AddingInGroupMessageProcessor implements MessageProcessor {
     private boolean isBotAddedToGroup(Update update) {
         if (!update.hasMyChatMember()) return false;
         User user = update.getMyChatMember().getNewChatMember().getUser();
-        return user.getUserName().equalsIgnoreCase(Main.dataUtils.getBotName());
+        return user.getUserName().equalsIgnoreCase(Main.paymentBot.getBotUsername());
     }
 
     @Override

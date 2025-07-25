@@ -75,7 +75,7 @@ public class CallbackProcessor implements MessageProcessor {
         try {
             AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery();
             answerCallbackQuery.setCallbackQueryId(callbackQuery.getId());
-            Main.bot.execute(answerCallbackQuery);
+            Main.paymentBot.execute(answerCallbackQuery);
         } catch (TelegramApiException e) {
             log.error("Ошибка при отправке ответа на CallbackQuery", e);
         }

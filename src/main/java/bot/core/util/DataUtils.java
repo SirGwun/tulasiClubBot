@@ -1,7 +1,7 @@
 package bot.core.util;
 
 import bot.core.Main;
-import bot.core.control.TimerController;
+import bot.core.model.TimerController;
 import bot.core.model.Session;
 import bot.core.model.Group;
 import ch.qos.logback.classic.LoggerContext;
@@ -25,7 +25,8 @@ import java.util.*;
 public final class DataUtils {
     private final static Logger log = LoggerFactory.getLogger(DataUtils.class);
 
-    private final String base;
+    private final boolean amvera = System.getenv("AMVERA") != null && System.getenv("AMVERA").equals("1");
+    private final String base = amvera ? "/data/" : "data/";
     private final String configPath;
     private final String groupListPath;
     private final String helpPath;
@@ -33,8 +34,6 @@ public final class DataUtils {
     private final String catalogPath;
     private final String tagListPath;
 
-    private String botName;
-    private String botToken;
     private long adminChatID;
     private long favoriteGroupID;
     private int timerMinutes;
@@ -42,13 +41,13 @@ public final class DataUtils {
     private final Properties config = new Properties();
     private List<Group> groupList = new ArrayList<>();
 
+    private Connection connection;
+
     /**
      * Create a new instance and load configuration and group list.
      * Paths are resolved depending on the environment.
      */
     public DataUtils() {
-        boolean amvera = System.getenv("AMVERA") != null && System.getenv("AMVERA").equals("1");
-        base = amvera ? "/data/" : "data/";
         this.configPath = base + "config.properties";
         this.groupListPath = base + "groupList.ser";
         this.helpPath = base + "help.txt";
@@ -56,26 +55,7 @@ public final class DataUtils {
         this.catalogPath = base + "catalog.txt";
         this.tagListPath = base + "tagList.txt";
 
-        if (amvera) {
-            loadProdLogger();
-            botToken = System.getenv("BOTTOCKEN");
-            botName = System.getenv("BOTNAME");
-            log.info("Запущено в AMVERA");
-        } else {
-            try (InputStream secretInput = DataUtils.class.getClassLoader().getResourceAsStream("secret.properties")) {
-                if (secretInput == null) {
-                    throw new FileNotFoundException("secret.properties not found");
-                }
-                Properties secretProperties = new Properties();
-                secretProperties.load(secretInput);
-                botToken = secretProperties.getProperty("botToken");
-                botName = secretProperties.getProperty("botName");
-                log.info("Запущено в LOCAL");
-            } catch (IOException ex) {
-                Main.log.error("unable to read secret.properties: {}", ex.getMessage());
-            }
-        }
-
+        if (amvera) loadProdLogger();
         loadConfig();
         loadGroupList();
     }
@@ -217,21 +197,6 @@ public final class DataUtils {
         }
     }
 
-    public String getBotToken() {
-        return botToken;
-    }
-
-    public void testMode() {
-        setBotName("harmoniousNutritionBot");
-        Properties secretProperties = new Properties();
-        try (InputStream input = DataUtils.class.getClassLoader().getResourceAsStream("secret.properties")) {
-            secretProperties.load(input);
-            botToken = secretProperties.getProperty("testBotToken");
-            botName = secretProperties.getProperty("testBotName");
-        } catch (IOException ex) {
-            log.error(ex.getMessage());
-        }
-    }
 
     public long getAdminId() {
         return adminChatID;
@@ -239,14 +204,6 @@ public final class DataUtils {
 
     public long getFavoriteGroupId() {
         return favoriteGroupID;
-    }
-
-    public String getBotName() {
-        return botName;
-    }
-
-    public void setBotName(String botName) {
-        this.botName = botName;
     }
 
     public String getHelp() {
@@ -289,7 +246,7 @@ public final class DataUtils {
             try {
                 LeaveChat leaveChat = new LeaveChat();
                 leaveChat.setChatId(groupId);
-                Main.bot.execute(leaveChat);
+                Main.paymentBot.execute(leaveChat);
             } catch (TelegramApiException e) {
                 log.warn("Не удалось выйти из группы {}", removeGroup.getName());
             }
@@ -426,7 +383,7 @@ public final class DataUtils {
 
     public void storeTimer(TimerController.Timer timer) {
         String sql = "INSERT INTO timers(userId, groupId, time, startTime) VALUES (?, ?, ?, ?)";
-        try (Connection connection = DriverManager.getConnection("jdbc:sqlite:" + base + "DataBase.db");
+        try (Connection connection = getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql))
         {
             stmt.setLong(1, timer.getUserId());
@@ -439,27 +396,26 @@ public final class DataUtils {
                     timer.getUserId(), timer.getGroupId(), ex.getMessage());
         }
     }
-
-    public void unstoreTimer(TimerController.Timer timer) {
+    public void unstoreTimer(Long userId, Long groupId) {
         String sql = "DELETE FROM timers WHERE userId=? AND groupId=?;";
-        try (Connection connection = DriverManager.getConnection("jdbc:sqlite:" + base + "DataBase.db");
+        try (Connection connection = getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql))
         {
-            stmt.setLong(1, timer.getUserId());
-            stmt.setLong(2, timer.getGroupId());
+            stmt.setLong(1, userId);
+            stmt.setLong(2, groupId);
             int affectedRows = stmt.executeUpdate();
             if (affectedRows == 0) {
                 log.debug("No records deleted for userId={}, groupId={}",
-                        timer.getUserId(), timer.getGroupId());
+                        userId, groupId);
             }
         } catch (SQLException ex) {
             log.warn("Failed to delete timer for userId={}, groupId={}: {}",
-                    timer.getUserId(), timer.getGroupId(), ex.getMessage());
+                    userId, groupId, ex.getMessage());
         }
     }
 
     public void loadTimers() {
-        try (Connection connection = DriverManager.getConnection("jdbc:sqlite:" + base + "DataBase.db");
+        try (Connection connection = getConnection();
              Statement statement = connection.createStatement()) {
             ResultSet resultSet = statement.executeQuery("SELECT * FROM timers");
             while (resultSet.next()) {
@@ -474,6 +430,7 @@ public final class DataUtils {
                 } else {
                     log.info("user {} added in group {} by timer", userId, Main.dataUtils.getGroupName(groupId));
                     ChatUtils.addInGroup(userId, groupId, "Добавлен по таймеру");
+                    unstoreTimer(userId, groupId);
                 }
             }
             resultSet.getLong(1);
@@ -481,6 +438,14 @@ public final class DataUtils {
             log.warn("Failed to load timers");
         }
     }
+
+    private Connection getConnection() throws SQLException {
+        if (connection == null) {
+            connection = DriverManager.getConnection("jdbc:sqlite:" + base + "DataBase.db");
+        }
+        return connection;
+    }
+
 }
 
 

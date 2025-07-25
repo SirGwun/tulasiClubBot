@@ -6,16 +6,19 @@ import java.util.List;
 import java.util.Optional;
 
 public class Test {
+    public final String name;
     private final List<List<String>> blocks;
     private int currentBlock = 0;
     private int currentQuestion = 0;
     private final int[] scores = new int[3];
 
-    public Test(List<List<String>> blocks) {
+    public Test(String name, List<List<String>> blocks) {
+        this.name = name;
         this.blocks = blocks;
     }
 
     public Optional<String> nextQuestion() {
+        System.out.println(scores[0] + " " + scores[1] + " " + scores[2]);
         if (currentBlock >= blocks.size()) {
             return Optional.empty();
         }
@@ -43,9 +46,5 @@ public class Test {
 
     public DoshaResult result() {
         return new DoshaResult(scores[0], scores[1], scores[2]);
-    }
-
-    public static Test fromBlocks(List<List<String>> blocks) {
-        return new Test(blocks);
     }
 }

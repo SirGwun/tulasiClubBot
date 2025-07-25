@@ -1,26 +1,34 @@
 package bot.core;
 
 import bot.core.control.Command;
-import bot.core.control.Validator;
 import bot.core.control.messageProcessing.CallbackProcessor;
 import bot.core.control.messageProcessing.*;
 
+import bot.core.util.DataUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeAllPrivateChats;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeChat;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 
 public class PaymentBot extends TelegramLongPollingBot {
+    private static final String token;
+    private static final String name;
+
     private static final Logger log = LoggerFactory.getLogger(PaymentBot.class);
-    Validator validator;
-    HistoryForwardProcessor historyForwardProcessor  = new HistoryForwardProcessor();
-    List<MessageProcessor> processors = Arrays.asList(
+    private final HistoryForwardProcessor historyForwardProcessor  = new HistoryForwardProcessor();
+    private final List<MessageProcessor> processors = Arrays.asList(
             new AddingInGroupMessageProcessor(),
             new CallbackProcessor(),
             new CommandMessageProcessor(),
@@ -29,8 +37,47 @@ public class PaymentBot extends TelegramLongPollingBot {
             new EditPaymentInfoProcessor()
     );
 
-    public PaymentBot(String botToken) {
-        super(botToken);
+    static {
+        boolean amvera = System.getenv("AMVERA") != null && System.getenv("AMVERA").equals("1");
+
+        if (amvera) {
+            token = System.getenv( "BOTTOCKEN");
+            name = System.getenv("BOTNAME");
+        } else {
+            try (InputStream secretInput = DataUtils.class.getClassLoader().getResourceAsStream("secret.properties")) {
+                if (secretInput == null) {
+                    throw new FileNotFoundException("secret.properties not found");
+                }
+                Properties secretProperties = new Properties();
+                secretProperties.load(secretInput);
+                if (Main.test) {
+                    token = secretProperties.getProperty("testBotToken");
+                    name = secretProperties.getProperty("testBotName");
+                } else {
+                    token = secretProperties.getProperty("botToken");
+                    name = secretProperties.getProperty("botName");
+                }
+            } catch (IOException e) {
+                log.error("Не удалось прочитать токен и имя PaymentBot бота");
+                throw new RuntimeException("Не удалось загрузить секреты", e);
+            }
+            log.info("PaymentBot инициализирован");
+        }
+    }
+
+    public PaymentBot() {
+        super(token);
+        try {
+            TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
+            telegramBotsApi.registerBot(this);
+            log.info("{} запущен", name);
+        } catch (TelegramApiException e) {
+            log.error("Ошибка при инициализации бота {}", e.getMessage());
+        }
+    }
+
+    public static String getToken() {
+        return token;
     }
 
     @Override
@@ -57,14 +104,13 @@ public class PaymentBot extends TelegramLongPollingBot {
 
     @Override
     public String getBotUsername() {
-        return Main.dataUtils.getBotName();
+        return name;
     }
 
     @Override
     public void onRegister() {
         super.onRegister();
         setBotCommands();
-        validator = new Validator();
     }
 
     private void setBotCommands() {

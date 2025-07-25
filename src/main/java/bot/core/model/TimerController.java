@@ -1,4 +1,4 @@
-package bot.core.control;
+package bot.core.model;
 
 import bot.core.Main;
 import bot.core.util.ChatUtils;
@@ -42,7 +42,6 @@ public class TimerController {
             return;
         }
         log.info("timer stop");
-        Main.dataUtils.unstoreTimer(timer);
         timers.get(timer).interrupt();
     }
 
@@ -85,6 +84,7 @@ public class TimerController {
             } catch (InterruptedException e) {
                 log.info("timer interrupted");
             } finally {
+                Main.dataUtils.unstoreTimer(userId, groupId);
                 timers.remove(this);
             }
         }

@@ -33,9 +33,9 @@ public class DoshaResult {
         if (countMax > 1) {
             return "Mixed"; // unusual but handle gracefully
         }
-        if (max == vata) return "Vata";
-        if (max == pitta) return "Pitta";
-        return "Kapha";
+        if (max == vata) return "Вата";
+        if (max == pitta) return "Питта";
+        return "Капха";
     }
 
     public boolean isDoubleType() {
@@ -52,13 +52,10 @@ public class DoshaResult {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("Vata: ").append(vata).append("\n")
-          .append("Pitta: ").append(pitta).append("\n")
-          .append("Kapha: ").append(kapha).append("\n\n");
-        sb.append("Leading - ").append(dominant()).append('.');
-        if (isDoubleType()) {
-            sb.append(" Mixed type detected.");
-        }
+        sb.append("Вата: ").append(vata).append("\n")
+          .append("Питта: ").append(pitta).append("\n")
+          .append("Капха: ").append(kapha).append("\n\n");
+        sb.append("Превалирует - ").append(dominant()).append('.');
         return sb.toString();
     }
 }

@@ -1,7 +1,9 @@
 package bot.core.control;
 
 import bot.core.Main;
+import bot.core.PaymentBot;
 import bot.core.model.MessageContext;
+import bot.core.model.TimerController;
 import bot.core.util.ChatUtils;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -33,8 +35,7 @@ public class Validator {
                 try {
                     log.info("Получен файл {}", fileName);
                     String fileId = document.getFileId();
-                    GetFile getFileMethod = new GetFile(fileId);
-                    String fileUrl = Main.bot.execute(getFileMethod).getFileUrl(Main.dataUtils.getBotToken());
+                    String fileUrl = Main.paymentBot.execute(new GetFile(fileId)).getFileUrl(PaymentBot.getToken());
                     documentText = extractTextFromPDF(URI.create(fileUrl).toURL().openStream());
                     return validatePDFText();
                 } catch (TelegramApiException e) {
@@ -62,7 +63,7 @@ public class Validator {
             forwardMessage.setChatId(Main.dataUtils.getAdminId());
             forwardMessage.setFromChatId(ctx.getChatId());
             forwardMessage.setMessageId(ctx.message().getMessageId());
-            Message forwardedMessage = Main.bot.execute(forwardMessage);
+            Message forwardedMessage = Main.paymentBot.execute(forwardMessage);
 
             SendMessage sendMessage = new SendMessage();
             sendMessage.setChatId(Main.dataUtils.getAdminId());
@@ -72,7 +73,7 @@ public class Validator {
             sendMessage.setReplyMarkup(ChatUtils.getValidationKeyboard(forwardedMessage.getMessageId(), userId));
             sendMessage.setDisableWebPagePreview(true);
 
-            Main.bot.execute(sendMessage);
+            Main.paymentBot.execute(sendMessage);
         } catch (TelegramApiException e) {
             Main.log.error("Ошибка при отправке сообщения администратору", e);
         }
@@ -81,7 +82,7 @@ public class Validator {
         CreateChatInviteLink link = new CreateChatInviteLink();
         link.setChatId(groupId);
         link.setCreatesJoinRequest(true);
-        return Main.bot.execute(link).getInviteLink();
+        return Main.paymentBot.execute(link).getInviteLink();
     }
 
     public String extractTextFromPDF(PDDocument document) {

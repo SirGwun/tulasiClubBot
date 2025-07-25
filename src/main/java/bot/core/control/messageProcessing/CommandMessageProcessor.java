@@ -312,7 +312,7 @@ public class CommandMessageProcessor implements MessageProcessor {
             if (targetId == null) {
                 try {
                     GetChat getChat = new GetChat("@" + username);
-                    Chat chat = Main.bot.execute(getChat);
+                    Chat chat = Main.paymentBot.execute(getChat);
                     targetId = chat.getId();
                 } catch (TelegramApiException e) {
                     log.warn("Unable to find user via Telegram API: {}", e.getMessage());

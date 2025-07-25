@@ -2,7 +2,7 @@ package bot.core.control.callbackHandlers;
 
 import bot.core.Main;
 import bot.core.control.SessionController;
-import bot.core.control.TimerController;
+import bot.core.model.TimerController;
 import bot.core.util.ChatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,12 +87,12 @@ public class DeclineHandler implements CallbackHandler {
                     ban.setChatId(String.valueOf(groupId));
                     ban.setUserId(targetUserId);
                     ban.setUntilDate((int) Instant.now().getEpochSecond() + 60);
-                    Main.bot.execute(ban);
+                    Main.paymentBot.execute(ban);
 
                     UnbanChatMember unban = new UnbanChatMember();
                     unban.setChatId(String.valueOf(groupId));
                     unban.setUserId(targetUserId);
-                    Main.bot.execute(unban);
+                    Main.paymentBot.execute(unban);
                     log.info("User {} was kicked from group {}", userName, groupId);
 
                     ChatUtils.sendMessage(Long.parseLong(Main.dataUtils.getHistoryId()),
@@ -116,7 +116,7 @@ public class DeclineHandler implements CallbackHandler {
             GetChatMember getChatMember = new GetChatMember();
             getChatMember.setChatId(groupId);
             getChatMember.setUserId(userId);
-            ChatMember chatMember = Main.bot.execute(getChatMember);
+            ChatMember chatMember = Main.paymentBot.execute(getChatMember);
             String status = chatMember.getStatus();
             return status.equals("member")
                     || status.equals("administrator")
