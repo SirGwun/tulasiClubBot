@@ -26,7 +26,7 @@ public class Main {
     }
 
     public static void init() {
-        //dataUtils.checkAdminRights();
+        dataUtils.checkAdminRights();
         dataUtils.loadTimers();
     }
 }

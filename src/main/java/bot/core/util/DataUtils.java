@@ -186,6 +186,7 @@ public final class DataUtils {
             }
             groupList.add(group);
         }
+        log.info("Loaded {} groups", groupList.size());
         this.groupList = groupList;
     }
 

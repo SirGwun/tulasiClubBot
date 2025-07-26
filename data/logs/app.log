@@ -1117,3 +1117,9 @@ org.apache.http.NoHttpResponseException: api.telegram.org:443 failed to respond
 2025-07-25 21:37:07 INFO  bot.core.PaymentBot - harmoniousNutritionBot запущен
 2025-07-25 21:37:07 INFO  quizbot.core.QuizBot - QuizBot инициализирован
 2025-07-25 21:37:07 INFO  quizbot.core.QuizBot - tulasiTestBot запущен
+2025-07-26 11:51:59 INFO  bot.core.util.DataUtils - Loaded 52 groups
+2025-07-26 11:51:59 INFO  bot.core.PaymentBot - PaymentBot инициализирован
+2025-07-26 11:52:01 INFO  bot.core.PaymentBot - tulasiClubBot запущен
+2025-07-26 11:52:06 INFO  quizbot.core.QuizBot - QuizBot инициализирован
+2025-07-26 11:52:06 INFO  quizbot.core.QuizBot - tulasiTestBot запущен
+2025-07-26 11:52:11 INFO  b.c.c.m.CommandMessageProcessor$CommandHandler - User 7066573077 use choose_course
