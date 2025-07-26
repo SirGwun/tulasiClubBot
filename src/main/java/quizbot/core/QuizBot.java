@@ -39,9 +39,9 @@ public class QuizBot extends TelegramLongPollingBot {
     static {
         if (System.getenv("AMVERA") != null && System.getenv("AMVERA").equals("1")) {
             data = "/data";
-            token = System.getenv( "TULASI_TEST_BOTTOCKEN");
+            token = System.getenv( "TESTBOTTOCKEN");
             System.out.println(token);
-            name = System.getenv("TULASI_TEST_BOTNAME");
+            name = System.getenv("TESTBOTNAME");
             System.out.println(name);
         } else {
             data = "data";
