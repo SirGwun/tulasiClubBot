@@ -21,6 +21,8 @@ import java.util.*;
 /** Utility methods for interacting with chats. */
 public final class ChatUtils {
     private static final Logger log = LoggerFactory.getLogger(ChatUtils.class);
+    public static final String ARROWED_STILE = "arrowed";
+    public static final String COMMON_STILE = "common";
 
     private ChatUtils() {
         // utility class
@@ -99,15 +101,15 @@ public final class ChatUtils {
     }
 
     public static InlineKeyboardMarkup getAllGroupKeyboard(Action callBack, Long userId) {
-        return getTaggedGroupKeyboard(callBack, userId, null);
+        return getTaggedGroupKeyboard(callBack, userId, null, COMMON_STILE);
     }
 
-    public static InlineKeyboardMarkup getTaggedGroupKeyboard(Action callBack, Long userId, String tag) {
+    public static InlineKeyboardMarkup getTaggedGroupKeyboard(Action callBack, Long userId, String tag, String style) {
         List<InlineKeyboardButton> buttons = getTagetButtonList(callBack, userId, tag);
         buttons.sort(Comparator.comparingInt(o -> Utils.firstPositiveNumber(o.getText())));
 
         InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup();
-        if (buttons.size() > 10)
+        if (style.equals(ARROWED_STILE))
             keyboard.setKeyboard(arrowedStyleKeyboard(buttons, tag, 0, Action.none));
         else
             keyboard.setKeyboard(distributeButtons(buttons));

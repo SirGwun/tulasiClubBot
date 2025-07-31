@@ -22,7 +22,9 @@ public class Main {
 
         paymentBot = new PaymentBot();
         init();
-        QuizBot quizBot = new QuizBot();
+        if (!test) {
+            QuizBot quizBot = new QuizBot();
+        }
     }
 
     public static void init() {

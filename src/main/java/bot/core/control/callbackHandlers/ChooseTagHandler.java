@@ -35,7 +35,7 @@ public class ChooseTagHandler extends AbstractCallbackHandler {
 
         log.debug("User {} press chooseTag button", user.getUserName());
 
-        InlineKeyboardMarkup keyboard = ChatUtils.getTaggedGroupKeyboard(Action.chooseGroup, user.getId(), tag);
+        InlineKeyboardMarkup keyboard = ChatUtils.getTaggedGroupKeyboard(Action.chooseGroup, user.getId(), tag, ChatUtils.ARROWED_STILE);
         if (keyboard.getKeyboard().isEmpty()) {
             log.warn("Вызов getTaggedGroupKeyboard без доступных групп");
             ChatUtils.sendMessage(user.getId(), "На данный момент нет доступных групп");
