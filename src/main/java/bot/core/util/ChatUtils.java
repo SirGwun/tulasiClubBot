@@ -109,7 +109,9 @@ public final class ChatUtils {
         buttons.sort(Comparator.comparingInt(o -> Utils.firstPositiveNumber(o.getText())));
 
         InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup();
-        if (style.equals(ARROWED_STILE))
+        if (buttons.size() <= 10 || style.equals(COMMON_STILE)) {
+            keyboard.setKeyboard(distributeButtons(buttons));
+        } else if (style.equals(ARROWED_STILE))
             keyboard.setKeyboard(arrowedStyleKeyboard(buttons, tag, 0, Action.none));
         else
             keyboard.setKeyboard(distributeButtons(buttons));
@@ -135,7 +137,7 @@ public final class ChatUtils {
 
     public static List<List<InlineKeyboardButton>> arrowedStyleKeyboard(List<InlineKeyboardButton> buttons, String tag, int index, Action action) {
         int MAX_BUTTONS_IN_PAGE = 10;
-        int left = 0, right = MAX_BUTTONS_IN_PAGE - 1;
+        int left = 0, right = Math.min(buttons.size() - 1, MAX_BUTTONS_IN_PAGE - 1);
         if (action == Action.rightArrow) {
             left = index + 1;
             right = Math.min(index + MAX_BUTTONS_IN_PAGE, buttons.size() - 1);
