@@ -13,6 +13,7 @@ public class Main {
     public static boolean test;
 
     public static void main(String[] args) {
+
         for (String arg : args) {
             if (arg.equals("--test")) {
                 test = true;
