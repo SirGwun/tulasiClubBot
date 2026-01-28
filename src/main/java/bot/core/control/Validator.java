@@ -35,7 +35,7 @@ public class Validator {
                 try {
                     log.info("Получен файл {}", fileName);
                     String fileId = document.getFileId();
-                    String fileUrl = Main.paymentBot.execute(new GetFile(fileId)).getFileUrl(PaymentBot.getToken());
+                    String fileUrl = Main.paymentBot.execute(new GetFile(fileId)).getFileUrl(Main.paymentBot.getBotToken());
                     documentText = extractTextFromPDF(URI.create(fileUrl).toURL().openStream());
                     return validatePDFText();
                 } catch (TelegramApiException e) {
