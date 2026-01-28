@@ -15,6 +15,7 @@ import org.telegram.telegrambots.meta.api.methods.GetFile;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.CreateChatInviteLink;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Document;
+import org.telegram.telegrambots.meta.api.objects.File;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
@@ -35,13 +36,13 @@ public class Validator {
                 try {
                     log.info("Получен файл {}", fileName);
                     String fileId = document.getFileId();
-                    String fileUrl = Main.paymentBot.execute(new GetFile(fileId)).getFileUrl(Main.paymentBot.getBotToken());
-                    documentText = extractTextFromPDF(URI.create(fileUrl).toURL().openStream());
+                    File file = Main.paymentBot.execute(new GetFile(fileId));
+                    InputStream is = Main.paymentBot.downloadFileAsStream(file);
+                    documentText = extractTextFromPDF(is);
+
                     return validatePDFText();
                 } catch (TelegramApiException e) {
                     Main.log.error("Ошибка при получении файла {}", fileName);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
                 }
             }
         }

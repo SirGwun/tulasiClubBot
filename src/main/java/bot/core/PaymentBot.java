@@ -53,11 +53,6 @@ public class PaymentBot extends TelegramLongPollingBot {
     }
 
     @Override
-    public String getBotToken() {
-        return config.getBotToken();
-    }
-
-    @Override
     public void onUpdateReceived(Update update) {
         if (update.hasMessage()) {
             Message message = update.getMessage();
