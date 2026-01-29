@@ -1,6 +1,6 @@
 package bot.core.control.callbackHandlers;
 
-import bot.core.Main;
+import bot.core.Legacy;
 import bot.core.control.SessionController;
 import bot.core.model.Group;
 import bot.core.util.ChatUtils;
@@ -52,7 +52,7 @@ public class ChooseGroupHandler implements CallbackHandler {
         long userId = cq.getMessage().getChatId();
         log.info("User {} set group {}", userId, groupId);
 
-        Group group = Main.dataUtils.getGroupById(groupId);
+        Group group = Legacy.dataUtils.getGroupById(groupId);
 
         if (group == null) {
             ChatUtils.sendMessage(userId, "Группа не найдена");
@@ -74,7 +74,7 @@ public class ChooseGroupHandler implements CallbackHandler {
 
 
     private boolean isItFavoriteUser(Long userId) {
-        return areUserInGroup(userId, Main.dataUtils.getFavoriteGroupId());
+        return areUserInGroup(userId, Legacy.dataUtils.getFavoriteGroupId());
     }
 
     private boolean areUserInGroup(long userId, long groupId) {
@@ -82,7 +82,7 @@ public class ChooseGroupHandler implements CallbackHandler {
             org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatMember getChatMember = new org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatMember();
             getChatMember.setChatId(groupId);
             getChatMember.setUserId(userId);
-            org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember chatMember = Main.paymentBot.execute(getChatMember);
+            org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember chatMember = Legacy.paymentBot.execute(getChatMember);
             String status = chatMember.getStatus();
             return status.equals("member")
                     || status.equals("administrator")

@@ -1,6 +1,6 @@
-package quizbot.model;
+package bot.core.quizbot.model;
 
-import quizbot.test.Test;
+import bot.core.quizbot.test.Test;
 
 import java.io.Serial;
 import java.io.Serializable;

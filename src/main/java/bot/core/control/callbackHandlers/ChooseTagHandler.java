@@ -1,6 +1,6 @@
 package bot.core.control.callbackHandlers;
 
-import bot.core.Main;
+import bot.core.Legacy;
 import bot.core.util.ChatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +30,7 @@ public class ChooseTagHandler extends AbstractCallbackHandler {
         String[] data = update.getCallbackQuery().getData().split("_");
         String tagId = data[1];
         User user = update.getCallbackQuery().getFrom();
-        Map<Integer, String> tagMap = Main.dataUtils.getTagMap();
+        Map<Integer, String> tagMap = Legacy.dataUtils.getTagMap();
         String tag = tagMap.get(Integer.parseInt(tagId));
 
         log.debug("User {} press chooseTag button", user.getUserName());

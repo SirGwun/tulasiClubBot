@@ -1,8 +1,8 @@
-package quizbot.core;
+package bot.core.quizbot.core;
 
+import bot.core.quizbot.model.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import quizbot.model.Session;
 
 import java.io.*;
 import java.nio.file.Files;

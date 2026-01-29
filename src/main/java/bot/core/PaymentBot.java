@@ -36,7 +36,7 @@ public class PaymentBot extends TelegramLongPollingBot {
     );
 
     public PaymentBot(Config config) {
-        super(config.getBotToken());
+        super(config.getMainBotToken());
         this.config = config;
         init();
     }
@@ -46,7 +46,7 @@ public class PaymentBot extends TelegramLongPollingBot {
             TelegramBotsApi telegramBotsApi =
                     new TelegramBotsApi(DefaultBotSession.class);
             telegramBotsApi.registerBot(this);
-            log.info("{} запущен", config.getBotName());
+            log.info("{} запущен", config.getMainBotName());
         } catch (TelegramApiException e) {
             throw new IllegalStateException(e);
         }
@@ -76,7 +76,7 @@ public class PaymentBot extends TelegramLongPollingBot {
 
     @Override
     public String getBotUsername() {
-        return name;
+        return config.getMainBotName();
     }
 
     @Override
@@ -106,7 +106,7 @@ public class PaymentBot extends TelegramLongPollingBot {
 
         try {
             execute(new SetMyCommands(defaultCommands, new BotCommandScopeAllPrivateChats(), null));
-            execute(new SetMyCommands(adminCommands, new BotCommandScopeChat(Long.toString(Main.dataUtils.getAdminId())), null));
+            execute(new SetMyCommands(adminCommands, new BotCommandScopeChat(Long.toString(Legacy.dataUtils.getAdminId())), null));
         } catch (Exception e) {
             log.error("Error setting bot commands {}", e.getMessage());
         }

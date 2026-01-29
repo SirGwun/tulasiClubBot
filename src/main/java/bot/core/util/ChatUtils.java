@@ -1,6 +1,6 @@
 package bot.core.util;
 
-import bot.core.Main;
+import bot.core.Legacy;
 import bot.core.control.SessionController;
 import bot.core.control.callbackHandlers.Action;
 import org.slf4j.Logger;
@@ -82,7 +82,7 @@ public final class ChatUtils {
 
     private static void execute(SendMessage message) {
         try {
-            Main.paymentBot.execute(message);
+            Legacy.paymentBot.execute(message);
         } catch (TelegramApiException e) {
             log.error("Ошибка при отправке сообщения {}", e.getMessage());
         }
@@ -120,14 +120,14 @@ public final class ChatUtils {
 
     public static List<InlineKeyboardButton> getTagetButtonList(Action callBack, Long userId, String tag) {
         List<InlineKeyboardButton> buttons = new ArrayList<>();
-        List<Group> groupList = Main.dataUtils.getGroupList();
+        List<Group> groupList = Legacy.dataUtils.getGroupList();
         for (Group group : groupList) {
             if (group.getTag().equals(tag) || tag == null) {
                 String groupName = group.getName();
                 Long groupId = group.getId();
                 if (group.isBotAdmin()) {
                     buttons.add(Utils.createButton(groupName, callBack + "_" + groupId));
-                } else if (Main.dataUtils.getAdminId() == userId) {
+                } else if (Legacy.dataUtils.getAdminId() == userId) {
                     buttons.add(Utils.createButton("!" + groupName, callBack + "_" + groupId));
                 }
             }
@@ -150,12 +150,12 @@ public final class ChatUtils {
         List<InlineKeyboardButton> arrows = new ArrayList<>(2);
         if (left > 0) {
             InlineKeyboardButton leftArrow = new InlineKeyboardButton("⬅️ Назад");
-            leftArrow.setCallbackData(Action.leftArrow + "_" + Main.dataUtils.getTagId(tag) + "_" + left); //try
+            leftArrow.setCallbackData(Action.leftArrow + "_" + Legacy.dataUtils.getTagId(tag) + "_" + left); //try
             arrows.add(leftArrow);
         }
         if (right < buttons.size() - 1) {
             InlineKeyboardButton rightArrow = new InlineKeyboardButton("Далее ➡️");
-            rightArrow.setCallbackData(Action.rightArrow + "_" + Main.dataUtils.getTagId(tag) + "_" + right);
+            rightArrow.setCallbackData(Action.rightArrow + "_" + Legacy.dataUtils.getTagId(tag) + "_" + right);
             arrows.add(rightArrow);
         }
 
@@ -188,7 +188,7 @@ public final class ChatUtils {
 
 
     public static InlineKeyboardMarkup getAllTagKeyboard(Action callback) {
-        Map<Integer, String> tags = Main.dataUtils.getTagMap();
+        Map<Integer, String> tags = Legacy.dataUtils.getTagMap();
         List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
         for (Map.Entry<Integer, String> entry : tags.entrySet()) {
             InlineKeyboardButton button = new InlineKeyboardButton(entry.getValue());
@@ -206,7 +206,7 @@ public final class ChatUtils {
         deleteMessage.setChatId(chatId);
         deleteMessage.setMessageId(messageId);
         try {
-            Main.paymentBot.execute(deleteMessage);
+            Legacy.paymentBot.execute(deleteMessage);
         } catch (TelegramApiException e) {
             log.error("Ошибка при удалении сообщения", e);
         }
@@ -216,8 +216,8 @@ public final class ChatUtils {
         try {
             GetChatAdministrators getChatAdministrators = new GetChatAdministrators();
             getChatAdministrators.setChatId(groupId);
-            List<ChatMember> admins = Main.paymentBot.execute(getChatAdministrators);
-            String botUsername = Main.paymentBot.getBotUsername();
+            List<ChatMember> admins = Legacy.paymentBot.execute(getChatAdministrators);
+            String botUsername = Legacy.paymentBot.getBotUsername();
             for (ChatMember admin : admins) {
                 if (admin.getUser().getUserName().equals(botUsername)) {
                     return true;
@@ -230,7 +230,7 @@ public final class ChatUtils {
     }
 
     public static void addInGroup(long userId, Long groupId, String reason) {
-        String groupName = Main.dataUtils.getGroupName(groupId);
+        String groupName = Legacy.dataUtils.getGroupName(groupId);
         if (groupName == null) {
             log.error("Попытка добавить в неизвестную группу {}", groupId);
             return;
@@ -255,7 +255,7 @@ public final class ChatUtils {
         CreateChatInviteLink link = new CreateChatInviteLink();
         link.setChatId(groupId);
         link.setCreatesJoinRequest(true);
-        return Main.paymentBot.execute(link).getInviteLink();
+        return Legacy.paymentBot.execute(link).getInviteLink();
     }
 
     private static String createOneTimeInviteLink(Long groupId) throws TelegramApiException {
@@ -264,7 +264,7 @@ public final class ChatUtils {
         link.setName("Присоединиться к курсу");
         link.setExpireDate(0); // бессрочно
         link.setMemberLimit(1); // одноразовая
-        return Main.paymentBot.execute(link).getInviteLink();
+        return Legacy.paymentBot.execute(link).getInviteLink();
     }
 
     private static void sendToHistoryChat(String userName, String groupName, String link, String reason) throws TelegramApiException {
@@ -272,12 +272,12 @@ public final class ChatUtils {
                 "<a href=\"" + link + "\">" + groupName + "</a>\nПричина: " + reason;
 
         SendMessage msg = new SendMessage();
-        msg.setChatId(Main.dataUtils.getHistoryId());
+        msg.setChatId(Legacy.dataUtils.getHistoryId());
         msg.setText(message);
         msg.setParseMode("HTML");
         msg.setDisableWebPagePreview(true);
 
-        Main.paymentBot.execute(msg);
+        Legacy.paymentBot.execute(msg);
     }
 
     private static void sendInviteToUser(long userId, long groupId, String groupName, String link) throws TelegramApiException {
@@ -303,7 +303,7 @@ public final class ChatUtils {
 
         msg.setReplyMarkup(replyMarkup);
 
-        Main.paymentBot.execute(msg);
+        Legacy.paymentBot.execute(msg);
     }
 
     /**
@@ -322,7 +322,7 @@ public final class ChatUtils {
                 .replyMarkup(keyboard)
                 .build();
 
-        Main.paymentBot.execute(edit);          // метод execute() идёт из AbsSender / TelegramLongPollingBot
+        Legacy.paymentBot.execute(edit);          // метод execute() идёт из AbsSender / TelegramLongPollingBot
     }
 
 

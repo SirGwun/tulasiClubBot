@@ -1,14 +1,16 @@
 package bot.core.util;
 
-import bot.core.Main;
+import bot.core.Legacy;
 import bot.core.model.TimerController;
 import bot.core.model.Session;
 import bot.core.model.Group;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
+import jakarta.inject.Singleton;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.LeaveChat;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
@@ -22,6 +24,9 @@ import java.util.*;
  * Utility class that stores configuration and helper data for the bot.
  * All state is kept in instance fields instead of static ones.
  */
+
+@Singleton
+@Component
 public final class DataUtils {
     private final static Logger log = LoggerFactory.getLogger(DataUtils.class);
 
@@ -105,7 +110,7 @@ public final class DataUtils {
         try (OutputStream configOutput = new FileOutputStream(configPath)) {
             config.store(configOutput, null);
         } catch (IOException ex) {
-            Main.log.error("Can't save config {}", ex.getMessage());
+            Legacy.log.error("Can't save config {}", ex.getMessage());
         }
     }
 
@@ -247,7 +252,7 @@ public final class DataUtils {
             try {
                 LeaveChat leaveChat = new LeaveChat();
                 leaveChat.setChatId(groupId);
-                Main.paymentBot.execute(leaveChat);
+                Legacy.paymentBot.execute(leaveChat);
             } catch (TelegramApiException e) {
                 log.warn("Не удалось выйти из группы {}", removeGroup.getName());
             }
@@ -429,7 +434,7 @@ public final class DataUtils {
                 if (time > elapsedTime) {
                     TimerController.restoreTimer(userId, groupId, time - elapsedTime);
                 } else {
-                    log.info("user {} added in group {} by timer", userId, Main.dataUtils.getGroupName(groupId));
+                    log.info("user {} added in group {} by timer", userId, Legacy.dataUtils.getGroupName(groupId));
                     ChatUtils.addInGroup(userId, groupId, "Добавлен по таймеру");
                     unstoreTimer(userId, groupId);
                 }

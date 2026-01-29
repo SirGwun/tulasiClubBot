@@ -1,6 +1,6 @@
 package bot.core.control.messageProcessing;
 
-import bot.core.Main;
+import bot.core.Legacy;
 import bot.core.model.Session;
 import bot.core.model.SessionState;
 import bot.core.control.SessionController;
@@ -33,12 +33,12 @@ public class HistoryForwardProcessor implements MessageProcessor {
         if (!update.hasMessage()) return;
         MessageContext message = new MessageContext(update.getMessage());
         ForwardMessage forwardMessage = new ForwardMessage();
-        forwardMessage.setChatId(Main.dataUtils.getHistoryId());
+        forwardMessage.setChatId(Legacy.dataUtils.getHistoryId());
         forwardMessage.setMessageId(message.message().getMessageId());
         forwardMessage.setFromChatId(message.getChatId());
 
         try {
-            Main.paymentBot.execute(forwardMessage);
+            Legacy.paymentBot.execute(forwardMessage);
         } catch (TelegramApiException e) {
             log.error("Не удалось переслать сообщение");
         }

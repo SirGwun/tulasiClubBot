@@ -1,6 +1,6 @@
-package quizbot.test;
+package bot.core.quizbot.test;
 
-import quizbot.model.DoshaResult;
+import bot.core.quizbot.model.DoshaResult;
 
 import java.io.Serial;
 import java.io.Serializable;

@@ -1,6 +1,9 @@
 package bot.core.util.config;
 
 public interface Config {
-    public String getBotToken();
-    public String getBotName();
+    public String getMainBotToken();
+    public String getMainBotName();
+
+    public String getQuizBotToken();
+    public String getQuizBotName();
 }

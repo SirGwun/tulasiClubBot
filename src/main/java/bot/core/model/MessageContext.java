@@ -1,12 +1,12 @@
 package bot.core.model;
 
-import bot.core.Main;
+import bot.core.Legacy;
 import org.telegram.telegrambots.meta.api.objects.Message;
 
 public record MessageContext(Message message) {
 
     public boolean isFromAdmin() {
-        return message.getFrom().getId() == Main.dataUtils.getAdminId();
+        return message.getFrom().getId() == Legacy.dataUtils.getAdminId();
     }
 
     public boolean isCommand() {

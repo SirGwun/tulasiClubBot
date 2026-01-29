@@ -1,6 +1,6 @@
 package bot.core.control.callbackHandlers;
 
-import bot.core.Main;
+import bot.core.Legacy;
 import bot.core.util.ChatUtils;
 import bot.core.util.Utils;
 import org.slf4j.Logger;
@@ -39,7 +39,7 @@ public class RightPointerButtonHandler implements CallbackHandler {
     @Override
     public void handle(Update update) {
         String[] data = update.getCallbackQuery().getData().split("_");
-        String tag = Main.dataUtils.getTagMap().get(Integer.parseInt(data[1]));
+        String tag = Legacy.dataUtils.getTagMap().get(Integer.parseInt(data[1]));
         Long userId = update.getCallbackQuery().getFrom().getId();
 
         List<InlineKeyboardButton> buttons = ChatUtils.getTagetButtonList(

@@ -1,6 +1,11 @@
-package quizbot.core;
+package bot.core.quizbot.core;
 
+import bot.core.quizbot.model.Session;
+import bot.core.quizbot.test.Test;
+import bot.core.quizbot.test.TestLoader;
 import bot.core.util.DataUtils;
+import bot.core.util.config.Config;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -17,9 +22,6 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
-import quizbot.model.Session;
-import quizbot.test.TestLoader;
-import quizbot.test.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -32,39 +34,21 @@ import java.util.Properties;
 public class QuizBot extends TelegramLongPollingBot {
     private static final Logger log = LoggerFactory.getLogger(QuizBot.class);
     private final SessionManager sessions = new SessionManager();
-    private static final String token;
-    private static final String name;
-    public static final String data;
+    private final static boolean amvera = System.getenv("AMVERA") != null && System.getenv("AMVERA").equals("1");
+    public static final String data = amvera ? "/data" : "data";
+    public final Config config;
 
-    static {
-        if (System.getenv("AMVERA") != null && System.getenv("AMVERA").equals("1")) {
-            data = "/data";
-            token = System.getenv( "TESTBOTTOCKEN");
-            name = System.getenv("TESTBOTNAME");
-        } else {
-            data = "data";
-            try (InputStream secretInput = DataUtils.class.getClassLoader().getResourceAsStream("secret.properties")) {
-                if (secretInput == null) {
-                    throw new FileNotFoundException("secret.properties not found");
-                }
-                Properties secretProperties = new Properties();
-                secretProperties.load(secretInput);
-                token = secretProperties.getProperty("tulasiTestBotToken");
-                name = secretProperties.getProperty("tulasiTestBotName");
-            } catch (IOException e) {
-                log.error("Не удалось прочитать токен и имя тестового бота");
-                throw new RuntimeException("Не удалось загрузить секреты", e);
-            }
-            log.info("QuizBot инициализирован");
-        }
+    public QuizBot(Config config) {
+        super(config.getQuizBotToken());
+        this.config = config;
     }
 
-    public QuizBot() {
-        super(token);
+    @PostConstruct
+    public void init() {
         try {
             TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
             telegramBotsApi.registerBot(this);
-            log.info("{} запущен", name);
+            log.info("{} запущен", config.getQuizBotName());
         } catch (TelegramApiException e) {
             log.error("Ошибка при инициализации бота {}", e.getMessage());
         }
@@ -184,7 +168,6 @@ public class QuizBot extends TelegramLongPollingBot {
 
             sendMainMenu("Если хотите - выберете следующий тест", chatId);
         }
-
     }
 
     private void sendMainMenu(String text, Long chatId) throws TelegramApiException {
@@ -198,7 +181,7 @@ public class QuizBot extends TelegramLongPollingBot {
 
     @Override
     public String getBotUsername() {
-        return name;
+        return config.getQuizBotName();
     }
 }
 

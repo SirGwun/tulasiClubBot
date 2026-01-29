@@ -1,10 +1,10 @@
 package bot.core.control.messageProcessing;
 
+import bot.core.Legacy;
 import bot.core.model.Session;
 import bot.core.model.MessageContext;
 import bot.core.control.SessionController;
 import bot.core.util.ChatUtils;
-import bot.core.Main;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 public class EditHelpProcessor implements MessageProcessor {
@@ -23,7 +23,7 @@ public class EditHelpProcessor implements MessageProcessor {
         if (!update.hasMessage()) return;
         MessageContext message = new MessageContext(update.getMessage());
         Session session = SessionController.getInstance().getUserSession(message.getFromId());
-        Main.dataUtils.setHelp(message.getText());
+        Legacy.dataUtils.setHelp(message.getText());
         session.getState().cansel();
         ChatUtils.sendMessage(message.getChatId(), "Инструкция для пользователей изменена");
     }

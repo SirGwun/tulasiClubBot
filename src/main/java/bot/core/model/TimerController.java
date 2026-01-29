@@ -1,6 +1,6 @@
 package bot.core.model;
 
-import bot.core.Main;
+import bot.core.Legacy;
 import bot.core.util.ChatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +20,7 @@ public class TimerController {
         if (!timers.containsKey(timer)) {
             log.info("Таймер добавлен");
             timers.put(timer, new Thread(timer));
-            Main.dataUtils.storeTimer(timer);
+            Legacy.dataUtils.storeTimer(timer);
             timers.get(timer).start();
             return;
         }
@@ -78,13 +78,13 @@ public class TimerController {
             try {
                 Thread.sleep(time_sec * 1000);
                 if (!Thread.interrupted()) {
-                    log.info("user {} added in group {} by timer", userId, Main.dataUtils.getGroupName(groupId));
+                    log.info("user {} added in group {} by timer", userId, Legacy.dataUtils.getGroupName(groupId));
                     ChatUtils.addInGroup(userId, groupId, "Добавлен по таймеру");
                 }
             } catch (InterruptedException e) {
                 log.info("timer interrupted");
             } finally {
-                Main.dataUtils.unstoreTimer(userId, groupId);
+                Legacy.dataUtils.unstoreTimer(userId, groupId);
                 timers.remove(this);
             }
         }

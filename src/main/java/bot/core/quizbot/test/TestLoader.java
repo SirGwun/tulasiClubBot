@@ -1,8 +1,8 @@
-package quizbot.test;
+package bot.core.quizbot.test;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import quizbot.core.QuizBot;
+import bot.core.quizbot.core.QuizBot;
 
 import java.io.BufferedReader;
 import java.io.IOException;

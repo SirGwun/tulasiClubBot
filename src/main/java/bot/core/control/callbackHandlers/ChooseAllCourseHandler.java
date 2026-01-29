@@ -1,6 +1,6 @@
 package bot.core.control.callbackHandlers;
 
-import bot.core.Main;
+import bot.core.Legacy;
 import bot.core.util.ChatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +25,7 @@ public class ChooseAllCourseHandler extends AbstractCallbackHandler {
 
     @Override
     public void handle(Update update) {
-        Map<Integer, String> tagMap = Main.dataUtils.getTagMap();
+        Map<Integer, String> tagMap = Legacy.dataUtils.getTagMap();
         List<List<InlineKeyboardButton>> buttonRows = new ArrayList<>();
         for (Map.Entry<Integer, String> entry : tagMap.entrySet()) {
             InlineKeyboardButton button = new InlineKeyboardButton(entry.getValue());

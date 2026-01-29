@@ -1,6 +1,6 @@
 package bot.core.model;
 
-import bot.core.Main;
+import bot.core.Legacy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChat;
@@ -45,7 +45,7 @@ public class Session implements Serializable {
         if (userName == null) {
             GetChat getChat = new GetChat(String.valueOf(userId));
             try {
-                Chat chat = Main.paymentBot.execute(getChat);
+                Chat chat = Legacy.paymentBot.execute(getChat);
                 userName = chat.getUserName();
                 String firstName = chat.getFirstName();
                 String lastName = chat.getLastName();

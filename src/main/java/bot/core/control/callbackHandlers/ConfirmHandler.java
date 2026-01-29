@@ -1,6 +1,6 @@
 package bot.core.control.callbackHandlers;
 
-import bot.core.Main;
+import bot.core.Legacy;
 import bot.core.control.SessionController;
 import bot.core.model.TimerController;
 import bot.core.util.ChatUtils;
@@ -72,7 +72,7 @@ public class ConfirmHandler implements CallbackHandler {
     private boolean isUserAdded(long userId, Long groupId) {
         GetChatMember getChatMember = new GetChatMember(String.valueOf(groupId), userId);
         try {
-            ChatMember chatMember = Main.paymentBot.execute(getChatMember);
+            ChatMember chatMember = Legacy.paymentBot.execute(getChatMember);
             return chatMember != null;
         } catch (TelegramApiException e) {
             log.warn("User not added");

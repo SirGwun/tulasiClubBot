@@ -1,7 +1,6 @@
 package bot.core.control;
 
-import bot.core.Main;
-import bot.core.PaymentBot;
+import bot.core.Legacy;
 import bot.core.model.MessageContext;
 import bot.core.model.TimerController;
 import bot.core.util.ChatUtils;
@@ -21,7 +20,6 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 
 
 public class Validator {
@@ -36,13 +34,13 @@ public class Validator {
                 try {
                     log.info("Получен файл {}", fileName);
                     String fileId = document.getFileId();
-                    File file = Main.paymentBot.execute(new GetFile(fileId));
-                    InputStream is = Main.paymentBot.downloadFileAsStream(file);
+                    File file = Legacy.paymentBot.execute(new GetFile(fileId));
+                    InputStream is = Legacy.paymentBot.downloadFileAsStream(file);
                     documentText = extractTextFromPDF(is);
 
                     return validatePDFText();
                 } catch (TelegramApiException e) {
-                    Main.log.error("Ошибка при получении файла {}", fileName);
+                    Legacy.log.error("Ошибка при получении файла {}", fileName);
                 }
             }
         }
@@ -53,37 +51,37 @@ public class Validator {
         long userId = ctx.getFromId();
         Long groupId = SessionController.getInstance().getUserSession(ctx.getFromId()).getGroupId();
 
-        if (Main.dataUtils.getTimerMinutes() != -1) {
-            TimerController.addTimer(userId, groupId, Main.dataUtils.getTimerMinutes());
+        if (Legacy.dataUtils.getTimerMinutes() != -1) {
+            TimerController.addTimer(userId, groupId, Legacy.dataUtils.getTimerMinutes());
         } else {
             log.debug("Таймер не добавлен тк отключен");
         }
 
         try {
             ForwardMessage forwardMessage = new ForwardMessage();
-            forwardMessage.setChatId(Main.dataUtils.getAdminId());
+            forwardMessage.setChatId(Legacy.dataUtils.getAdminId());
             forwardMessage.setFromChatId(ctx.getChatId());
             forwardMessage.setMessageId(ctx.message().getMessageId());
-            Message forwardedMessage = Main.paymentBot.execute(forwardMessage);
+            Message forwardedMessage = Legacy.paymentBot.execute(forwardMessage);
 
             SendMessage sendMessage = new SendMessage();
-            sendMessage.setChatId(Main.dataUtils.getAdminId());
+            sendMessage.setChatId(Legacy.dataUtils.getAdminId());
 
-            sendMessage.setText("Заявка в чат " + "<a href=\"" + createInviteLink(groupId) + "\">" + Main.dataUtils.getGroupName(groupId) + "</a>");
+            sendMessage.setText("Заявка в чат " + "<a href=\"" + createInviteLink(groupId) + "\">" + Legacy.dataUtils.getGroupName(groupId) + "</a>");
             sendMessage.setParseMode("HTML");
             sendMessage.setReplyMarkup(ChatUtils.getValidationKeyboard(forwardedMessage.getMessageId(), userId));
             sendMessage.setDisableWebPagePreview(true);
 
-            Main.paymentBot.execute(sendMessage);
+            Legacy.paymentBot.execute(sendMessage);
         } catch (TelegramApiException e) {
-            Main.log.error("Ошибка при отправке сообщения администратору", e);
+            Legacy.log.error("Ошибка при отправке сообщения администратору", e);
         }
     }
     private static String createInviteLink(Long groupId) throws TelegramApiException {
         CreateChatInviteLink link = new CreateChatInviteLink();
         link.setChatId(groupId);
         link.setCreatesJoinRequest(true);
-        return Main.paymentBot.execute(link).getInviteLink();
+        return Legacy.paymentBot.execute(link).getInviteLink();
     }
 
     public String extractTextFromPDF(PDDocument document) {
@@ -91,7 +89,7 @@ public class Validator {
         try {
             return pdfStripper.getText(document);
         } catch (IOException e) {
-            Main.log.error("Ошибка при получении текста из PDF", e);
+            Legacy.log.error("Ошибка при получении текста из PDF", e);
         }
         return "";
     }
@@ -100,7 +98,7 @@ public class Validator {
         try (PDDocument document = Loader.loadPDF(inputStream.readAllBytes())) {
             return extractTextFromPDF(document);
         } catch (IOException e) {
-            Main.log.error("Ошибка при получении текста из PDF", e);
+            Legacy.log.error("Ошибка при получении текста из PDF", e);
         }
         return "";
     }

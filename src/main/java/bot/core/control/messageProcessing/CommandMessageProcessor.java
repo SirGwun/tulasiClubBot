@@ -1,6 +1,6 @@
 package bot.core.control.messageProcessing;
 
-import bot.core.Main;
+import bot.core.Legacy;
 import bot.core.control.Command;
 import bot.core.model.EditingActions;
 import bot.core.model.MessageContext;
@@ -62,7 +62,7 @@ public class CommandMessageProcessor implements MessageProcessor {
         public void handleCommand(String commandStr, String args) {
             try {
                 Command command = Command.valueOf(commandStr.substring(1));
-                if (userId == Main.dataUtils.getAdminId()) {
+                if (userId == Legacy.dataUtils.getAdminId()) {
                     handleAdminCommand(command, args);
                 } else {
                     handleUserCommand(command);
@@ -195,7 +195,7 @@ public class CommandMessageProcessor implements MessageProcessor {
                 return;
             }
             ChatUtils.sendMessage(userId, "Новый курс добавлен " + tagName);
-            Main.dataUtils.addNewTag(tagName);
+            Legacy.dataUtils.addNewTag(tagName);
         }
 
         private boolean hasExceptedGroup(InlineKeyboardMarkup allGroupKeyboard) {
@@ -212,7 +212,7 @@ public class CommandMessageProcessor implements MessageProcessor {
 
         private void handleCatalogCommand() {
             log.info(CMD_LOG, userId, Command.catalog);
-            String catalog = Main.dataUtils.getCatalog();
+            String catalog = Legacy.dataUtils.getCatalog();
 
             if (catalog == null) {
                 ChatUtils.sendMessage(userId, "Каталог пока пуст");
@@ -260,7 +260,7 @@ public class CommandMessageProcessor implements MessageProcessor {
         private void handleDelCommand() {
             log.info(CMD_LOG, userId, Command.del);
 
-            if (Main.dataUtils.getGroupList().isEmpty()) {
+            if (Legacy.dataUtils.getGroupList().isEmpty()) {
                 ChatUtils.sendMessage(userId, "Не найдено ни одной группы");
                 return;
             }
@@ -270,7 +270,7 @@ public class CommandMessageProcessor implements MessageProcessor {
         }
 
         private void handleHelpCommand() {
-            ChatUtils.sendMessage(userId, Main.dataUtils.getHelp());
+            ChatUtils.sendMessage(userId, Legacy.dataUtils.getHelp());
         }
 
         private void handleEditInfoCommand() {
@@ -312,7 +312,7 @@ public class CommandMessageProcessor implements MessageProcessor {
             if (targetId == null) {
                 try {
                     GetChat getChat = new GetChat("@" + username);
-                    Chat chat = Main.paymentBot.execute(getChat);
+                    Chat chat = Legacy.paymentBot.execute(getChat);
                     targetId = chat.getId();
                 } catch (TelegramApiException e) {
                     log.warn("Unable to find user via Telegram API: {}", e.getMessage());
@@ -336,7 +336,7 @@ public class CommandMessageProcessor implements MessageProcessor {
                 int timeMin = Integer.parseInt(args);
 
                 if ((timeMin > 0 && timeMin <= MAX_TIMER_MINUTES) || timeMin == TIMER_DISABLED) {
-                    Main.dataUtils.setTimerMinutes(timeMin);
+                    Legacy.dataUtils.setTimerMinutes(timeMin);
                     String message = timeMin == TIMER_DISABLED
                             ? "Новые таймеры теперь не будут добавляться"
                             : "Установлено, теперь новые таймеры будут срабатывать через " + timeMin + " минут после добавления";

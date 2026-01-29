@@ -1,6 +1,6 @@
 package bot.core.control.messageProcessing;
 
-import bot.core.Main;
+import bot.core.Legacy;
 import bot.core.control.callbackHandlers.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,7 +75,7 @@ public class CallbackProcessor implements MessageProcessor {
         try {
             AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery();
             answerCallbackQuery.setCallbackQueryId(callbackQuery.getId());
-            Main.paymentBot.execute(answerCallbackQuery);
+            Legacy.paymentBot.execute(answerCallbackQuery);
         } catch (TelegramApiException e) {
             log.error("Ошибка при отправке ответа на CallbackQuery", e);
         }

@@ -1,4 +1,4 @@
-package quizbot.model;
+package bot.core.quizbot.model;
 
 import java.util.Arrays;
 import java.util.Comparator;

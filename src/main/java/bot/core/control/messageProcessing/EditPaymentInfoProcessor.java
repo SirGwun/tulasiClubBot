@@ -1,6 +1,6 @@
 package bot.core.control.messageProcessing;
 
-import bot.core.Main;
+import bot.core.Legacy;
 import bot.core.model.Session;
 import bot.core.model.MessageContext;
 import bot.core.control.SessionController;
@@ -22,7 +22,7 @@ public class EditPaymentInfoProcessor implements MessageProcessor {
         if (!update.hasMessage()) return;
         MessageContext message = new MessageContext(update.getMessage());
         Session session = SessionController.getInstance().getUserSession(message.getFromId());
-        Main.dataUtils.setPaymentInfo(message.getText());
+        Legacy.dataUtils.setPaymentInfo(message.getText());
         session.getState().cansel();
         ChatUtils.sendMessage(message.getFromId(), "Информация об оплате изменена");
     }

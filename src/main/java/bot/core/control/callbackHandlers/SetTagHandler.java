@@ -1,6 +1,6 @@
 package bot.core.control.callbackHandlers;
 
-import bot.core.Main;
+import bot.core.Legacy;
 import bot.core.util.ChatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,14 +49,14 @@ public class SetTagHandler implements CallbackHandler {
         long userId = cq.getMessage().getChatId();
         int messageId = cq.getMessage().getMessageId();
 
-        Map<Integer, String> tags = Main.dataUtils.getTagMap();
+        Map<Integer, String> tags = Legacy.dataUtils.getTagMap();
         String tag = tags.get(Integer.parseInt(tagId));
         if (tag == null) {
             log.error("Попытка прочитать несуществующий тег {} ", tagId);
             return;
         }
         log.info("User {} set tag {}", userId, tag);
-        Main.dataUtils.setGroupTag(tag);
+        Legacy.dataUtils.setGroupTag(tag);
         ChatUtils.deleteMessage(userId, messageId);
         ChatUtils.sendMessage(userId,
                 "Тег успешно выбран - " + tag);

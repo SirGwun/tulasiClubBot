@@ -1,11 +1,10 @@
-package quizbot.core;
+package bot.core.quizbot.core;
 
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import quizbot.model.AnswerScale;
+import bot.core.quizbot.model.AnswerScale;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 

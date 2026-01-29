@@ -1,6 +1,6 @@
 package bot.core.control;
 
-import bot.core.Main;
+import bot.core.Legacy;
 import bot.core.model.Session;
 import org.telegram.telegrambots.meta.api.objects.User;
 
@@ -12,7 +12,7 @@ public class SessionController {
     private static Map<Long, Session> sessionMap;
 
     private SessionController() {
-        sessionMap = Main.dataUtils.loadSessions();
+        sessionMap = Legacy.dataUtils.loadSessions();
     }
 
     public static SessionController getInstance() {
@@ -21,7 +21,7 @@ public class SessionController {
 
     public void setUserGroupId(Long userId, Long groupId) {
         sessionMap.get(userId).setGroupId(groupId);
-        Main.dataUtils.saveSessions(sessionMap);
+        Legacy.dataUtils.saveSessions(sessionMap);
     }
 
     public Session getUserSession(long targetUserId) {

@@ -14,12 +14,22 @@ public class ProdConfig implements Config {
     }
 
     @Override
-    public String getBotToken() {
+    public String getMainBotToken() {
         return environment.getRequiredProperty("BOTTOCKEN");
     }
 
     @Override
-    public String getBotName() {
+    public String getMainBotName() {
         return environment.getRequiredProperty("BOTNAME");
+    }
+
+    @Override
+    public String getQuizBotToken() {
+        return environment.getRequiredProperty("TESTBOTTOCKEN");
+    }
+
+    @Override
+    public String getQuizBotName() {
+        return environment.getRequiredProperty("TESTBOTNAME");
     }
 }

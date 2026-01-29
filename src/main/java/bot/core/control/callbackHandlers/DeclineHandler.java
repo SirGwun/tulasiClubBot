@@ -1,6 +1,6 @@
 package bot.core.control.callbackHandlers;
 
-import bot.core.Main;
+import bot.core.Legacy;
 import bot.core.control.SessionController;
 import bot.core.model.TimerController;
 import bot.core.util.ChatUtils;
@@ -69,13 +69,13 @@ public class DeclineHandler implements CallbackHandler {
         String userName = SessionController.getInstance()
                 .getUserSession(targetUserId)
                 .getUserName();
-        String groupName = Main.dataUtils.getGroupName(groupId);
+        String groupName = Legacy.dataUtils.getGroupName(groupId);
 
         try {
             if (TimerController.hasTimer(targetUserId, groupId)) {
                 ChatUtils.sendMessage(targetUserId, "Ваша заявка была отклонена, \n" +
                         "вы можете создать еще одну заявку или обратиться к администратору @Tulasikl");
-                ChatUtils.sendMessage(Long.parseLong(Main.dataUtils.getHistoryId()),
+                ChatUtils.sendMessage(Long.parseLong(Legacy.dataUtils.getHistoryId()),
                         "Заявка пользователя @" +
                                 userName +
                                 " была отклонена, \n" +
@@ -87,15 +87,15 @@ public class DeclineHandler implements CallbackHandler {
                     ban.setChatId(String.valueOf(groupId));
                     ban.setUserId(targetUserId);
                     ban.setUntilDate((int) Instant.now().getEpochSecond() + 60);
-                    Main.paymentBot.execute(ban);
+                    Legacy.paymentBot.execute(ban);
 
                     UnbanChatMember unban = new UnbanChatMember();
                     unban.setChatId(String.valueOf(groupId));
                     unban.setUserId(targetUserId);
-                    Main.paymentBot.execute(unban);
+                    Legacy.paymentBot.execute(unban);
                     log.info("User {} was kicked from group {}", userName, groupId);
 
-                    ChatUtils.sendMessage(Long.parseLong(Main.dataUtils.getHistoryId()),
+                    ChatUtils.sendMessage(Long.parseLong(Legacy.dataUtils.getHistoryId()),
                             "Пользователь @" + userName + " был удален из группы " + groupName);
 
                     ChatUtils.sendMessage(targetUserId, "Вы были удалены из группы " + groupName + "\n" +
@@ -116,7 +116,7 @@ public class DeclineHandler implements CallbackHandler {
             GetChatMember getChatMember = new GetChatMember();
             getChatMember.setChatId(groupId);
             getChatMember.setUserId(userId);
-            ChatMember chatMember = Main.paymentBot.execute(getChatMember);
+            ChatMember chatMember = Legacy.paymentBot.execute(getChatMember);
             String status = chatMember.getStatus();
             return status.equals("member")
                     || status.equals("administrator")

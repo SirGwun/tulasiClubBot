@@ -1,4 +1,4 @@
-package quizbot.model;
+package bot.core.quizbot.model;
 
 public enum AnswerScale {
     SCORE_0(0, "Совсем не относится ко мне"),

@@ -14,12 +14,22 @@ public class LocalConfig implements Config {
     }
 
     @Override
-    public String getBotToken() {
+    public String getMainBotToken() {
         return environment.getProperty("bot.token");
     }
 
     @Override
-    public String getBotName() {
+    public String getMainBotName() {
         return environment.getProperty("bot.name");
+    }
+
+    @Override
+    public String getQuizBotToken() {
+        return environment.getProperty("quizBot.token");
+    }
+
+    @Override
+    public String getQuizBotName() {
+        return environment.getProperty("quizBot.name");
     }
 }
