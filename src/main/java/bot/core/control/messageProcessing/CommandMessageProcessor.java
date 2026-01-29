@@ -74,47 +74,47 @@ public class CommandMessageProcessor implements MessageProcessor {
 
         private void handleAdminCommand(Command command, String args) {
             switch (command) {
-                case Command.start:
+                case start:
                     handleStartCommand();
                     break;
-                case Command.menu:
+                case menu:
                     handleMenuCommand();
                     break;
-                case Command.set_tag:
+                case set_tag:
                     handleSetTagCommand();
                     break;
-                case Command.add_tag:
+                case add_tag:
                     handleAddTagCommand(args);
                     break;
-                case Command.choose_course:
+                case choose_course:
                     handleSetCourseCommand();
                     break;
-                case Command.help:
+                case help:
                     handleHelpCommand();
                     break;
-                case Command.catalog:
+                case catalog:
                     handleCatalogCommand();
                     break;
                 //***************
-                case Command.cancel:
+                case cancel:
                     handleCancelCommand();
                     break;
-                case Command.edit_info:
+                case edit_info:
                     handleEditInfoCommand();
                     break;
-                case Command.edit_help:
+                case edit_help:
                     handleEditHelpCommand();
                     break;
-                case Command.set_payment_info:
+                case set_payment_info:
                     handleSetPaymentInfo();
                     break;
-                case Command.del:
+                case del:
                     handleDelCommand();
                     break;
-                case Command.say:
+                case say:
                     handleSayCommand(args);
                     break;
-                case Command.set_timer:
+                case set_timer:
                     handleSetTimerCommand(args);
                     break;
                 default:
@@ -125,19 +125,19 @@ public class CommandMessageProcessor implements MessageProcessor {
 
         private void handleUserCommand(Command command) {
             switch (command) {
-                case Command.start:
+                case start:
                     handleStartCommand();
                     break;
-                case Command.menu:
+                case menu:
                     handleMenuCommand();
                     break;
-                case Command.choose_course:
+                case choose_course:
                     handleSetCourseCommand();
                     break;
-                case Command.help:
+                case help:
                     handleHelpCommand();
                     break;
-                case Command.catalog:
+                case catalog:
                     handleCatalogCommand();
                     break;
                 default:

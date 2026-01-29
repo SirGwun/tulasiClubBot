@@ -1,7 +1,5 @@
 spring:
   profiles:
     active: test
-
-bot:
-  secrets:
-    file: secret.properties
+  config:
+    import: classpath:secret.properties

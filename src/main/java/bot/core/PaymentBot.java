@@ -48,6 +48,7 @@ public class PaymentBot extends TelegramLongPollingBot {
             telegramBotsApi.registerBot(this);
             log.info("{} запущен", config.getMainBotName());
         } catch (TelegramApiException e) {
+            log.error("Ошибка при регистрации paymentBot в telegram " + e.getMessage());
             throw new IllegalStateException(e);
         }
     }
