@@ -16,6 +16,10 @@ import java.util.Map;
 public class CommandMessageProcessor implements MessageProcessor {
     Map<Commands, Answer> answerMap = new HashMap<>();
 
+    public CommandMessageProcessor() {
+
+    }
+
     public CommandMessageProcessor(List<Answer> answers) {
 
     }
