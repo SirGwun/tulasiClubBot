@@ -1,6 +1,6 @@
-package bot.core.control;
+package bot.core.control.rout.classify.enums;
 
-public enum Command {
+public enum Commands {
     choose_course,
     set_tag,
     add_tag,
