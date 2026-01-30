@@ -1,12 +1,13 @@
 package bot.core.control.callbackHandlers;
 
 import bot.core.Legacy;
+import bot.core.control.rout.classify.enums.Callbacks;
 import bot.core.util.ChatUtils;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 public class GetInstructionHandler extends AbstractCallbackHandler {
     public GetInstructionHandler() {
-        super(Action.getInstruction, 2);
+        super(Callbacks.getInstruction, 2);
     }
 
     @Override

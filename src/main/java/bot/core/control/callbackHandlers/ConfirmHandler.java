@@ -2,6 +2,7 @@ package bot.core.control.callbackHandlers;
 
 import bot.core.Legacy;
 import bot.core.control.SessionController;
+import bot.core.control.rout.classify.enums.Callbacks;
 import bot.core.model.TimerController;
 import bot.core.util.ChatUtils;
 import org.slf4j.Logger;
@@ -17,7 +18,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
  */
 public class ConfirmHandler implements CallbackHandler {
     private static final Logger log = LoggerFactory.getLogger(ConfirmHandler.class);
-    private final Action action = Action.confirm;
+    private final Callbacks action = Callbacks.confirm;
 
     @Override
     public String getFormat() {
@@ -25,20 +26,20 @@ public class ConfirmHandler implements CallbackHandler {
     }
 
     @Override
-    public Action getAction() {
+    public Callbacks getAction() {
         return action;
     }
 
     @Override
     public boolean match(Update update) {
-        return update.hasCallbackQuery() && update.getCallbackQuery().getData().startsWith(Action.confirm + "_");
+        return update.hasCallbackQuery() && update.getCallbackQuery().getData().startsWith(Callbacks.confirm + "_");
     }
 
     @Override
     public boolean isFormatCorrect(String callback) {
         String[] data = callback.split("_");
         if (data.length != 3) return false;
-        if (!data[0].equalsIgnoreCase(Action.confirm.toString())) return false;
+        if (!data[0].equalsIgnoreCase(Callbacks.confirm.toString())) return false;
         try {
             Integer.parseInt(data[1]);
             Long.parseLong(data[2]);

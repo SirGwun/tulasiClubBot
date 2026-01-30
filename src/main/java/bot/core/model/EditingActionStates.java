@@ -1,6 +1,6 @@
 package bot.core.model;
 
-public enum EditingActions {
+public enum EditingActionStates {
     NONE,
     EDIT_HELP,
     EDIT_INFO,

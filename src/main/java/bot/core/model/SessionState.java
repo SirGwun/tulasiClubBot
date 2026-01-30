@@ -3,12 +3,12 @@ package bot.core.model;
 import java.io.Serial;
 import java.io.Serializable;
 
-import static bot.core.model.EditingActions.*;
+import static bot.core.model.EditingActionStates.*;
 
 public class SessionState implements Serializable {
     @Serial
     private static final long serialVersionUID = 3L;
-    private EditingActions action = NONE;
+    private EditingActionStates action = NONE;
 
     public boolean isEditingInfo() {
         return action == EDIT_INFO;
@@ -24,8 +24,8 @@ public class SessionState implements Serializable {
         action = EDIT_HELP;
     }
 
-    public EditingActions cansel() {
-        EditingActions currentAction = action;
+    public EditingActionStates cansel() {
+        EditingActionStates currentAction = action;
         action = NONE;
         return currentAction;
     }

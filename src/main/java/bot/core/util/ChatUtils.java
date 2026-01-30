@@ -2,7 +2,7 @@ package bot.core.util;
 
 import bot.core.Legacy;
 import bot.core.control.SessionController;
-import bot.core.control.callbackHandlers.Action;
+import bot.core.control.rout.classify.enums.Callbacks;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.CreateChatInviteLink;
@@ -59,16 +59,16 @@ public final class ChatUtils {
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
 
         InlineKeyboardButton coursesDescription = new InlineKeyboardButton("Описание курсов и лекций");
-        coursesDescription.setCallbackData(Action.getCourseDescription + "_" + chatId);
+        coursesDescription.setCallbackData(Callbacks.getCourseDescription + "_" + chatId);
         coursesDescription.setUrl("https://t.me/c/2388702610/1039");
         InlineKeyboardButton chooseCourse = new InlineKeyboardButton("Выбрать курс");
-        chooseCourse.setCallbackData(Action.chooseCourse + "_" + chatId);
+        chooseCourse.setCallbackData(Callbacks.chooseCourse + "_" + chatId);
 
         InlineKeyboardButton getInstruction = new InlineKeyboardButton("Инструкция");
-        getInstruction.setCallbackData(Action.getInstruction + "_" + chatId);
+        getInstruction.setCallbackData(Callbacks.getInstruction + "_" + chatId);
 
         InlineKeyboardButton getPaymentInstruction = new InlineKeyboardButton("Способы оплаты");
-        getPaymentInstruction.setCallbackData(Action.getPaymentInstruction + "_" + chatId);
+        getPaymentInstruction.setCallbackData(Callbacks.getPaymentInstruction + "_" + chatId);
 
 
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
@@ -100,11 +100,11 @@ public final class ChatUtils {
         return keyboard;
     }
 
-    public static InlineKeyboardMarkup getAllGroupKeyboard(Action callBack, Long userId) {
+    public static InlineKeyboardMarkup getAllGroupKeyboard(Callbacks callBack, Long userId) {
         return getTaggedGroupKeyboard(callBack, userId, null, COMMON_STILE);
     }
 
-    public static InlineKeyboardMarkup getTaggedGroupKeyboard(Action callBack, Long userId, String tag, String style) {
+    public static InlineKeyboardMarkup getTaggedGroupKeyboard(Callbacks callBack, Long userId, String tag, String style) {
         List<InlineKeyboardButton> buttons = getTagetButtonList(callBack, userId, tag);
         buttons.sort(Comparator.comparingInt(o -> Utils.firstPositiveNumber(o.getText())));
 
@@ -112,13 +112,13 @@ public final class ChatUtils {
         if (buttons.size() <= 10 || style.equals(COMMON_STILE)) {
             keyboard.setKeyboard(distributeButtons(buttons));
         } else if (style.equals(ARROWED_STILE))
-            keyboard.setKeyboard(arrowedStyleKeyboard(buttons, tag, 0, Action.none));
+            keyboard.setKeyboard(arrowedStyleKeyboard(buttons, tag, 0, Callbacks.none));
         else
             keyboard.setKeyboard(distributeButtons(buttons));
         return keyboard;
     }
 
-    public static List<InlineKeyboardButton> getTagetButtonList(Action callBack, Long userId, String tag) {
+    public static List<InlineKeyboardButton> getTagetButtonList(Callbacks callBack, Long userId, String tag) {
         List<InlineKeyboardButton> buttons = new ArrayList<>();
         List<Group> groupList = Legacy.dataUtils.getGroupList();
         for (Group group : groupList) {
@@ -135,14 +135,14 @@ public final class ChatUtils {
         return buttons;
     }
 
-    public static List<List<InlineKeyboardButton>> arrowedStyleKeyboard(List<InlineKeyboardButton> buttons, String tag, int index, Action action) {
+    public static List<List<InlineKeyboardButton>> arrowedStyleKeyboard(List<InlineKeyboardButton> buttons, String tag, int index, Callbacks action) {
         int MAX_BUTTONS_IN_PAGE = 10;
         int left = 0, right = Math.min(buttons.size() - 1, MAX_BUTTONS_IN_PAGE - 1);
-        if (action == Action.rightArrow) {
+        if (action == Callbacks.rightArrow) {
             left = index + 1;
             right = Math.min(index + MAX_BUTTONS_IN_PAGE, buttons.size() - 1);
         }
-        if (action == Action.leftArrow) {
+        if (action == Callbacks.leftArrow) {
             left = Math.max(index - MAX_BUTTONS_IN_PAGE, 0);
             right = index - 1;
         }
@@ -150,12 +150,12 @@ public final class ChatUtils {
         List<InlineKeyboardButton> arrows = new ArrayList<>(2);
         if (left > 0) {
             InlineKeyboardButton leftArrow = new InlineKeyboardButton("⬅️ Назад");
-            leftArrow.setCallbackData(Action.leftArrow + "_" + Legacy.dataUtils.getTagId(tag) + "_" + left); //try
+            leftArrow.setCallbackData(Callbacks.leftArrow + "_" + Legacy.dataUtils.getTagId(tag) + "_" + left); //try
             arrows.add(leftArrow);
         }
         if (right < buttons.size() - 1) {
             InlineKeyboardButton rightArrow = new InlineKeyboardButton("Далее ➡️");
-            rightArrow.setCallbackData(Action.rightArrow + "_" + Legacy.dataUtils.getTagId(tag) + "_" + right);
+            rightArrow.setCallbackData(Callbacks.rightArrow + "_" + Legacy.dataUtils.getTagId(tag) + "_" + right);
             arrows.add(rightArrow);
         }
 
@@ -187,7 +187,7 @@ public final class ChatUtils {
     }
 
 
-    public static InlineKeyboardMarkup getAllTagKeyboard(Action callback) {
+    public static InlineKeyboardMarkup getAllTagKeyboard(Callbacks callback) {
         Map<Integer, String> tags = Legacy.dataUtils.getTagMap();
         List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
         for (Map.Entry<Integer, String> entry : tags.entrySet()) {
@@ -294,7 +294,7 @@ public final class ChatUtils {
 
         InlineKeyboardButton button = new InlineKeyboardButton();
         button.setText("Я вступил, но не могу найти группу");
-        button.setCallbackData(Action.getJoinRequestedLink + "_"
+        button.setCallbackData(Callbacks.getJoinRequestedLink + "_"
                 + getJoinRequestedLink(groupId) + "_"
                 + userId);
 

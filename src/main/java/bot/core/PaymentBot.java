@@ -1,6 +1,6 @@
 package bot.core;
 
-import bot.core.control.Command;
+import bot.core.control.rout.classify.enums.Commands;
 import bot.core.control.messageProcessing.CallbackProcessor;
 import bot.core.control.messageProcessing.*;
 
@@ -23,7 +23,7 @@ import java.util.*;
 @Component
 public class PaymentBot extends TelegramLongPollingBot {
     private final Config config;
-    private final Logger log = LoggerFactory.getLogger(PaymentBot.class);
+    public final Logger log = LoggerFactory.getLogger(PaymentBot.class);
 
     private final HistoryForwardProcessor historyForwardProcessor  = new HistoryForwardProcessor();
     private final List<MessageProcessor> processors = Arrays.asList(
@@ -89,21 +89,21 @@ public class PaymentBot extends TelegramLongPollingBot {
     private void setBotCommands() {
         // Команды для всех пользователей
         List<BotCommand> defaultCommands = new ArrayList<>();
-        defaultCommands.add(new BotCommand("/" + Command.menu, "Главное меню"));
-        defaultCommands.add(new BotCommand("/" + Command.choose_course, "Выбрать курс"));
+        defaultCommands.add(new BotCommand("/" + Commands.menu, "Главное меню"));
+        defaultCommands.add(new BotCommand("/" + Commands.choose_course, "Выбрать курс"));
 
         // Команды для администраторов
         List<BotCommand> adminCommands = new ArrayList<>();
-        adminCommands.add(new BotCommand("/" + Command.menu, "Главное меню"));
-        adminCommands.add(new BotCommand("/" + Command.choose_course, "Выбрать курс"));
-        adminCommands.add(new BotCommand("/" + Command.set_tag, "Установить тег с которым будет добавляться группа"));
-        adminCommands.add(new BotCommand("/" + Command.add_tag, "Добавить тег"));
-        adminCommands.add(new BotCommand("/" + Command.set_payment_info, "Установить информацию об оплате в /start"));
-        adminCommands.add(new BotCommand("/" + Command.say, "Отправить сообщение пользователю (@<username> <text>)"));
-        adminCommands.add(new BotCommand("/" + Command.del, "Удалить группу"));
-        adminCommands.add(new BotCommand("/" + Command.edit_help, "Изменить помощь"));
-        adminCommands.add(new BotCommand("/" + Command.cancel, "Отменить действие"));
-        adminCommands.add(new BotCommand("/" + Command.set_timer, "Установить время для таймеров (в минутах)"));
+        adminCommands.add(new BotCommand("/" + Commands.menu, "Главное меню"));
+        adminCommands.add(new BotCommand("/" + Commands.choose_course, "Выбрать курс"));
+        adminCommands.add(new BotCommand("/" + Commands.set_tag, "Установить тег с которым будет добавляться группа"));
+        adminCommands.add(new BotCommand("/" + Commands.add_tag, "Добавить тег"));
+        adminCommands.add(new BotCommand("/" + Commands.set_payment_info, "Установить информацию об оплате в /start"));
+        adminCommands.add(new BotCommand("/" + Commands.say, "Отправить сообщение пользователю (@<username> <text>)"));
+        adminCommands.add(new BotCommand("/" + Commands.del, "Удалить группу"));
+        adminCommands.add(new BotCommand("/" + Commands.edit_help, "Изменить помощь"));
+        adminCommands.add(new BotCommand("/" + Commands.cancel, "Отменить действие"));
+        adminCommands.add(new BotCommand("/" + Commands.set_timer, "Установить время для таймеров (в минутах)"));
 
         try {
             execute(new SetMyCommands(defaultCommands, new BotCommandScopeAllPrivateChats(), null));

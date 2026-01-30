@@ -1,6 +1,6 @@
-package bot.core.control.callbackHandlers;
+package bot.core.control.rout.classify.enums;
 
-public enum Action {
+public enum Callbacks {
     chooseCourse,
     chooseTag,
     confirm,

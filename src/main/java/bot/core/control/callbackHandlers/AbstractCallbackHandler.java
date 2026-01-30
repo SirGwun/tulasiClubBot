@@ -1,13 +1,14 @@
 package bot.core.control.callbackHandlers;
 
+import bot.core.control.rout.classify.enums.Callbacks;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 public abstract class AbstractCallbackHandler implements CallbackHandler {
     /** Константа действия, специфичная для подкласса */
-    protected final Action action;
+    protected final Callbacks action;
     protected final int argumentCount;
 
-    protected AbstractCallbackHandler(Action action, int argumentCount) {
+    protected AbstractCallbackHandler(Callbacks action, int argumentCount) {
         this.action = action;
         this.argumentCount = argumentCount;
     }
@@ -18,7 +19,7 @@ public abstract class AbstractCallbackHandler implements CallbackHandler {
     }
 
     @Override
-    public Action getAction() {
+    public Callbacks getAction() {
         return action;
     }
 

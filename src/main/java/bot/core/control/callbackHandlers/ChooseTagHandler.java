@@ -1,6 +1,7 @@
 package bot.core.control.callbackHandlers;
 
 import bot.core.Legacy;
+import bot.core.control.rout.classify.enums.Callbacks;
 import bot.core.util.ChatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +18,7 @@ public class ChooseTagHandler extends AbstractCallbackHandler {
     private static final Logger log = LoggerFactory.getLogger(ChooseTagHandler.class);
 
     public ChooseTagHandler() {
-        super(Action.chooseTag, 2);
+        super(Callbacks.chooseTag, 2);
     }
 
     @Override
@@ -35,7 +36,7 @@ public class ChooseTagHandler extends AbstractCallbackHandler {
 
         log.debug("User {} press chooseTag button", user.getUserName());
 
-        InlineKeyboardMarkup keyboard = ChatUtils.getTaggedGroupKeyboard(Action.chooseGroup, user.getId(), tag, ChatUtils.ARROWED_STILE);
+        InlineKeyboardMarkup keyboard = ChatUtils.getTaggedGroupKeyboard(Callbacks.chooseGroup, user.getId(), tag, ChatUtils.ARROWED_STILE);
         if (keyboard.getKeyboard().isEmpty()) {
             log.warn("Вызов getTaggedGroupKeyboard без доступных групп");
             ChatUtils.sendMessage(user.getId(), "На данный момент нет доступных групп");

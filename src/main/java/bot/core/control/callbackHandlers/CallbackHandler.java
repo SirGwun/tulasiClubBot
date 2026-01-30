@@ -1,9 +1,10 @@
 package bot.core.control.callbackHandlers;
 
+import bot.core.control.rout.classify.enums.Callbacks;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 public interface CallbackHandler {
-    Action getAction();
+    Callbacks getAction();
     String getFormat();
     boolean match(Update update);
     boolean isFormatCorrect(String callback);

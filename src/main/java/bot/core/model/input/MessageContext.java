@@ -1,7 +1,11 @@
-package bot.core.model;
+package bot.core.model.input;
 
 import bot.core.Legacy;
 import org.telegram.telegrambots.meta.api.objects.Message;
+
+/**
+ * Incoming message with methods around
+ * */
 
 public record MessageContext(Message message) {
 

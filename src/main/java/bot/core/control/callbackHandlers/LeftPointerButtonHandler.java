@@ -1,6 +1,7 @@
 package bot.core.control.callbackHandlers;
 
 import bot.core.Legacy;
+import bot.core.control.rout.classify.enums.Callbacks;
 import bot.core.util.ChatUtils;
 import bot.core.util.Utils;
 import org.slf4j.Logger;
@@ -16,8 +17,8 @@ import java.util.List;
 public class LeftPointerButtonHandler implements CallbackHandler {
     private static final Logger log = LoggerFactory.getLogger(LeftPointerButtonHandler.class);
     @Override
-    public Action getAction() {
-        return Action.leftArrow;
+    public Callbacks getAction() {
+        return Callbacks.leftArrow;
     }
 
     @Override
@@ -43,7 +44,7 @@ public class LeftPointerButtonHandler implements CallbackHandler {
         Long userId = update.getCallbackQuery().getFrom().getId();
 
         List<InlineKeyboardButton> buttons = ChatUtils.getTagetButtonList(
-                Action.chooseGroup,
+                Callbacks.chooseGroup,
                 userId,
                 tag);
         buttons.sort(Comparator.comparingInt(button -> Utils.firstPositiveNumber(button.getText())));
@@ -53,7 +54,7 @@ public class LeftPointerButtonHandler implements CallbackHandler {
                 buttons,
                 tag,
                 Integer.parseInt(data[2]),
-                Action.leftArrow));
+                Callbacks.leftArrow));
 
         var msg = update.getCallbackQuery().getMessage();
         try {

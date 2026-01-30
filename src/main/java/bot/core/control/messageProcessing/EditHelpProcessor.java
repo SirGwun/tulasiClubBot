@@ -2,7 +2,7 @@ package bot.core.control.messageProcessing;
 
 import bot.core.Legacy;
 import bot.core.model.Session;
-import bot.core.model.MessageContext;
+import bot.core.model.input.MessageContext;
 import bot.core.control.SessionController;
 import bot.core.util.ChatUtils;
 import org.telegram.telegrambots.meta.api.objects.Update;

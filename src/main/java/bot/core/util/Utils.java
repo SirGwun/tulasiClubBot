@@ -1,6 +1,6 @@
 package bot.core.util;
 
-import bot.core.control.callbackHandlers.Action;
+import bot.core.control.rout.classify.enums.Callbacks;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
 public class Utils {
@@ -33,7 +33,7 @@ public class Utils {
      * Callback format: {@code confirm_<messageId>_<userId>}.
      */
     static InlineKeyboardButton createConfirmButton(int messageId, long userId) {
-        return createButton("Принимаю", Action.confirm + "_" + messageId + "_" + userId);
+        return createButton("Принимаю", Callbacks.confirm + "_" + messageId + "_" + userId);
     }
 
     /**
@@ -41,7 +41,7 @@ public class Utils {
      * Callback format: {@code decline_<messageId>_<userId>}.
      */
     static InlineKeyboardButton createDeclineButton(int messageId, long userId) {
-        return createButton("Отказываю", Action.decline + "_" + messageId + "_" + userId);
+        return createButton("Отказываю", Callbacks.decline + "_" + messageId + "_" + userId);
     }
 
     static int getColumnCount(int size) {

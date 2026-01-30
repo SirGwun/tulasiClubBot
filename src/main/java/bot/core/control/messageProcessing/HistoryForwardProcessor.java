@@ -4,7 +4,7 @@ import bot.core.Legacy;
 import bot.core.model.Session;
 import bot.core.model.SessionState;
 import bot.core.control.SessionController;
-import bot.core.model.MessageContext;
+import bot.core.model.input.MessageContext;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

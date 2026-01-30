@@ -1,6 +1,7 @@
 package bot.core.control.callbackHandlers;
 
 import bot.core.Legacy;
+import bot.core.control.rout.classify.enums.Callbacks;
 import bot.core.util.ChatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +21,7 @@ public class ChooseAllCourseHandler extends AbstractCallbackHandler {
     Logger log = LoggerFactory.getLogger(ChooseAllCourseHandler.class);
 
     public ChooseAllCourseHandler() {
-        super(Action.chooseCourse, 2);
+        super(Callbacks.chooseCourse, 2);
     }
 
     @Override
@@ -29,7 +30,7 @@ public class ChooseAllCourseHandler extends AbstractCallbackHandler {
         List<List<InlineKeyboardButton>> buttonRows = new ArrayList<>();
         for (Map.Entry<Integer, String> entry : tagMap.entrySet()) {
             InlineKeyboardButton button = new InlineKeyboardButton(entry.getValue());
-            button.setCallbackData(Action.chooseTag + "_"  + entry.getKey());
+            button.setCallbackData(Callbacks.chooseTag + "_"  + entry.getKey());
             buttonRows.add(Collections.singletonList(button));
         }
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();

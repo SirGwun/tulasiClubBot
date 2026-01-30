@@ -2,6 +2,7 @@ package bot.core.control.messageProcessing;
 
 import bot.core.Legacy;
 import bot.core.control.callbackHandlers.*;
+import bot.core.control.rout.classify.enums.Callbacks;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
@@ -25,7 +26,7 @@ public class CallbackProcessor implements MessageProcessor {
         handleCallbackQuery(update);
     }
 
-    private final Map<Action, CallbackHandler> handlers = new EnumMap<>(Action.class);
+    private final Map<Callbacks, CallbackHandler> handlers = new EnumMap<>(Callbacks.class);
 
     {
         CallbackHandler[] list = new CallbackHandler[]{
@@ -53,9 +54,9 @@ public class CallbackProcessor implements MessageProcessor {
 
         String data = callbackQuery.getData();
         String actionString = data.split("_", 2)[0];
-        Action action = null;
+        Callbacks action = null;
         try {
-            action = Action.valueOf(actionString);
+            action = Callbacks.valueOf(actionString);
         } catch (IllegalArgumentException e) {
             log.error("Unknown callback action {}", actionString);
         }

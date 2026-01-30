@@ -1,7 +1,7 @@
 package bot.core.control;
 
 import bot.core.Legacy;
-import bot.core.model.MessageContext;
+import bot.core.model.input.MessageContext;
 import bot.core.model.TimerController;
 import bot.core.util.ChatUtils;
 import org.apache.pdfbox.Loader;

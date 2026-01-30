@@ -1,20 +1,21 @@
 package bot.core.control.callbackHandlers;
 
+import bot.core.control.rout.classify.enums.Callbacks;
 import bot.core.util.ChatUtils;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 public class GetJoinRequestedLinkHandler implements CallbackHandler {
-    private final Action action = Action.getJoinRequestedLink;
+    private final Callbacks action = Callbacks.getJoinRequestedLink;
     @Override
     public boolean match(Update update) {
-        return update.hasCallbackQuery() && update.getCallbackQuery().getData().startsWith(Action.getJoinRequestedLink + "_");
+        return update.hasCallbackQuery() && update.getCallbackQuery().getData().startsWith(Callbacks.getJoinRequestedLink + "_");
     }
 
     @Override
     public boolean isFormatCorrect(String callback) {
         String[] data = callback.split("_");
-        return data.length >= 3 && data[0].equalsIgnoreCase(Action.getJoinRequestedLink.toString()); // link may contain underscores
+        return data.length >= 3 && data[0].equalsIgnoreCase(Callbacks.getJoinRequestedLink.toString()); // link may contain underscores
     }
 
     @Override
@@ -35,7 +36,7 @@ public class GetJoinRequestedLinkHandler implements CallbackHandler {
     }
 
     @Override
-    public Action getAction() {
+    public Callbacks getAction() {
         return action;
     }
 }

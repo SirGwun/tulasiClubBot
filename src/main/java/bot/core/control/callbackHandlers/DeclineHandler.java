@@ -2,6 +2,7 @@ package bot.core.control.callbackHandlers;
 
 import bot.core.Legacy;
 import bot.core.control.SessionController;
+import bot.core.control.rout.classify.enums.Callbacks;
 import bot.core.model.TimerController;
 import bot.core.util.ChatUtils;
 import org.slf4j.Logger;
@@ -19,7 +20,7 @@ import java.time.Instant;
 
 public class DeclineHandler implements CallbackHandler {
     private static final Logger log = LoggerFactory.getLogger(DeclineHandler.class);
-    private final Action action = Action.decline;
+    private final Callbacks action = Callbacks.decline;
 
     @Override
     public String getFormat() {
@@ -27,20 +28,20 @@ public class DeclineHandler implements CallbackHandler {
     }
 
     @Override
-    public Action getAction() {
+    public Callbacks getAction() {
         return action;
     }
 
     @Override
     public boolean match(Update update) {
-        return update.hasCallbackQuery() && update.getCallbackQuery().getData().startsWith(Action.decline.toString());
+        return update.hasCallbackQuery() && update.getCallbackQuery().getData().startsWith(Callbacks.decline.toString());
     }
 
     @Override
     public boolean isFormatCorrect(String callback) {
         String[] data = callback.split("_");
         if (data.length != 3) return false;
-        if (!data[0].equalsIgnoreCase(Action.decline.toString())) return false;
+        if (!data[0].equalsIgnoreCase(Callbacks.decline.toString())) return false;
         try {
             Integer.parseInt(data[1]);
             Long.parseLong(data[2]);
