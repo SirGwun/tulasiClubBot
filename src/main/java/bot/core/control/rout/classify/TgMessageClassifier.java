@@ -12,8 +12,8 @@ import java.util.List;
 @Component
 public class TgMessageClassifier extends AbstractClassifier<TelegramUpdate, TgMessageTypes> {
 
-    public TgMessageClassifier(Class<TgMessageTypes> keyClass, List<RoutedHandler<TgMessageTypes, TelegramUpdate>> children) {
-        super(keyClass, children);
+    public TgMessageClassifier(List<RoutedHandler<TgMessageTypes, TelegramUpdate>> children) {
+        super(TgMessageTypes.class, children);
     }
 
     @Override
