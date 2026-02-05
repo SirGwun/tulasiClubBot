@@ -1291,3 +1291,171 @@ Caused by: org.telegram.telegrambots.meta.exceptions.TelegramApiException: Bot t
 2026-01-29 17:26:34 INFO  bot.core.PaymentBot - harmoniousNutritionBot запущен
 2026-01-29 17:26:34 INFO  bot.core.Legacy - Legacy инициализирован через Spring
 2026-01-29 17:26:40 INFO  bot.core.Application - Started Application in 19.834 seconds (process running for 20.552)
+2026-01-31 19:57:24 INFO  bot.core.Application - Starting Application using Java 23.0.1 with PID 20108 (C:\Users\Gwun\IdeaProjects\tulasiClabBot\target\classes started by Gwun in C:\Users\Gwun\IdeaProjects\tulasiClabBot)
+2026-01-31 19:57:24 INFO  bot.core.Application - The following 1 profile is active: "test"
+2026-01-31 19:57:25 WARN  o.s.c.a.AnnotationConfigApplicationContext - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'commandClassifier' defined in file [C:\Users\Gwun\IdeaProjects\tulasiClabBot\target\classes\bot\core\control\rout\classify\CommandClassifier.class]: Unsatisfied dependency expressed through constructor parameter 0: No qualifying bean of type 'java.lang.Class<bot.core.control.rout.classify.enums.Commands>' available: expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {}
+2026-01-31 19:57:25 INFO  o.s.b.a.l.ConditionEvaluationReportLogger - 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2026-01-31 19:57:25 ERROR o.s.b.d.LoggingFailureAnalysisReporter - 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Parameter 0 of constructor in bot.core.control.rout.classify.CommandClassifier required a bean of type 'java.lang.Class' that could not be found.
+
+
+Action:
+
+Consider defining a bean of type 'java.lang.Class' in your configuration.
+
+2026-01-31 20:00:52 INFO  bot.core.Application - Starting Application using Java 23.0.1 with PID 18024 (C:\Users\Gwun\IdeaProjects\tulasiClabBot\target\classes started by Gwun in C:\Users\Gwun\IdeaProjects\tulasiClabBot)
+2026-01-31 20:00:52 INFO  bot.core.Application - The following 1 profile is active: "test"
+2026-01-31 20:00:53 WARN  o.s.c.a.AnnotationConfigApplicationContext - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'commandClassifier' defined in file [C:\Users\Gwun\IdeaProjects\tulasiClabBot\target\classes\bot\core\control\rout\classify\CommandClassifier.class]: Unsatisfied dependency expressed through constructor parameter 0: No qualifying bean of type 'java.lang.Class<bot.core.control.rout.classify.enums.Commands>' available: expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {}
+2026-01-31 20:00:53 INFO  o.s.b.a.l.ConditionEvaluationReportLogger - 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2026-01-31 20:00:53 ERROR o.s.b.d.LoggingFailureAnalysisReporter - 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Parameter 0 of constructor in bot.core.control.rout.classify.CommandClassifier required a bean of type 'java.lang.Class' that could not be found.
+
+
+Action:
+
+Consider defining a bean of type 'java.lang.Class' in your configuration.
+
+2026-01-31 20:06:19 INFO  bot.core.Application - Starting Application using Java 23.0.1 with PID 8328 (C:\Users\Gwun\IdeaProjects\tulasiClabBot\target\classes started by Gwun in C:\Users\Gwun\IdeaProjects\tulasiClabBot)
+2026-01-31 20:06:19 INFO  bot.core.Application - The following 1 profile is active: "test"
+2026-01-31 20:06:20 WARN  o.s.c.a.AnnotationConfigApplicationContext - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'callbacks' defined in file [C:\Users\Gwun\IdeaProjects\tulasiClabBot\target\classes\bot\core\control\rout\classify\enums\Callbacks.class]: Unsatisfied dependency expressed through constructor parameter 0: No qualifying bean of type 'java.lang.String' available: expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {}
+2026-01-31 20:06:20 INFO  o.s.b.a.l.ConditionEvaluationReportLogger - 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2026-01-31 20:06:20 ERROR o.s.b.d.LoggingFailureAnalysisReporter - 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Parameter 0 of constructor in bot.core.control.rout.classify.enums.Callbacks required a bean of type 'java.lang.String' that could not be found.
+
+
+Action:
+
+Consider defining a bean of type 'java.lang.String' in your configuration.
+
+2026-01-31 21:28:23 INFO  bot.core.Application - Starting Application using Java 23.0.1 with PID 20492 (C:\Users\Gwun\IdeaProjects\tulasiClabBot\target\classes started by Gwun in C:\Users\Gwun\IdeaProjects\tulasiClabBot)
+2026-01-31 21:28:23 INFO  bot.core.Application - The following 1 profile is active: "test"
+2026-01-31 21:28:24 WARN  o.s.c.a.AnnotationConfigApplicationContext - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'sourceClassifier' defined in file [C:\Users\Gwun\IdeaProjects\tulasiClabBot\target\classes\bot\core\control\rout\classify\SourceClassifier.class]: Unsatisfied dependency expressed through constructor parameter 0: No qualifying bean of type 'java.lang.Class<bot.core.control.rout.classify.enums.InputSources>' available: expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {}
+2026-01-31 21:28:24 INFO  o.s.b.a.l.ConditionEvaluationReportLogger - 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2026-01-31 21:28:24 ERROR o.s.b.d.LoggingFailureAnalysisReporter - 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Parameter 0 of constructor in bot.core.control.rout.classify.SourceClassifier required a bean of type 'java.lang.Class' that could not be found.
+
+
+Action:
+
+Consider defining a bean of type 'java.lang.Class' in your configuration.
+
+2026-01-31 21:35:24 INFO  bot.core.Application - Starting Application using Java 23.0.1 with PID 12480 (C:\Users\Gwun\IdeaProjects\tulasiClabBot\target\classes started by Gwun in C:\Users\Gwun\IdeaProjects\tulasiClabBot)
+2026-01-31 21:35:24 INFO  bot.core.Application - The following 1 profile is active: "test"
+2026-01-31 21:35:25 INFO  bot.core.util.DataUtils - Loaded 51 groups
+2026-01-31 21:35:25 INFO  bot.core.util.DataUtils - Loaded 51 groups
+2026-01-31 21:35:25 INFO  bot.core.Legacy - Test config lounched
+2026-01-31 21:35:37 INFO  bot.core.PaymentBot - harmoniousNutritionBot запущен
+2026-01-31 21:35:37 INFO  bot.core.Legacy - Legacy инициализирован через Spring
+2026-01-31 21:35:42 INFO  bot.core.Application - Started Application in 18.439 seconds (process running for 19.121)
+2026-01-31 21:38:29 INFO  bot.core.Application - Starting Application using Java 23.0.1 with PID 19560 (C:\Users\Gwun\IdeaProjects\tulasiClabBot\target\classes started by Gwun in C:\Users\Gwun\IdeaProjects\tulasiClabBot)
+2026-01-31 21:38:29 INFO  bot.core.Application - The following 1 profile is active: "test"
+2026-01-31 21:38:30 INFO  bot.core.util.DataUtils - Loaded 51 groups
+2026-01-31 21:38:30 INFO  bot.core.util.DataUtils - Loaded 51 groups
+2026-01-31 21:38:30 INFO  bot.core.Legacy - Test config lounched
+2026-01-31 21:38:31 INFO  bot.core.PaymentBot - harmoniousNutritionBot запущен
+2026-01-31 21:38:31 INFO  bot.core.Legacy - Legacy инициализирован через Spring
+2026-01-31 21:38:36 INFO  bot.core.Application - Started Application in 7.433 seconds (process running for 8.123)
+2026-01-31 21:39:11 ERROR bot.core.util.DataUtils - Unable find class: bot.core.model.EditingActions
+2026-01-31 21:39:11 WARN  bot.core.util.DataUtils - Loaded object is not a Map
+2026-01-31 21:39:11 ERROR o.t.t.u.DefaultBotSession - null
+java.lang.UnsupportedOperationException
+	at java.base/java.util.Collections$EmptyMap.computeIfAbsent(Collections.java:4986)
+	at bot.core.control.SessionService.openSessionIfNeeded(SessionController.java:33)
+	at bot.core.control.messageProcessing.HistoryForwardProcessor.canProcess(HistoryForwardProcessor.java:21)
+	at bot.core.PaymentBot.onUpdateReceived(PaymentBot.java:72)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1597)
+	at org.telegram.telegrambots.meta.generics.LongPollingBot.onUpdatesReceived(LongPollingBot.java:27)
+	at org.telegram.telegrambots.updatesreceivers.DefaultBotSession$HandlerThread.run(DefaultBotSession.java:312)
+2026-01-31 21:46:25 INFO  bot.core.Application - Starting Application using Java 23.0.1 with PID 20064 (C:\Users\Gwun\IdeaProjects\tulasiClabBot\target\classes started by Gwun in C:\Users\Gwun\IdeaProjects\tulasiClabBot)
+2026-01-31 21:46:25 INFO  bot.core.Application - The following 1 profile is active: "test"
+2026-01-31 21:46:25 INFO  bot.core.util.DataUtils - Loaded 51 groups
+2026-01-31 21:46:25 INFO  bot.core.util.DataUtils - Loaded 51 groups
+2026-01-31 21:46:25 INFO  bot.core.Legacy - Test config lounched
+2026-01-31 21:46:26 INFO  bot.core.PaymentBot - harmoniousNutritionBot запущен
+2026-01-31 21:46:26 INFO  bot.core.Legacy - Legacy инициализирован через Spring
+2026-01-31 21:46:32 INFO  bot.core.Application - Started Application in 7.357 seconds (process running for 8.084)
+2026-01-31 21:46:43 ERROR bot.core.util.DataUtils - Не удалось найти файл data/groupList.ser
+2026-01-31 21:46:43 WARN  bot.core.util.DataUtils - Loaded object is not a Map
+2026-01-31 21:46:43 ERROR o.t.t.u.DefaultBotSession - null
+java.lang.UnsupportedOperationException
+	at java.base/java.util.Collections$EmptyMap.computeIfAbsent(Collections.java:4986)
+	at bot.core.control.SessionService.openSessionIfNeeded(SessionController.java:33)
+	at bot.core.control.messageProcessing.HistoryForwardProcessor.canProcess(HistoryForwardProcessor.java:21)
+	at bot.core.PaymentBot.onUpdateReceived(PaymentBot.java:72)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1597)
+	at org.telegram.telegrambots.meta.generics.LongPollingBot.onUpdatesReceived(LongPollingBot.java:27)
+	at org.telegram.telegrambots.updatesreceivers.DefaultBotSession$HandlerThread.run(DefaultBotSession.java:312)
+2026-01-31 22:15:50 INFO  bot.core.Application - Starting Application using Java 23.0.1 with PID 18020 (C:\Users\Gwun\IdeaProjects\tulasiClabBot\target\classes started by Gwun in C:\Users\Gwun\IdeaProjects\tulasiClabBot)
+2026-01-31 22:15:50 INFO  bot.core.Application - The following 1 profile is active: "test"
+2026-01-31 22:15:51 INFO  bot.core.util.DataUtils - Loaded 51 groups
+2026-01-31 22:15:51 INFO  bot.core.util.DataUtils - Loaded 51 groups
+2026-01-31 22:15:51 INFO  bot.core.Legacy - Test config lounched
+2026-01-31 22:15:52 INFO  bot.core.PaymentBot - harmoniousNutritionBot запущен
+2026-01-31 22:15:52 INFO  bot.core.Legacy - Legacy инициализирован через Spring
+2026-01-31 22:15:54 ERROR bot.core.util.DataUtils - Не удалось найти файл data/groupList.ser
+2026-01-31 22:15:54 WARN  bot.core.util.DataUtils - Loaded object is not a Map
+2026-01-31 22:15:54 ERROR o.t.t.u.DefaultBotSession - null
+java.lang.UnsupportedOperationException
+	at java.base/java.util.Collections$EmptyMap.computeIfAbsent(Collections.java:4986)
+	at bot.core.control.SessionService.openSessionIfNeeded(SessionController.java:33)
+	at bot.core.control.messageProcessing.HistoryForwardProcessor.canProcess(HistoryForwardProcessor.java:21)
+	at bot.core.PaymentBot.onUpdateReceived(PaymentBot.java:72)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1597)
+	at org.telegram.telegrambots.meta.generics.LongPollingBot.onUpdatesReceived(LongPollingBot.java:27)
+	at org.telegram.telegrambots.updatesreceivers.DefaultBotSession$HandlerThread.run(DefaultBotSession.java:312)
+2026-01-31 22:15:57 INFO  bot.core.Application - Started Application in 8.004 seconds (process running for 8.729)
+2026-01-31 22:19:07 INFO  bot.core.Application - Starting Application using Java 23.0.1 with PID 15600 (C:\Users\Gwun\IdeaProjects\tulasiClabBot\target\classes started by Gwun in C:\Users\Gwun\IdeaProjects\tulasiClabBot)
+2026-01-31 22:19:07 INFO  bot.core.Application - The following 1 profile is active: "test"
+2026-01-31 22:19:08 INFO  bot.core.util.DataUtils - Loaded 51 groups
+2026-01-31 22:19:08 INFO  bot.core.util.DataUtils - Loaded 51 groups
+2026-01-31 22:19:08 INFO  bot.core.Legacy - Test config lounched
+2026-01-31 22:19:09 INFO  bot.core.PaymentBot - harmoniousNutritionBot запущен
+2026-01-31 22:19:09 INFO  bot.core.Legacy - Legacy инициализирован через Spring
+2026-01-31 22:19:15 INFO  bot.core.Application - Started Application in 8.038 seconds (process running for 8.635)
+2026-01-31 22:19:43 ERROR bot.core.util.DataUtils - Не удалось найти файл data/groupList.ser
+2026-01-31 22:19:43 WARN  bot.core.util.DataUtils - Loaded session object is not a Map null
+2026-01-31 22:19:43 ERROR o.t.t.u.DefaultBotSession - null
+java.lang.UnsupportedOperationException
+	at java.base/java.util.Collections$EmptyMap.computeIfAbsent(Collections.java:4986)
+	at bot.core.control.SessionService.openSessionIfNeeded(SessionController.java:33)
+	at bot.core.control.messageProcessing.HistoryForwardProcessor.canProcess(HistoryForwardProcessor.java:21)
+	at bot.core.PaymentBot.onUpdateReceived(PaymentBot.java:72)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1597)
+	at org.telegram.telegrambots.meta.generics.LongPollingBot.onUpdatesReceived(LongPollingBot.java:27)
+	at org.telegram.telegrambots.updatesreceivers.DefaultBotSession$HandlerThread.run(DefaultBotSession.java:312)

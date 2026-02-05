@@ -12,7 +12,7 @@ public class RoutingTreeRoot {
         this.root = root;
     }
 
-    InputHandler<Input> getRoutingRoot() { // check illegal argument ex
+    public InputHandler<Input> getRoutingRoot() { // check illegal argument ex
         return root;
     }
 }

@@ -1,4 +1,4 @@
-package bot.core.model;
+package bot.core.control;
 
 import bot.core.Legacy;
 import bot.core.util.ChatUtils;

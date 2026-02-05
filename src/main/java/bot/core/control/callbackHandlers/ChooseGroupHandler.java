@@ -1,7 +1,7 @@
 package bot.core.control.callbackHandlers;
 
 import bot.core.Legacy;
-import bot.core.control.SessionController;
+import bot.core.control.SessionService;
 import bot.core.control.rout.classify.enums.Callbacks;
 import bot.core.model.Group;
 import bot.core.util.ChatUtils;
@@ -65,7 +65,7 @@ public class ChooseGroupHandler implements CallbackHandler {
             if (isItFavoriteUser(userId)) {
                 ChatUtils.addInGroup(userId, groupId, "Член избранной группы");
             } else {
-                SessionController.getInstance().setUserGroupId(userId, groupId);
+                SessionService.getInstance().setUserGroupId(userId, groupId);
                 ChatUtils.sendMessage(userId, "Выбрана группа: " + group.getName() + "\nТеперь пришлите подтверждение оплаты");
             }
         } else {

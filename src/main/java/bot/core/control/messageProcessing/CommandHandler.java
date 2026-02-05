@@ -1,12 +1,11 @@
 package bot.core.control.messageProcessing;
 
 import bot.core.Legacy;
+import bot.core.control.SessionService;
 import bot.core.control.rout.classify.enums.Commands;
-import bot.core.control.SessionController;
 import bot.core.control.rout.classify.enums.Callbacks;
 import bot.core.model.EditingActionStates;
 import bot.core.model.input.MessageContext;
-import bot.core.model.SessionState;
 import bot.core.util.ChatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -290,7 +289,7 @@ class CommandHandler {
         String text = parts[1];
         log.info("Admin {} use say command to @{}", userId, username);
 
-        Long targetId = SessionController.getInstance().getUserIdByUsername(username);
+        Long targetId = SessionService.getInstance().getUserIdByUsername(username);
         if (targetId == null) {
             try {
                 GetChat getChat = new GetChat("@" + username);

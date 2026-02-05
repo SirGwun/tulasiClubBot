@@ -1,10 +1,14 @@
 package bot.core;
 
+import bot.core.control.rout.InputHandler;
+import bot.core.control.rout.RoutingTreeRoot;
 import bot.core.control.rout.classify.enums.Commands;
 import bot.core.control.messageProcessing.CallbackProcessor;
 import bot.core.control.messageProcessing.*;
 
-import bot.core.util.config.Config;
+import bot.core.model.input.Input;
+import bot.core.util.config.BotConfig;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -22,7 +26,8 @@ import java.util.*;
 
 @Component
 public class PaymentBot extends TelegramLongPollingBot {
-    private final Config config;
+    private final BotConfig botConfig;
+    private final InputHandler<Input> rootHandler;
     public final Logger log = LoggerFactory.getLogger(PaymentBot.class);
 
     private final HistoryForwardProcessor historyForwardProcessor  = new HistoryForwardProcessor();
@@ -35,18 +40,19 @@ public class PaymentBot extends TelegramLongPollingBot {
             new EditPaymentInfoProcessor()
     );
 
-    public PaymentBot(Config config) {
-        super(config.getMainBotToken());
-        this.config = config;
-        init();
+    public PaymentBot(BotConfig config, RoutingTreeRoot routing) {
+        super(config.getBotToken());
+        rootHandler = routing.getRoutingRoot();
+        this.botConfig = config;
     }
 
+    @PostConstruct
     public void init() {
         try {
             TelegramBotsApi telegramBotsApi =
                     new TelegramBotsApi(DefaultBotSession.class);
             telegramBotsApi.registerBot(this);
-            log.info("{} запущен", config.getMainBotName());
+            log.info("{} запущен", botConfig.getBotName());
         } catch (TelegramApiException e) {
             log.error("Ошибка при регистрации paymentBot в telegram " + e.getMessage());
             throw new IllegalStateException(e);
@@ -77,7 +83,7 @@ public class PaymentBot extends TelegramLongPollingBot {
 
     @Override
     public String getBotUsername() {
-        return config.getMainBotName();
+        return botConfig.getBotName();
     }
 
     @Override

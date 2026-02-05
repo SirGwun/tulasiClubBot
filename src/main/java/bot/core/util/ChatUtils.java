@@ -1,10 +1,12 @@
 package bot.core.util;
 
 import bot.core.Legacy;
-import bot.core.control.SessionController;
+import bot.core.control.SessionService;
 import bot.core.control.rout.classify.enums.Callbacks;
+import bot.core.store.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.CreateChatInviteLink;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatAdministrators;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -19,13 +21,15 @@ import bot.core.model.Group;
 import java.util.*;
 
 /** Utility methods for interacting with chats. */
+@Service
 public final class ChatUtils {
     private static final Logger log = LoggerFactory.getLogger(ChatUtils.class);
     public static final String ARROWED_STILE = "arrowed";
     public static final String COMMON_STILE = "common";
+    UserRepository userRepo;
 
-    private ChatUtils() {
-        // utility class
+    private ChatUtils(UserRepository repository) {
+        this.userRepo = repository;
     }
 
     /**
@@ -236,9 +240,7 @@ public final class ChatUtils {
             return;
         }
 
-        String userName = SessionController.getInstance()
-                .getUserSession(userId)
-                .getUserName();
+        String userName = userRepo.getUserById(userId);
 
         try {
             String historyLink = getJoinRequestedLink(groupId);

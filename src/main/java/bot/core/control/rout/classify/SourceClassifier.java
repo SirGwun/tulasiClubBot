@@ -12,8 +12,8 @@ import java.util.List;
 @Component
 public class SourceClassifier extends AbstractClassifier<Input, InputSources> {
 
-    public SourceClassifier(Class<InputSources> keyClass, List<RoutedHandler<InputSources, Input>> children) {
-        super(keyClass, children);
+    public SourceClassifier(List<RoutedHandler<InputSources, Input>> children) {
+        super(InputSources.class, children);
     }
 
     @Override

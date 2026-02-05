@@ -2,7 +2,6 @@ package bot.core.control;
 
 import bot.core.Legacy;
 import bot.core.model.input.MessageContext;
-import bot.core.model.TimerController;
 import bot.core.util.ChatUtils;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -49,7 +48,7 @@ public class Validator {
 
     public void sendOuHumanValidation(MessageContext ctx) {
         long userId = ctx.getFromId();
-        Long groupId = SessionController.getInstance().getUserSession(ctx.getFromId()).getGroupId();
+        Long groupId = SessionService.getInstance().getSession(ctx.getFromId()).getGroupId();
 
         if (Legacy.dataUtils.getTimerMinutes() != -1) {
             TimerController.addTimer(userId, groupId, Legacy.dataUtils.getTimerMinutes());

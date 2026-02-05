@@ -1,9 +1,9 @@
 package bot.core.control.callbackHandlers;
 
 import bot.core.Legacy;
-import bot.core.control.SessionController;
+import bot.core.control.SessionService;
 import bot.core.control.rout.classify.enums.Callbacks;
-import bot.core.model.TimerController;
+import bot.core.control.TimerController;
 import bot.core.util.ChatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +59,7 @@ public class ConfirmHandler implements CallbackHandler {
         int messageId = cq.getMessage().getMessageId();
 
         log.info("Admin {} confirm {}", chatId, targetUserId);
-        Long groupId = SessionController.getInstance().getUserSession(targetUserId).getGroupId();
+        Long groupId = SessionService.getInstance().getSession(targetUserId).getGroupId();
         if (TimerController.hasTimer(targetUserId, groupId) || !isUserAdded(targetUserId, groupId)) {
             TimerController.stopTimer(targetUserId, groupId);
             ChatUtils.addInGroup(targetUserId, groupId, "Одобрение админа");

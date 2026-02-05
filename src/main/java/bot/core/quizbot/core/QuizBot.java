@@ -3,15 +3,11 @@ package bot.core.quizbot.core;
 import bot.core.quizbot.model.Session;
 import bot.core.quizbot.test.Test;
 import bot.core.quizbot.test.TestLoader;
-import bot.core.util.DataUtils;
-import bot.core.util.config.Config;
+import bot.core.util.config.ConfigProvider;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
@@ -29,16 +25,15 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Optional;
-import java.util.Properties;
 
 public class QuizBot extends TelegramLongPollingBot {
     private static final Logger log = LoggerFactory.getLogger(QuizBot.class);
     private final SessionManager sessions = new SessionManager();
     private final static boolean amvera = System.getenv("AMVERA") != null && System.getenv("AMVERA").equals("1");
     public static final String data = amvera ? "/data" : "data";
-    public final Config config;
+    public final ConfigProvider config;
 
-    public QuizBot(Config config) {
+    public QuizBot(ConfigProvider config) {
         super(config.getQuizBotToken());
         this.config = config;
     }

@@ -1,9 +1,8 @@
 package bot.core.control.messageProcessing;
 
 import bot.core.Legacy;
+import bot.core.control.SessionService;
 import bot.core.model.Session;
-import bot.core.model.SessionState;
-import bot.core.control.SessionController;
 import bot.core.model.input.MessageContext;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.slf4j.Logger;
@@ -17,8 +16,8 @@ public class HistoryForwardProcessor implements MessageProcessor {
     public boolean canProcess(Update update) {
         if (!update.hasMessage()) return false;
         MessageContext message = new MessageContext(update.getMessage());
-        Session session = SessionController.getInstance()
-                .openSessionIfNeeded(update.getMessage().getFrom());
+        Session session = SessionService.getInstance()
+                .openSession(update.getMessage().getFrom());
         SessionState state = session.getState();
         return !message.isCommand() &&
                 !state.isEditingHelp() &&

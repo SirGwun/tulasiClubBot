@@ -2,7 +2,7 @@ package bot.core.control.messageProcessing;
 
 import bot.core.control.rout.classify.enums.Commands;
 import bot.core.model.input.MessageContext;
-import bot.core.control.SessionController;
+import bot.core.control.SessionService;
 import bot.core.model.Session;
 import bot.core.model.answers.Answer;
 import org.springframework.stereotype.Service;
@@ -15,13 +15,14 @@ import java.util.Map;
 @Service
 public class CommandMessageProcessor implements MessageProcessor {
     Map<Commands, Answer> answerMap = new HashMap<>();
+    private SessionService sessionService;
 
     public CommandMessageProcessor() {
 
     }
 
-    public CommandMessageProcessor(List<Answer> answers) {
-
+    public CommandMessageProcessor(SessionService sessionService ,List<Answer> answers) {
+        this.sessionService = sessionService;
     }
 
     @Override
@@ -33,9 +34,9 @@ public class CommandMessageProcessor implements MessageProcessor {
     @Override
     public void process(Update update) {
         MessageContext message = new MessageContext(update.getMessage());
-        Session session = SessionController.getInstance()
-                .openSessionIfNeeded(update.getMessage().getFrom());
-        CommandHandler handler = new CommandHandler(session.getState(), message.getFromId());
+        Long userId = message.getFromId();
+
+        CommandHandler handler = new CommandHandler(sessionService.getEditingActionState(userId), message.getFromId());
         handler.handle(message);
     }
 }

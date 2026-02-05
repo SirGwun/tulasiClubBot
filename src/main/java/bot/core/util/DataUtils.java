@@ -1,7 +1,7 @@
 package bot.core.util;
 
 import bot.core.Legacy;
-import bot.core.model.TimerController;
+import bot.core.control.TimerController;
 import bot.core.model.Session;
 import bot.core.model.Group;
 import ch.qos.logback.classic.LoggerContext;
@@ -143,39 +143,6 @@ public final class DataUtils {
         }
         return null;
     }
-
-    public void saveSessions(Map<Long, Session> sessionByUser) {
-        try (ObjectOutputStream output = new ObjectOutputStream(new FileOutputStream(base + "sessions" + ".ser"))) {
-            output.writeObject(sessionByUser);
-        } catch (IOException ex) {
-            log.error("Can't save {} \n {}", "sessions", ex.getMessage());
-        }
-    }
-
-    public Map<Long, Session> loadSessions() {
-        Object ses = load("sessions");
-        if (!(ses instanceof Map<?, ?> rawMap)) {
-            log.warn("Loaded object is not a Map");
-            return Collections.emptyMap();
-        }
-
-        Map<Long, Session> result = new HashMap<>();
-
-        for (Map.Entry<?, ?> entry : rawMap.entrySet()) {
-            if (!(entry.getKey() instanceof Long)) {
-                log.warn("Invalid key type: {}", entry.getKey());
-                continue;
-            }
-            if (!(entry.getValue() instanceof Session)) {
-                log.warn("Invalid value type for key {}", entry.getKey());
-                continue;
-            }
-            result.put((Long) entry.getKey(), (Session) entry.getValue());
-        }
-
-        return result;
-    }
-
 
     private void loadGroupList() {
         Object list =  load("groupList");

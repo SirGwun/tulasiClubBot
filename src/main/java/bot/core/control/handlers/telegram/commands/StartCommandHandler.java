@@ -1,4 +1,4 @@
-package bot.core.control.handlers.telegram;
+package bot.core.control.handlers.telegram.commands;
 
 import bot.core.control.rout.RoutedHandler;
 import bot.core.control.rout.classify.enums.Commands;
@@ -12,6 +12,6 @@ public class StartCommandHandler implements RoutedHandler<Commands, TelegramUpda
 
     @Override
     public void handle(TelegramUpdate input) {
-
+        System.out.println("Start command detected");
     }
 }

@@ -1,9 +1,9 @@
 package bot.core.control.callbackHandlers;
 
 import bot.core.Legacy;
-import bot.core.control.SessionController;
+import bot.core.control.SessionService;
 import bot.core.control.rout.classify.enums.Callbacks;
-import bot.core.model.TimerController;
+import bot.core.control.TimerController;
 import bot.core.util.ChatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,9 +66,9 @@ public class DeclineHandler implements CallbackHandler {
     }
 
     private void handleDeclineAction(long targetUserId) {
-        long groupId = SessionController.getInstance().getUserSession(targetUserId).getGroupId();
-        String userName = SessionController.getInstance()
-                .getUserSession(targetUserId)
+        long groupId = SessionService.getInstance().getSession(targetUserId).getGroupId();
+        String userName = SessionService.getInstance()
+                .getSession(targetUserId)
                 .getUserName();
         String groupName = Legacy.dataUtils.getGroupName(groupId);
 

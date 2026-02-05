@@ -1,6 +1,6 @@
 package bot.core.control.messageProcessing;
 
-import bot.core.control.SessionController;
+import bot.core.control.SessionService;
 import bot.core.model.Session;
 import bot.core.model.input.MessageContext;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -17,8 +17,8 @@ public class CommonMessageProcessor implements MessageProcessor {
     public boolean canProcess(Update update) {
         if (!update.hasMessage()) return false;
         MessageContext ctx = new MessageContext(update.getMessage());
-        Session session = SessionController.getInstance()
-                .openSessionIfNeeded(update.getMessage().getFrom());
+        Session session = SessionService.getInstance()
+                .openSession(update.getMessage().getFrom());
         return !ctx.isCommand() && ctx.notFromGroup() && session.getState().isCommonState();
     }
 
@@ -28,8 +28,8 @@ public class CommonMessageProcessor implements MessageProcessor {
         if (validator == null) validator = new Validator();
 
         MessageContext ctx = new MessageContext(update.getMessage());
-        Session session = SessionController.getInstance()
-                .getUserSession(ctx.getFromId());
+        Session session = SessionService.getInstance()
+                .getSession(ctx.getFromId());
 
         long chatId = ctx.getChatId();
 
