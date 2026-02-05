@@ -6,7 +6,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class AbstractClassifier<I extends Input, K> implements InputHandler<I>, Classifier<I, K> {
+public abstract class AbstractClassifier<I extends Input, K extends Enum<K>> implements InputHandler<I>, Classifier<I, K> {
     Map<K, InputHandler<I>> routes;
 
     public AbstractClassifier(Class<K> keyClass, List<RoutedHandler<K, I>> children) {
@@ -14,6 +14,7 @@ public abstract class AbstractClassifier<I extends Input, K> implements InputHan
         for (var child : children) {
             routes.put(child.routeKey(), child);
         }
+        System.out.println("Classifier has been built for " + keyClass.getName());
     }
 
     @Override
