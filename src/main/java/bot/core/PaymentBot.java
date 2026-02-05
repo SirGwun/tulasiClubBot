@@ -53,7 +53,7 @@ public class PaymentBot extends TelegramLongPollingBot {
                 secretProperties.load(secretInput);
 
                 token = secretProperties.getProperty("bot.token");
-                name = "harmoniousNutritionBot";
+                name = secretProperties.getProperty("bot.name");
             } catch (IOException e) {
                 log.error("Не удалось прочитать токен и имя PaymentBot бота в тестовом режиме");
                 throw new RuntimeException("Не удалось загрузить секреты", e);
@@ -70,7 +70,7 @@ public class PaymentBot extends TelegramLongPollingBot {
                 secretProperties.load(secretInput);
 
                 token = secretProperties.getProperty("bot.token");
-                name = "tulasiClubBot";
+                name = secretProperties.getProperty("bot.name");
 
             } catch (IOException e) {
                 log.error("Не удалось прочитать токен и имя PaymentBot бота");
