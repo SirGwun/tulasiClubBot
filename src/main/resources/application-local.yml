@@ -1,0 +1,15 @@
+bot:
+  main:
+    token: ${bot.token}
+    name: tulasiClubBot
+  quiz:
+    token: ${quiz.token}
+    name: tulasiTestBot
+
+storage:
+  data:
+    dir: /data
+
+spring:
+  config:
+    import: classpath:secret.properties

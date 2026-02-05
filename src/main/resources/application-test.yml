@@ -1,0 +1,24 @@
+bot:
+  main:
+    token: ${bot.token}
+    name: harmoniousNutritionBot
+  quiz:
+    token: ${quiz.token}
+    name: quizBot
+
+storage:
+  data:
+    dir: /data
+
+spring:
+  config:
+    import: classpath:secretTest.properties
+
+  datasource:
+    url: jdbc:sqlite:data/DataBase.db
+    driver-class-name: org.sqlite.JDBC
+
+    jpa:
+      hibernate:
+        ddl-auto: update
+      show-sql: true

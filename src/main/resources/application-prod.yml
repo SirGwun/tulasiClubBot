@@ -1,0 +1,11 @@
+bot:
+  main:
+    token: ${BOTTOCEN}
+    name: tulasiClubBot
+  quiz:
+    token: ${TESTBOTTOCKEN}
+    name: tulasiTestBot
+
+storage:
+  data:
+    dir: data
