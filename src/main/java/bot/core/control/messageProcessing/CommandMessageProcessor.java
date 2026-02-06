@@ -117,10 +117,17 @@ public class CommandMessageProcessor implements MessageProcessor {
                 case Command.set_timer:
                     handleSetTimerCommand(args);
                     break;
+                case Command.spread:
+                    handleSpreadCommand(args);
+                    break;
                 default:
                     log.warn("Неизвестная команда {}", command);
                     break;
             }
+        }
+
+        private void handleSpreadCommand(String args) {
+
         }
 
         private void handleUserCommand(Command command) {
