@@ -62,7 +62,7 @@ public final class ChatUtils {
         coursesDescription.setCallbackData(Action.getCourseDescription + "_" + chatId);
         coursesDescription.setUrl("https://t.me/c/2388702610/1039");
         InlineKeyboardButton chooseCourse = new InlineKeyboardButton("Выбрать курс");
-        chooseCourse.setCallbackData(Action.chooseCourse + "_" + chatId);
+        chooseCourse.setCallbackData(Action.chooseArchiveOrActual + "_" + chatId);
 
         InlineKeyboardButton getInstruction = new InlineKeyboardButton("Инструкция");
         getInstruction.setCallbackData(Action.getInstruction + "_" + chatId);
