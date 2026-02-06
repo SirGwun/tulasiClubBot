@@ -319,7 +319,7 @@ public final class DataUtils {
         return "";
     }
 
-    public String getGroupTag() {
+    public String getGroupTag() { //todo возвращать номер а не название
         return getTagMap().get(Integer.parseInt(config.getProperty("groupTag")));
     }
 
