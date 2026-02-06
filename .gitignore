@@ -43,5 +43,5 @@ build/
 .vscode/
 
 .DS_Store
-/logs/app.log
+data/logs/*
 /dependency-reduced-pom.xml
