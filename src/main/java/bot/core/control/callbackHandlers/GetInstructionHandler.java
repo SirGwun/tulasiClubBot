@@ -6,7 +6,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 
 public class GetInstructionHandler extends AbstractCallbackHandler {
     public GetInstructionHandler() {
-        super(Action.getInstruction, 2);
+        super(Action.getInstruction);
     }
 
     @Override

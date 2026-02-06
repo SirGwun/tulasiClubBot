@@ -7,9 +7,9 @@ public abstract class AbstractCallbackHandler implements CallbackHandler {
     protected final Action action;
     protected final int argumentCount;
 
-    protected AbstractCallbackHandler(Action action, int argumentCount) {
+    protected AbstractCallbackHandler(Action action) {
         this.action = action;
-        this.argumentCount = argumentCount;
+        this.argumentCount = 2;
     }
 
     @Override

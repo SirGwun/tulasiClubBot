@@ -17,7 +17,7 @@ public class ChooseTagHandler extends AbstractCallbackHandler {
     private static final Logger log = LoggerFactory.getLogger(ChooseTagHandler.class);
 
     public ChooseTagHandler() {
-        super(Action.chooseTag, 2);
+        super(Action.chooseTag);
     }
 
     @Override
