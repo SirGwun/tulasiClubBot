@@ -16,16 +16,20 @@ import java.util.Map;
 /**
  * Возвращает клавиатуру со всеми курсами
  */
-public class ChooseAllCourseHandler extends AbstractCallbackHandler {
-    Logger log = LoggerFactory.getLogger(ChooseAllCourseHandler.class);
+public class ChooseArchiveCourseHandler extends AbstractCallbackHandler {
+    Logger log = LoggerFactory.getLogger(ChooseArchiveCourseHandler.class);
 
-    public ChooseAllCourseHandler() {
-        super(Action.chooseCourse, 2);
+    public ChooseArchiveCourseHandler() {
+        super(Action.archive);
     }
 
     @Override
     public void handle(Update update) {
         Map<Integer, String> tagMap = Main.dataUtils.getTagMap();
+        //удаляем из мапы актуальный курс (тег)
+        tagMap.remove(Main.dataUtils.getTagId(Main.dataUtils.getGroupTag()));
+
+
         List<List<InlineKeyboardButton>> buttonRows = new ArrayList<>();
         for (Map.Entry<Integer, String> entry : tagMap.entrySet()) {
             InlineKeyboardButton button = new InlineKeyboardButton(entry.getValue());

@@ -1,18 +1,32 @@
 package bot.core.control.callbackHandlers;
 
 public enum Action {
-    chooseCourse,
+    //выбор курса
+    chooseArchiveOrActual,
+    archive,
     chooseTag,
+    chooseGroup,
+
+    //действия админа
     confirm,
     decline,
     delGroup,
-    getInstruction,
+    setTag,
+
+    //дать ссылку на группу в крайнем случае
     getJoinRequestedLink,
-    chooseGroup,
+
+    //инструкции
+    getInstruction,
     getPaymentInstruction,
+
+    //ссылка на описание крусов
     getCourseDescription,
+
+    //стрелочки в списке
     rightArrow,
     leftArrow,
-    none,
-    setTag
+
+    //ничего не делать
+    none
 }
