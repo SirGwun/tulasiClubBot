@@ -43,20 +43,35 @@ public class PaymentBot extends TelegramLongPollingBot {
         if (amvera) {
             token = System.getenv( "BOTTOCKEN");
             name = System.getenv("BOTNAME");
-        } else {
+        } else if (Main.test) {
+            try (InputStream secretInput = DataUtils.class.getClassLoader().getResourceAsStream("secretTest.properties")) {
+                if (secretInput == null) {
+                    throw new FileNotFoundException("secretTest.properties not found");
+                }
+
+                Properties secretProperties = new Properties();
+                secretProperties.load(secretInput);
+
+                token = secretProperties.getProperty("bot.token");
+                name = "harmoniousNutritionBot";
+            } catch (IOException e) {
+                log.error("Не удалось прочитать токен и имя PaymentBot бота в тестовом режиме");
+                throw new RuntimeException("Не удалось загрузить секреты", e);
+            }
+            log.info("PaymentBot инициализирован в тестовом режиме");
+        }
+        else {
             try (InputStream secretInput = DataUtils.class.getClassLoader().getResourceAsStream("secret.properties")) {
                 if (secretInput == null) {
                     throw new FileNotFoundException("secret.properties not found");
                 }
+
                 Properties secretProperties = new Properties();
                 secretProperties.load(secretInput);
-                if (Main.test) {
-                    token = secretProperties.getProperty("testBotToken");
-                    name = secretProperties.getProperty("testBotName");
-                } else {
-                    token = secretProperties.getProperty("botToken");
-                    name = secretProperties.getProperty("botName");
-                }
+
+                token = secretProperties.getProperty("bot.token");
+                name = "tulasiClubBot";
+
             } catch (IOException e) {
                 log.error("Не удалось прочитать токен и имя PaymentBot бота");
                 throw new RuntimeException("Не удалось загрузить секреты", e);
@@ -131,6 +146,7 @@ public class PaymentBot extends TelegramLongPollingBot {
         adminCommands.add(new BotCommand("/" + Command.edit_help, "Изменить помощь"));
         adminCommands.add(new BotCommand("/" + Command.cancel, "Отменить действие"));
         adminCommands.add(new BotCommand("/" + Command.set_timer, "Установить время для таймеров (в минутах)"));
+        adminCommands.add(new BotCommand("/" + Command.spread, "Разослать сообщение всем кто взаимодействовал с ботом"));
 
         try {
             execute(new SetMyCommands(defaultCommands, new BotCommandScopeAllPrivateChats(), null));
