@@ -16,6 +16,7 @@ public enum Command {
     edit_info,
     menu,
     set_timer,
-    spread
+    spread,
+    getuserlist
 }
 

@@ -2,24 +2,26 @@ package bot.core.control.messageProcessing;
 
 import bot.core.Main;
 import bot.core.control.Command;
-import bot.core.model.EditingActions;
-import bot.core.model.MessageContext;
+import bot.core.model.*;
 import bot.core.control.SessionController;
-import bot.core.model.Session;
-import bot.core.model.SessionState;
 import bot.core.util.ChatUtils;
 import bot.core.control.callbackHandlers.Action;
+import bot.core.util.DataUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChat;
+import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatMember;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.Chat;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class CommandMessageProcessor implements MessageProcessor {
 
@@ -48,6 +50,7 @@ public class CommandMessageProcessor implements MessageProcessor {
             this.state = state;
             this.userId = userId;
         }
+
         public void handle(MessageContext message) {
             if (message.isCommand()) {
                 String[] data = message.getText().split(" ", 2);
@@ -120,14 +123,144 @@ public class CommandMessageProcessor implements MessageProcessor {
                 case Command.spread:
                     handleSpreadCommand(args);
                     break;
+                case Command.getuserlist:
+                    handleGetUserList();
+                    break;
                 default:
                     log.warn("Неизвестная команда {}", command);
                     break;
             }
         }
 
+        private void handleGetUserList() {
+            List<Group> groupList = Main.dataUtils.getGroupList();
+
+            for (Group group : groupList) {
+                System.out.println(group);
+            }
+
+            System.out.println("_____________________");
+
+            Map<Long, User> userMap = new HashMap<>();
+            List<String> userNiknameList = new ArrayList<>();
+
+            for (Group group : groupList) {
+                GetChatMember chatMember = new GetChatMember();
+                chatMember.setChatId(group.getId());
+                GetChat getChat = new GetChat(group.getId() + "");
+                try {
+                    Chat chat = Main.paymentBot.execute(getChat);
+                    userNiknameList = chat.getActiveUsernames();
+                    for (String nik : userNiknameList) {
+                        System.out.println(nik);
+                    }
+                } catch (TelegramApiException e) {
+                    log.error("can't execute telegram getChat gor " + group);
+                }
+            }
+        }
+
         private void handleSpreadCommand(String args) {
 
+            Set<Long> userIdSet = SessionController.getSessionMap().keySet();
+
+            BroadcastMessage message = new BroadcastMessage(
+                    "test message",
+                    "AgACAgIAAxkBAAIBQ2exampleFILEID" // file_id фото
+            );
+
+            spreadToChatIds(userIdSet, message);
+        }
+
+
+        private void spreadToChatIds(Set<Long> chatIds, BroadcastMessage message) {
+
+            for (Long id : chatIds) {
+
+                try {
+
+                    if (message.hasPhoto()) {
+
+                        SendPhoto sendPhoto = new SendPhoto();
+                        sendPhoto.setChatId(id.toString());
+                        sendPhoto.setPhoto(new InputFile(message.getPhotoFileId()));
+                        sendPhoto.setCaption(message.getText());
+
+                        Main.paymentBot.execute(sendPhoto);
+
+                    } else {
+
+                        SendMessage sendMessage = new SendMessage();
+                        sendMessage.setChatId(id.toString());
+                        sendMessage.setText(message.getText());
+
+                        Main.paymentBot.execute(sendMessage);
+                    }
+
+                } catch (TelegramApiException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+
+
+        private void printUserListBySessions() {
+            Map<Long, Session> sessionMap = SessionController.getSessionMap();
+            List<String[]> tempList = new ArrayList<>();
+            List<String> resultList = new ArrayList<>();
+
+            for (Map.Entry<Long, Session> entry : sessionMap.entrySet()) {
+
+                Long userId = entry.getKey();
+                Session session = entry.getValue();
+
+                String userName = session.getUserName();
+                Long groupId = session.getGroupId();
+                String groupName;
+
+                if (groupId == null) {
+                    groupName = "группа не известна";
+                } else {
+                    groupName = Main.dataUtils.getGroupName(groupId);
+                    if (groupName == null) groupName = "группа не известна";
+                }
+
+                tempList.add(new String[]{
+                        groupName,
+                        userName == null ? "" : userName,
+                        userId.toString()
+                });
+            }
+
+            tempList.sort(Comparator
+                    .comparing((String[] arr) -> arr[0], String.CASE_INSENSITIVE_ORDER)
+                    .thenComparing(arr -> arr[1], String.CASE_INSENSITIVE_ORDER)
+            );
+
+            System.out.println("========= USER LIST =========");
+
+            String currentGroup = "";
+
+            for (String[] arr : tempList) {
+
+                String groupName = arr[0];
+                String userName = arr[1];
+                String userId = arr[2];
+
+                if (!currentGroup.equals(groupName)) {
+                    currentGroup = groupName;
+                    System.out.println();
+                    System.out.println("GROUP: " + groupName);
+                }
+
+                String line = "   " + userName + " (" + userId + ")";
+                System.out.println(line);
+                resultList.add(line);
+            }
+
+            System.out.println();
+            System.out.println("TOTAL USERS: " + resultList.size());
         }
 
         private void handleUserCommand(Command command) {
@@ -158,7 +291,7 @@ public class CommandMessageProcessor implements MessageProcessor {
             ChatUtils.sendMessage(userId,
                     """
                             Здравствуйте!
-                            
+                                                        
                             Вас приветствует, бот-помощник курсов
                             Школы Аюрведы и здорового образа жизни "Tulasi"
                             """);

@@ -260,7 +260,8 @@ public final class DataUtils {
         }
     }
 
-    public String getGroupName(long groupId) {
+    public String getGroupName(Long groupId) {
+        if (groupId == null) return null;
         for (Group group : groupList) {
             if (Objects.equals(group.getId(), groupId)) {
                 return group.getName();
