@@ -21,8 +21,7 @@ public class HistoryForwardProcessor implements MessageProcessor {
                 .openSessionIfNeeded(update.getMessage().getFrom());
         SessionState state = session.getState();
         return !message.isCommand() &&
-                !state.isEditingHelp() &&
-                !state.isEditingInfo() &&
+                state.isCommonState() &&
                 message.notFromGroup() &&
                 (message.hasText() || message.hasPayment());
     }

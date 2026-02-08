@@ -102,9 +102,6 @@ public class CommandMessageProcessor implements MessageProcessor {
                 case Command.cancel:
                     handleCancelCommand();
                     break;
-                case Command.edit_info:
-                    handleEditInfoCommand();
-                    break;
                 case Command.edit_help:
                     handleEditHelpCommand();
                     break;
@@ -121,7 +118,7 @@ public class CommandMessageProcessor implements MessageProcessor {
                     handleSetTimerCommand(args);
                     break;
                 case Command.spread:
-                    handleSpreadCommand(args);
+                    handleSpreadCommand();
                     break;
                 case Command.getuserlist:
                     handleGetUserList();
@@ -132,80 +129,14 @@ public class CommandMessageProcessor implements MessageProcessor {
             }
         }
 
+        private void handleSpreadCommand() {
+            ChatUtils.sendMessage(userId, "Следующее сообщение которое вы отправите в этот чат " +
+                    "будет разослано всем пользователям. \nДля отмены используйте команду /" + Command.cancel);
+            state.setAction(EditingActions.SENDING_SPREAD);
+        }
+
+
         private void handleGetUserList() {
-            List<Group> groupList = Main.dataUtils.getGroupList();
-
-            for (Group group : groupList) {
-                System.out.println(group);
-            }
-
-            System.out.println("_____________________");
-
-            Map<Long, User> userMap = new HashMap<>();
-            List<String> userNiknameList = new ArrayList<>();
-
-            for (Group group : groupList) {
-                GetChatMember chatMember = new GetChatMember();
-                chatMember.setChatId(group.getId());
-                GetChat getChat = new GetChat(group.getId() + "");
-                try {
-                    Chat chat = Main.paymentBot.execute(getChat);
-                    userNiknameList = chat.getActiveUsernames();
-                    for (String nik : userNiknameList) {
-                        System.out.println(nik);
-                    }
-                } catch (TelegramApiException e) {
-                    log.error("can't execute telegram getChat gor " + group);
-                }
-            }
-        }
-
-        private void handleSpreadCommand(String args) {
-
-            Set<Long> userIdSet = SessionController.getSessionMap().keySet();
-
-            BroadcastMessage message = new BroadcastMessage(
-                    "test message",
-                    "AgACAgIAAxkBAAIBQ2exampleFILEID" // file_id фото
-            );
-
-            spreadToChatIds(userIdSet, message);
-        }
-
-
-        private void spreadToChatIds(Set<Long> chatIds, BroadcastMessage message) {
-
-            for (Long id : chatIds) {
-
-                try {
-
-                    if (message.hasPhoto()) {
-
-                        SendPhoto sendPhoto = new SendPhoto();
-                        sendPhoto.setChatId(id.toString());
-                        sendPhoto.setPhoto(new InputFile(message.getPhotoFileId()));
-                        sendPhoto.setCaption(message.getText());
-
-                        Main.paymentBot.execute(sendPhoto);
-
-                    } else {
-
-                        SendMessage sendMessage = new SendMessage();
-                        sendMessage.setChatId(id.toString());
-                        sendMessage.setText(message.getText());
-
-                        Main.paymentBot.execute(sendMessage);
-                    }
-
-                } catch (TelegramApiException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-
-
-        private void printUserListBySessions() {
             Map<Long, Session> sessionMap = SessionController.getSessionMap();
             List<String[]> tempList = new ArrayList<>();
             List<String> resultList = new ArrayList<>();
@@ -242,6 +173,9 @@ public class CommandMessageProcessor implements MessageProcessor {
 
             String currentGroup = "";
 
+            StringBuilder sb = new StringBuilder();
+
+            //переделать на возврат списка в телеграм, а не в консоль
             for (String[] arr : tempList) {
 
                 String groupName = arr[0];
@@ -393,7 +327,8 @@ public class CommandMessageProcessor implements MessageProcessor {
 
         private void handleCancelCommand() {
             log.info(CMD_LOG, userId, Command.cancel);
-            EditingActions action = state.cansel();
+            EditingActions action = state.getAction();
+            state.setAction(EditingActions.NONE);
             ChatUtils.sendMessage(userId, "Режим работы над командой" + action.toString() + "отменен");
         }
 
@@ -413,21 +348,15 @@ public class CommandMessageProcessor implements MessageProcessor {
             ChatUtils.sendMessage(userId, Main.dataUtils.getHelp());
         }
 
-        private void handleEditInfoCommand() {
-            log.info(CMD_LOG, userId, Command.edit_info);
-            state.editInfo();
-            ChatUtils.sendMessage(userId, "Введите новое описание группы");
-        }
-
         private void handleEditHelpCommand() {
             log.info(CMD_LOG, userId, Command.edit_help);
-            state.editHelp();
+            state.setAction(EditingActions.EDIT_HELP);
             ChatUtils.sendMessage(userId, "Введите новое сообщение помощи");
         }
 
         private void handleSetPaymentInfo() {
             log.info(CMD_LOG, userId, Command.set_payment_info);
-            state.editPaymentInfo();
+            state.setAction(EditingActions.EDIT_PAYMENT_INFO);
             ChatUtils.sendMessage(userId, "Пришлите сообщение содержащее информацию о методах оплаты");
         }
 

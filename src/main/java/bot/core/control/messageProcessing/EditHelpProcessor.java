@@ -1,5 +1,6 @@
 package bot.core.control.messageProcessing;
 
+import bot.core.model.EditingActions;
 import bot.core.model.Session;
 import bot.core.model.MessageContext;
 import bot.core.control.SessionController;
@@ -15,7 +16,9 @@ public class EditHelpProcessor implements MessageProcessor {
         MessageContext message = new MessageContext(update.getMessage());
         Session session = SessionController.getInstance()
                 .openSessionIfNeeded(update.getMessage().getFrom());
-        return session.getState().isEditingHelp() && message.isFromAdmin() && !message.getText().equals("/cancel");
+        return session.getState().getAction() == EditingActions.EDIT_HELP
+                && message.isFromAdmin()
+                && !message.getText().equals("/cancel");
     }
 
     @Override
@@ -24,7 +27,7 @@ public class EditHelpProcessor implements MessageProcessor {
         MessageContext message = new MessageContext(update.getMessage());
         Session session = SessionController.getInstance().getUserSession(message.getFromId());
         Main.dataUtils.setHelp(message.getText());
-        session.getState().cansel();
+        session.getState().setAction(EditingActions.NONE);
         ChatUtils.sendMessage(message.getChatId(), "Инструкция для пользователей изменена");
     }
 }

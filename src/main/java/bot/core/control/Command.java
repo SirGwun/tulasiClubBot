@@ -13,7 +13,6 @@ public enum Command {
     info,
     help,
     catalog,
-    edit_info,
     menu,
     set_timer,
     spread,

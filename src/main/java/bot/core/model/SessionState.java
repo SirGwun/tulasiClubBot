@@ -10,34 +10,15 @@ public class SessionState implements Serializable {
     private static final long serialVersionUID = 3L;
     private EditingActions action = NONE;
 
-    public boolean isEditingInfo() {
-        return action == EDIT_INFO;
-    }
-    public void editInfo() {
-        action = EDIT_INFO;
-    }
-
-    public boolean isEditingHelp() {
-        return action == EDIT_HELP;
-    }
-    public void editHelp() {
-        action = EDIT_HELP;
-    }
-
-    public EditingActions cansel() {
-        EditingActions currentAction = action;
-        action = NONE;
-        return currentAction;
-    }
-
-    public boolean isEditPaymentInfo() {
-        return action == EDIT_PAYMENT_INFO;
-    }
-    public void editPaymentInfo() {
-        action = EDIT_PAYMENT_INFO;
+    public void setAction(EditingActions action) {
+        this.action = action;
     }
 
     public boolean isCommonState() {
         return action == NONE;
+    }
+
+    public EditingActions getAction() {
+        return action;
     }
 }
