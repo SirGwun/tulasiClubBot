@@ -3,13 +3,16 @@ package bot.core.util;
 import bot.core.Main;
 import bot.core.control.SessionController;
 import bot.core.control.callbackHandlers.Action;
+import bot.core.model.BroadcastMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.CreateChatInviteLink;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatAdministrators;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -78,6 +81,33 @@ public final class ChatUtils {
 
         log.debug("Sent main menu to {}", chatId);
         sendInlineKeyboard(chatId, text, keyboardMarkup);
+    }
+
+    public void spreadToIds(Set<Long> chatIds, BroadcastMessage message) {
+        for (Long id : chatIds) {
+            try {
+                if (message.hasPhoto()) {
+
+                    SendPhoto sendPhoto = new SendPhoto();
+                    sendPhoto.setChatId(id.toString());
+                    sendPhoto.setPhoto(new InputFile(message.getPhotoFileId()));
+                    sendPhoto.setCaption(message.getText());
+
+                    Main.paymentBot.execute(sendPhoto);
+
+                } else {
+
+                    SendMessage sendMessage = new SendMessage();
+                    sendMessage.setChatId(id.toString());
+                    sendMessage.setText(message.getText());
+
+                    Main.paymentBot.execute(sendMessage);
+                }
+
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private static void execute(SendMessage message) {
