@@ -55,6 +55,8 @@ public class ActionProcessor implements MessageProcessor {
     }
 
     private void handleSendSpread(MessageContext message) {
+        //ChatUtils.spreadToIds(List.of(Main.dataUtils.getAdminId()), message); test
         ChatUtils.spreadToIds(Main.dataUtils.getUsrList(), message);
+        ChatUtils.sendMessage(message.getChatId(), "Сообщение успешно разослано");
     }
 }

@@ -95,7 +95,7 @@ public final class ChatUtils {
             try {
                 Main.paymentBot.execute(copyMessage);
             } catch (TelegramApiException e) {
-                log.error("Cant execute copy message");
+                log.debug("Cant execute copy message to {}", targetChatId);
             }
         }
     }
