@@ -2,8 +2,15 @@ package bot.core.model;
 
 import bot.core.Main;
 import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.PhotoSize;
+
+import java.util.List;
 
 public record MessageContext(Message message) {
+
+    public Message message() {
+        return message;
+    }
 
     public boolean isFromAdmin() {
         return message.getFrom().getId() == Main.dataUtils.getAdminId();
@@ -28,6 +35,14 @@ public record MessageContext(Message message) {
 
     public boolean hasPayment() {
         return message.hasDocument() || message.hasPhoto();
+    }
+
+    public boolean hasPhoto() {
+        return message.hasPhoto();
+    }
+
+    public List<PhotoSize> getPhoto() {
+        return message.getPhoto();
     }
 
     public boolean hasText() {

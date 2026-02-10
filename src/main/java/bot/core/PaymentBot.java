@@ -33,8 +33,7 @@ public class PaymentBot extends TelegramLongPollingBot {
             new CallbackProcessor(),
             new CommandMessageProcessor(),
             new CommonMessageProcessor(),
-            new EditHelpProcessor(),
-            new EditPaymentInfoProcessor()
+            new ActionProcessor()
     );
 
     static {

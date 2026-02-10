@@ -135,7 +135,6 @@ public class CommandMessageProcessor implements MessageProcessor {
             state.setAction(EditingActions.SENDING_SPREAD);
         }
 
-
         private void handleGetUserList() {
             Map<Long, Session> sessionMap = SessionController.getSessionMap();
             List<String[]> tempList = new ArrayList<>();
