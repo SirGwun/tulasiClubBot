@@ -146,6 +146,7 @@ public class PaymentBot extends TelegramLongPollingBot {
         adminCommands.add(new BotCommand("/" + Command.edit_help, "Изменить помощь"));
         adminCommands.add(new BotCommand("/" + Command.cancel, "Отменить действие"));
         adminCommands.add(new BotCommand("/" + Command.set_timer, "Установить время для таймеров (в минутах)"));
+        adminCommands.add(new BotCommand("/" + Command.testPayment, "Отправить проверочный платеж"));
         adminCommands.add(new BotCommand("/" + Command.spread, "Разослать сообщение всем кто взаимодействовал с ботом"));
 
         try {
