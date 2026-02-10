@@ -13,9 +13,12 @@ public enum Command {
     info,
     help,
     catalog,
+    edit_info,
     menu,
     set_timer,
+    testPayment,
     spread,
-    action, getuserlist
+    action,
+    getuserlist
 }
 

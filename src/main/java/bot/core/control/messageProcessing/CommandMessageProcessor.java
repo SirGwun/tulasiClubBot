@@ -3,6 +3,9 @@ package bot.core.control.messageProcessing;
 import bot.core.Main;
 import bot.core.control.Command;
 import bot.core.model.*;
+import bot.core.kassa.PaymentService;
+import bot.core.model.EditingActions;
+import bot.core.model.MessageContext;
 import bot.core.control.SessionController;
 import bot.core.util.ChatUtils;
 import bot.core.control.callbackHandlers.Action;
@@ -25,6 +28,9 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CommandMessageProcessor implements MessageProcessor {
 
@@ -129,10 +135,22 @@ public class CommandMessageProcessor implements MessageProcessor {
                 case Command.action:
                     handleAction();
                     break;
+                case Command.testPayment:
+                    handleTestPayment();
+                    break;
                 default:
                     log.warn("Неизвестная команда {}", command);
                     break;
             }
+        }
+
+        private void handleTestPayment() {
+            PaymentService service = new PaymentService();
+            service.sendPaymentRequest(
+                    new BigDecimal(100),
+                    "https://t.me/harmoniousNutritionBot",
+                    "Проверочный платеж за ничего");
+
         }
 
         private void handleAction() {
