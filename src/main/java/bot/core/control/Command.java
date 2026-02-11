@@ -16,6 +16,7 @@ public enum Command {
     edit_info,
     menu,
     set_timer,
-    testPayment, spread
+    test_payment,
+    spread
 }
 

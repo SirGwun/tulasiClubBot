@@ -2,6 +2,17 @@ package bot.core.control.messageProcessing;
 
 import bot.core.Main;
 import bot.core.control.callbackHandlers.*;
+import bot.core.control.callbackHandlers.administation.*;
+import bot.core.control.callbackHandlers.groupNavigation.*;
+import bot.core.control.callbackHandlers.groupNavigation.paiment.AlreadyPaidButton;
+import bot.core.control.callbackHandlers.groupNavigation.paiment.PayWithForeignCardButton;
+import bot.core.control.callbackHandlers.groupNavigation.paiment.PayWithRussianCardButton;
+import bot.core.control.callbackHandlers.groupNavigation.pointers.LeftPointerButtonHandler;
+import bot.core.control.callbackHandlers.groupNavigation.pointers.RightPointerButtonHandler;
+import bot.core.control.callbackHandlers.menu.ChooseArchiveOrActual;
+import bot.core.control.callbackHandlers.menu.GetCourseDescriptionHandler;
+import bot.core.control.callbackHandlers.menu.GetInstructionHandler;
+import bot.core.control.callbackHandlers.menu.GetPaymentInstructionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
@@ -30,6 +41,9 @@ public class CallbackProcessor implements MessageProcessor {
     {
         CallbackHandler[] list = new CallbackHandler[]{
                 new ConfirmHandler(),
+                new AlreadyPaidButton(),
+                new PayWithRussianCardButton(),
+                new PayWithForeignCardButton(),
                 new DeclineHandler(),
                 new ChooseGroupHandler(),
                 new SetTagHandler(),

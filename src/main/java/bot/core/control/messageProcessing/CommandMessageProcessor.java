@@ -122,7 +122,7 @@ public class CommandMessageProcessor implements MessageProcessor {
                 case Command.spread:
                     handleSpreadCommand(args);
                     break;
-                case Command.testPayment:
+                case Command.test_payment:
                     handleTestPayment();
                     break;
                 default:
@@ -212,7 +212,7 @@ public class CommandMessageProcessor implements MessageProcessor {
         private void handleAddTagCommand(String tagName) {
             log.info(CMD_LOG, userId, Command.add_tag);
             if (tagName.isEmpty()) {
-                ChatUtils.sendMessage(userId, "Формат команды /addTag <new tag>");
+                ChatUtils.sendMessage(userId, "Формат команды " + Command.add_tag + " <new tag>");
                 return;
             }
             ChatUtils.sendMessage(userId, "Новый курс добавлен " + tagName);

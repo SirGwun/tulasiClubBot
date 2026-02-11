@@ -27,6 +27,10 @@ public enum Action {
     rightArrow,
     leftArrow,
 
-    //ничего не делать
-    none
+    none, //ничего не делать
+
+    payWithRussianCard,
+    payWithForeignCard,
+    alreadyPaid,
+    choosePaymentAmount,
 }
