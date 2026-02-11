@@ -1,6 +1,8 @@
-package bot.core.control.callbackHandlers;
+package bot.core.control.callbackHandlers.groupNavigation;
 
 import bot.core.Main;
+import bot.core.control.callbackHandlers.AbstractCallbackHandler;
+import bot.core.control.callbackHandlers.Action;
 import bot.core.util.ChatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
