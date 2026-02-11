@@ -55,6 +55,8 @@ public final class ChatUtils {
         
         Если вы хотите узнать подробнее о курсах, получить инструкции или выбрать курс —
         воспользуйтесь кнопками ниже.
+        
+        Курсы распространяются за пожертвования, минимальная сумма - 600 ₽
         """;
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
 
