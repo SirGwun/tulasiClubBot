@@ -11,10 +11,14 @@ public class ShopConfig {
     }
 
     public String getShopId() {
-        return provider.get("store.id");
+        return provider.get("shop.id");
     }
 
     public String getSecretKey() {
-        return provider.get("store.key");
+        return provider.get("shop.key");
+    }
+
+    public String getShopUrl() {
+        return provider.get("shop.url");
     }
 }
