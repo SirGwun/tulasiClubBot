@@ -43,14 +43,40 @@ public class YooKassaClient {
             throws YooKassaAPIException {
         try {
             HttpRequest request = prepareRequest(paymentRequest, idempotenceKey);
-
-            return client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-                    .thenApply(this::handleResponse);
+            return sendWithRetry(request, 3);
 
         } catch (JsonProcessingException e) {
             return CompletableFuture.failedFuture(
                     new JsonMappingException(e.getMessage())
             );
+        }
+    }
+
+    private CompletableFuture<PaymentResponse> sendWithRetry(HttpRequest request, int attemptsLeft) {
+        return client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                .thenApply(this::handleResponse)
+                .exceptionallyCompose(ex -> {
+
+                    Throwable cause = ex instanceof CompletionException ? ex.getCause() : ex;
+
+                    if (shouldRetry(cause) && attemptsLeft > 1) {
+                        int delay = (4 - attemptsLeft) * 1000;
+                        logger.warn("Retrying YooKassa request in {} ms", delay);
+
+                        return CompletableFuture
+                                .runAsync(() -> sleep(delay))
+                                .thenComposeAsync(v -> sendWithRetry(request, attemptsLeft - 1));
+                    }
+
+                    return CompletableFuture.failedFuture(cause);
+                });
+    }
+
+    private void sleep(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -87,6 +113,16 @@ public class YooKassaClient {
             );
         }
     }
+
+    private boolean shouldRetry(Throwable throwable) {
+        if (throwable instanceof YooKassaAPIException ex) {
+            int status = ex.getStatus();
+            return status >= 500 || status == 429;
+        }
+
+        return throwable instanceof java.io.IOException;
+    }
+
 
     private String getEncodedAuth() {
         String auth = config.getShopId() + ":" + config.getSecretKey();
