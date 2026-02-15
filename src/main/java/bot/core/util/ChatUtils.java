@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.CopyMessage;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.CreateChatInviteLink;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatAdministrators;
+import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatMember;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
@@ -236,19 +237,18 @@ public final class ChatUtils {
 
     public static boolean isBotAdminInGroup(Long groupId) {
         try {
-            GetChatAdministrators getChatAdministrators = new GetChatAdministrators();
-            getChatAdministrators.setChatId(groupId);
-            List<ChatMember> admins = Main.paymentBot.execute(getChatAdministrators);
-            String botUsername = Main.paymentBot.getBotUsername();
-            for (ChatMember admin : admins) {
-                if (admin.getUser().getUserName().equals(botUsername)) {
-                    return true;
-                }
-            }
+            GetChatMember getChatMember = new GetChatMember();
+            getChatMember.setChatId(groupId);
+            getChatMember.setUserId(Main.paymentBot.getMe().getId());
+
+            ChatMember chatMember = Main.paymentBot.execute(getChatMember);
+            String status = chatMember.getStatus();
+
+            return "administrator".equals(status) || "creator".equals(status);
         } catch (TelegramApiException e) {
-            log.debug("Бот не входит в группу или не админ {}", groupId);
+            log.debug("Бот не в группе или ошибка доступа {}", groupId);
+            return false;
         }
-        return false;
     }
 
     public static void addInGroup(long userId, Long groupId, String reason) {
