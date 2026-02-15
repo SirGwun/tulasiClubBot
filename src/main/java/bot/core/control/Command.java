@@ -16,6 +16,6 @@ public enum Command {
     menu,
     set_timer,
     spread,
-    getuserlist
+    action, getuserlist
 }
 

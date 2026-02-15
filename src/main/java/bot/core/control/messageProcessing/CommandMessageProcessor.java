@@ -7,6 +7,7 @@ import bot.core.control.SessionController;
 import bot.core.util.ChatUtils;
 import bot.core.control.callbackHandlers.Action;
 import bot.core.util.DataUtils;
+import bot.core.util.RenameButtons;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChat;
@@ -22,6 +23,8 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class CommandMessageProcessor implements MessageProcessor {
 
@@ -123,11 +126,20 @@ public class CommandMessageProcessor implements MessageProcessor {
                 case Command.getuserlist:
                     handleGetUserList();
                     break;
+                case Command.action:
+                    handleAction();
+                    break;
                 default:
                     log.warn("Неизвестная команда {}", command);
                     break;
             }
         }
+
+        private void handleAction() {
+            RenameButtons renameButtons = new RenameButtons();
+            renameButtons.doIt();
+        }
+
 
         private void handleSpreadCommand() {
             ChatUtils.sendMessage(userId, "Следующее сообщение которое вы отправите в этот чат " +
