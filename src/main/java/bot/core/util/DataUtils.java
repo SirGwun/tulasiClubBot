@@ -1,6 +1,7 @@
 package bot.core.util;
 
 import bot.core.Main;
+import bot.core.control.SessionController;
 import bot.core.model.TimerController;
 import bot.core.model.Session;
 import bot.core.model.Group;
@@ -260,7 +261,8 @@ public final class DataUtils {
         }
     }
 
-    public String getGroupName(long groupId) {
+    public String getGroupName(Long groupId) {
+        if (groupId == null) return null;
         for (Group group : groupList) {
             if (Objects.equals(group.getId(), groupId)) {
                 return group.getName();
@@ -447,6 +449,9 @@ public final class DataUtils {
         return connection;
     }
 
+    public List<Long> getUsrList() {
+        return SessionController.getSessionMap().keySet().stream().toList();
+    }
 }
 
 

@@ -38,7 +38,7 @@ public class AddingInGroupMessageProcessor implements MessageProcessor {
                     myChatMember.getFrom().getId(),
                     myChatMember.getChat().getType()
             );
-        else if (status.equalsIgnoreCase("administrator")
+        else if (status.equalsIgnoreCase("administrator") //показывать если добавлен, но не админ
                 || status.equalsIgnoreCase("creator")) {
             processChatAddition(
                     myChatMember.getChat().getId(),

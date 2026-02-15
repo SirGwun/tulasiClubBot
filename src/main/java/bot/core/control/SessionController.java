@@ -9,6 +9,11 @@ import java.util.Map;
 
 public class SessionController {
     private static final SessionController INSTANCE = new SessionController();
+
+    public static Map<Long, Session> getSessionMap() {
+        return sessionMap;
+    }
+
     private static Map<Long, Session> sessionMap;
 
     private SessionController() {

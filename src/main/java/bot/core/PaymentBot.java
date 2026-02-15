@@ -33,8 +33,7 @@ public class PaymentBot extends TelegramLongPollingBot {
             new CallbackProcessor(),
             new CommandMessageProcessor(),
             new CommonMessageProcessor(),
-            new EditHelpProcessor(),
-            new EditPaymentInfoProcessor()
+            new ActionProcessor()
     );
 
     static {
@@ -147,6 +146,7 @@ public class PaymentBot extends TelegramLongPollingBot {
         adminCommands.add(new BotCommand("/" + Command.cancel, "Отменить действие"));
         adminCommands.add(new BotCommand("/" + Command.set_timer, "Установить время для таймеров (в минутах)"));
         adminCommands.add(new BotCommand("/" + Command.spread, "Разослать сообщение всем кто взаимодействовал с ботом"));
+        adminCommands.add(new BotCommand("/" + Command.getuserlist, "Получить список пользователей в всех группах, куда добавлен бот"));
 
         try {
             execute(new SetMyCommands(defaultCommands, new BotCommandScopeAllPrivateChats(), null));

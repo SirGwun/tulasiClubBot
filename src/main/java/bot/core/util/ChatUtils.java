@@ -3,8 +3,10 @@ package bot.core.util;
 import bot.core.Main;
 import bot.core.control.SessionController;
 import bot.core.control.callbackHandlers.Action;
+import bot.core.model.MessageContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.telegram.telegrambots.meta.api.methods.CopyMessage;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.CreateChatInviteLink;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatAdministrators;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -80,6 +82,24 @@ public final class ChatUtils {
 
         log.debug("Sent main menu to {}", chatId);
         sendInlineKeyboard(chatId, text, keyboardMarkup);
+    }
+
+    public static void spreadToIds(List<Long> chatIds, MessageContext context) {
+        long fromChatId  = context.getChatId();
+        int messageId = context.message().getMessageId();
+        for (Long targetChatId : chatIds) {
+
+            CopyMessage copyMessage = new CopyMessage();
+            copyMessage.setFromChatId(fromChatId);
+            copyMessage.setChatId(targetChatId);
+            copyMessage.setMessageId(messageId);
+
+            try {
+                Main.paymentBot.execute(copyMessage);
+            } catch (TelegramApiException e) {
+                log.debug("Cant execute copy message to {}", targetChatId);
+            }
+        }
     }
 
     private static void execute(SendMessage message) {

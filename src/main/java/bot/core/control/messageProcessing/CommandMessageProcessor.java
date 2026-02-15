@@ -2,24 +2,26 @@ package bot.core.control.messageProcessing;
 
 import bot.core.Main;
 import bot.core.control.Command;
-import bot.core.model.EditingActions;
-import bot.core.model.MessageContext;
+import bot.core.model.*;
 import bot.core.control.SessionController;
-import bot.core.model.Session;
-import bot.core.model.SessionState;
 import bot.core.util.ChatUtils;
 import bot.core.control.callbackHandlers.Action;
+import bot.core.util.DataUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChat;
+import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatMember;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.Chat;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class CommandMessageProcessor implements MessageProcessor {
 
@@ -48,6 +50,7 @@ public class CommandMessageProcessor implements MessageProcessor {
             this.state = state;
             this.userId = userId;
         }
+
         public void handle(MessageContext message) {
             if (message.isCommand()) {
                 String[] data = message.getText().split(" ", 2);
@@ -99,9 +102,6 @@ public class CommandMessageProcessor implements MessageProcessor {
                 case Command.cancel:
                     handleCancelCommand();
                     break;
-                case Command.edit_info:
-                    handleEditInfoCommand();
-                    break;
                 case Command.edit_help:
                     handleEditHelpCommand();
                     break;
@@ -118,7 +118,10 @@ public class CommandMessageProcessor implements MessageProcessor {
                     handleSetTimerCommand(args);
                     break;
                 case Command.spread:
-                    handleSpreadCommand(args);
+                    handleSpreadCommand();
+                    break;
+                case Command.getuserlist:
+                    handleGetUserList();
                     break;
                 default:
                     log.warn("Неизвестная команда {}", command);
@@ -126,8 +129,71 @@ public class CommandMessageProcessor implements MessageProcessor {
             }
         }
 
-        private void handleSpreadCommand(String args) {
+        private void handleSpreadCommand() {
+            ChatUtils.sendMessage(userId, "Следующее сообщение которое вы отправите в этот чат " +
+                    "будет разослано всем пользователям. \nДля отмены используйте команду /" + Command.cancel);
+            state.setAction(EditingActions.SENDING_SPREAD);
+        }
 
+        private void handleGetUserList() {
+            Map<Long, Session> sessionMap = SessionController.getSessionMap();
+            List<String[]> tempList = new ArrayList<>();
+            List<String> resultList = new ArrayList<>();
+
+            for (Map.Entry<Long, Session> entry : sessionMap.entrySet()) {
+
+                Long userId = entry.getKey();
+                Session session = entry.getValue();
+
+                String userName = session.getUserName();
+                Long groupId = session.getGroupId();
+                String groupName;
+
+                if (groupId == null) {
+                    groupName = "группа не известна";
+                } else {
+                    groupName = Main.dataUtils.getGroupName(groupId);
+                    if (groupName == null) groupName = "группа не известна";
+                }
+
+                tempList.add(new String[]{
+                        groupName,
+                        userName == null ? "" : userName,
+                        userId.toString()
+                });
+            }
+
+            tempList.sort(Comparator
+                    .comparing((String[] arr) -> arr[0], String.CASE_INSENSITIVE_ORDER)
+                    .thenComparing(arr -> arr[1], String.CASE_INSENSITIVE_ORDER)
+            );
+
+            System.out.println("========= USER LIST =========");
+
+            String currentGroup = "";
+
+            StringBuilder sb = new StringBuilder();
+
+            //переделать на возврат списка в телеграм, а не в консоль
+            for (String[] arr : tempList) {
+
+                String groupName = arr[0];
+                String userName = arr[1];
+                String userId = arr[2];
+
+                if (!currentGroup.equals(groupName)) {
+                    currentGroup = groupName;
+                    System.out.println();
+                    System.out.println("GROUP: " + groupName);
+                }
+
+                String line = "   " + userName + " (" + userId + ")";
+                System.out.println(line);
+                resultList.add(line);
+            }
+
+            System.out.println();
+            System.out.println("TOTAL USERS: " + resultList.size());
         }
 
         private void handleUserCommand(Command command) {
@@ -158,7 +224,7 @@ public class CommandMessageProcessor implements MessageProcessor {
             ChatUtils.sendMessage(userId,
                     """
                             Здравствуйте!
-                            
+                                                        
                             Вас приветствует, бот-помощник курсов
                             Школы Аюрведы и здорового образа жизни "Tulasi"
                             """);
@@ -260,7 +326,8 @@ public class CommandMessageProcessor implements MessageProcessor {
 
         private void handleCancelCommand() {
             log.info(CMD_LOG, userId, Command.cancel);
-            EditingActions action = state.cansel();
+            EditingActions action = state.getAction();
+            state.setAction(EditingActions.NONE);
             ChatUtils.sendMessage(userId, "Режим работы над командой" + action.toString() + "отменен");
         }
 
@@ -280,21 +347,15 @@ public class CommandMessageProcessor implements MessageProcessor {
             ChatUtils.sendMessage(userId, Main.dataUtils.getHelp());
         }
 
-        private void handleEditInfoCommand() {
-            log.info(CMD_LOG, userId, Command.edit_info);
-            state.editInfo();
-            ChatUtils.sendMessage(userId, "Введите новое описание группы");
-        }
-
         private void handleEditHelpCommand() {
             log.info(CMD_LOG, userId, Command.edit_help);
-            state.editHelp();
+            state.setAction(EditingActions.EDIT_HELP);
             ChatUtils.sendMessage(userId, "Введите новое сообщение помощи");
         }
 
         private void handleSetPaymentInfo() {
             log.info(CMD_LOG, userId, Command.set_payment_info);
-            state.editPaymentInfo();
+            state.setAction(EditingActions.EDIT_PAYMENT_INFO);
             ChatUtils.sendMessage(userId, "Пришлите сообщение содержащее информацию о методах оплаты");
         }
 
