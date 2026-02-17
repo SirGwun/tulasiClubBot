@@ -4,7 +4,8 @@ public enum EditingActions {
     NONE,
     EDIT_HELP,
     EDIT_PAYMENT_INFO,
-    SENDING_SPREAD;
+    SENDING_SPREAD,
+    SENDING_SPREAD_WITHOUT_BUTTON;
 
     @Override
     public String toString() {
@@ -13,6 +14,7 @@ public enum EditingActions {
             case EDIT_HELP -> "редактирование помощи";
             case EDIT_PAYMENT_INFO -> "установка методов оплаты";
             case SENDING_SPREAD -> "рассылка";
+            case SENDING_SPREAD_WITHOUT_BUTTON -> "Рассылка без кнопки";
         };
     }
 }

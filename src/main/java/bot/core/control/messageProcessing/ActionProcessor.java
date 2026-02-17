@@ -4,12 +4,9 @@ import bot.core.Main;
 import bot.core.control.SessionController;
 import bot.core.model.*;
 import bot.core.util.ChatUtils;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class ActionProcessor implements MessageProcessor {
     @Override
@@ -36,6 +33,9 @@ public class ActionProcessor implements MessageProcessor {
             case EDIT_PAYMENT_INFO -> {
                 handleEditPaymentInfo(message);
             }
+            case SENDING_SPREAD_WITHOUT_BUTTON -> {
+                handleSendSpreadWithoutButton(message);
+            }
             case SENDING_SPREAD -> {
                 handleSendSpread(message);
             }
@@ -54,9 +54,15 @@ public class ActionProcessor implements MessageProcessor {
         ChatUtils.sendMessage(message.getFromId(), "Информация об оплате изменена");
     }
 
-    private void handleSendSpread(MessageContext message) {
-        //ChatUtils.spreadToIds(List.of(Main.dataUtils.getAdminId()), message); test
-        ChatUtils.spreadToIds(Main.dataUtils.getUsrList(), message);
+    private void handleSendSpreadWithoutButton(MessageContext message) {
+        //ChatUtils.spreadToIds(List.of(Main.dataUtils.getAdminId()), message, false);
+        ChatUtils.spreadToIds(Main.dataUtils.getUsrList(), message, false);
         ChatUtils.sendMessage(message.getChatId(), "Сообщение успешно разослано");
+    }
+
+    private void handleSendSpread(MessageContext message) {
+        //ChatUtils.spreadToIds(List.of(Main.dataUtils.getAdminId()), message, true);
+        ChatUtils.spreadToIds(Main.dataUtils.getUsrList(), message, true);
+        ChatUtils.sendMessage(message.getChatId(), "Сообщение успешно разослано c кнопкой");
     }
 }

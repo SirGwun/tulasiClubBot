@@ -121,7 +121,7 @@ public class CommandMessageProcessor implements MessageProcessor {
                     handleSetTimerCommand(args);
                     break;
                 case Command.spread:
-                    handleSpreadCommand();
+                    handleSpreadCommand(args);
                     break;
                 case Command.getuserlist:
                     handleGetUserList();
@@ -141,10 +141,18 @@ public class CommandMessageProcessor implements MessageProcessor {
         }
 
 
-        private void handleSpreadCommand() {
-            ChatUtils.sendMessage(userId, "Следующее сообщение которое вы отправите в этот чат " +
-                    "будет разослано всем пользователям. \nДля отмены используйте команду /" + Command.cancel);
-            state.setAction(EditingActions.SENDING_SPREAD);
+        private void handleSpreadCommand(String args) {
+            if (!args.equalsIgnoreCase("без кнопки")) {
+                String buttonText = "Перейти к курсу - " + Main.dataUtils.getActualGroupTag();
+                ChatUtils.sendMessage(userId, "Следующее сообщение которое вы отправите в этот чат " +
+                        "будет разослано всем пользователям, " +
+                        "вместе с кнопкой \n\"" + buttonText + "\"\nДля отмены используйте команду /" + Command.cancel);
+                state.setAction(EditingActions.SENDING_SPREAD);
+            } else {
+                ChatUtils.sendMessage(userId, "Следующее сообщение которое вы отправите в этот чат " +
+                        "будет разослано всем пользователям. \nДля отмены используйте команду /" + Command.cancel);
+                state.setAction(EditingActions.SENDING_SPREAD);
+            }
         }
 
         private void handleGetUserList() {

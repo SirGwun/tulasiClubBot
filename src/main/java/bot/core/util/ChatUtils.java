@@ -12,7 +12,9 @@ import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatAdm
 import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatMember;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.objects.MessageId;
 import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -80,22 +82,51 @@ public final class ChatUtils {
         sendInlineKeyboard(chatId, text, keyboardMarkup);
     }
 
-    public static void spreadToIds(List<Long> chatIds, MessageContext context) {
+    public static void spreadToIds(List<Long> chatIds, MessageContext context, boolean withButton) {
         long fromChatId  = context.getChatId();
         int messageId = context.message().getMessageId();
         for (Long targetChatId : chatIds) {
 
-            CopyMessage copyMessage = new CopyMessage();
-            copyMessage.setFromChatId(fromChatId);
-            copyMessage.setChatId(targetChatId);
-            copyMessage.setMessageId(messageId);
+            CopyMessage copiedMessage = new CopyMessage();
+            copiedMessage.setFromChatId(fromChatId);
+            copiedMessage.setChatId(targetChatId);
+            copiedMessage.setMessageId(messageId);
 
             try {
-                Main.paymentBot.execute(copyMessage);
+                MessageId result = Main.paymentBot.execute(copiedMessage);
+
+                if (withButton) {
+                    addInlineKeyboard(targetChatId, result.getMessageId());
+                }
             } catch (TelegramApiException e) {
-                log.debug("Cant execute copy message to {}", targetChatId);
+                log.error("Cant execute copy message to {}", targetChatId);
             }
         }
+    }
+
+    private static void addInlineKeyboard(Long chatId, Long messageId) throws TelegramApiException {
+        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
+        String buttonText = "Перейти к курсу - " + Main.dataUtils.getActualGroupTag();
+        int actualTag = Main.dataUtils.getTagId(Main.dataUtils.getActualGroupTag());
+
+        List<InlineKeyboardButton> row = new ArrayList<>();
+
+        InlineKeyboardButton button = new InlineKeyboardButton();
+        button.setText(buttonText);
+        button.setCallbackData(Action.chooseTag + "_"  + actualTag);
+
+        row.add(button);
+
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+        keyboard.add(row);
+        keyboardMarkup.setKeyboard(keyboard);
+
+        EditMessageReplyMarkup editMarkup = new EditMessageReplyMarkup();
+        editMarkup.setChatId(chatId);
+        editMarkup.setMessageId((int) messageId.longValue());
+        editMarkup.setReplyMarkup(keyboardMarkup);
+
+        Main.paymentBot.execute(editMarkup);
     }
 
     private static void execute(SendMessage message) {
