@@ -20,11 +20,11 @@ public class ChooseArchiveOrActual extends AbstractCallbackHandler {
     @Override
     public void handle(Update update) {
         long userId = update.getCallbackQuery().getFrom().getId();
-        int actualTag = Main.dataUtils.getTagId(Main.dataUtils.getGroupTag());
+        int actualTag = Main.dataUtils.getTagId(Main.dataUtils.getActualGroupTag());
 
         List<List<InlineKeyboardButton>> buttonRows = new ArrayList<>();
 
-        InlineKeyboardButton actualButton = new InlineKeyboardButton("Текущий курс");
+        InlineKeyboardButton actualButton = new InlineKeyboardButton("Текущий курс - " + Main.dataUtils.getActualGroupTag());
         actualButton.setCallbackData(Action.chooseTag + "_"  + actualTag);
 
         InlineKeyboardButton archiveButton = new InlineKeyboardButton("Архив");

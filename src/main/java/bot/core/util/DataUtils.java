@@ -96,7 +96,7 @@ public final class DataUtils {
         Group newGroup = new Group(
                 groupName,
                 groupId,
-                getGroupTag(),
+                getActualGroupTag(),
                 ChatUtils.isBotAdminInGroup(groupId));
         groupList.add(newGroup);
         saveGroupList();
@@ -321,7 +321,7 @@ public final class DataUtils {
         return "";
     }
 
-    public String getGroupTag() { //todo возвращать номер а не название
+    public String getActualGroupTag() { //todo возвращать номер а не название
         return getTagMap().get(Integer.parseInt(config.getProperty("groupTag")));
     }
 

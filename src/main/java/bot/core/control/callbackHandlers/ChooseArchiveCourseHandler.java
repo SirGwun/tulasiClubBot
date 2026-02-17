@@ -27,7 +27,7 @@ public class ChooseArchiveCourseHandler extends AbstractCallbackHandler {
     public void handle(Update update) {
         Map<Integer, String> tagMap = Main.dataUtils.getTagMap();
         //удаляем из мапы актуальный курс (тег)
-        tagMap.remove(Main.dataUtils.getTagId(Main.dataUtils.getGroupTag()));
+        tagMap.remove(Main.dataUtils.getTagId(Main.dataUtils.getActualGroupTag()));
 
 
         List<List<InlineKeyboardButton>> buttonRows = new ArrayList<>();
