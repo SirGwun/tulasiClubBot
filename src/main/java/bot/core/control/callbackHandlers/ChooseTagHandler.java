@@ -42,7 +42,7 @@ public class ChooseTagHandler extends AbstractCallbackHandler {
         } else {
             ChatUtils.sendInlineKeyboard(
                     user.getId(),
-                    "Выберете интересующую вас группу",
+                    "Выберете интересующую вас лекцию",
                     keyboard);
             ChatUtils.deleteMessage(update.getCallbackQuery().getFrom().getId(),
                     update.getCallbackQuery().getMessage().getMessageId());

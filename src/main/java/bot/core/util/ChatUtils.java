@@ -54,16 +54,11 @@ public final class ChatUtils {
 
     public static void sendMainMenu(long chatId) {
         String text = """
-        Вы находитесь в главном меню:
-        
-        Если вы хотите узнать подробнее о курсах, получить инструкции или выбрать курс —
-        воспользуйтесь кнопками ниже.
-        
-        Курсы распространяются за пожертвования, минимальная сумма - 600 ₽
+        Выберете нужную кнопку ↓
         """;
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
 
-        InlineKeyboardButton coursesDescription = new InlineKeyboardButton("Описание курсов и лекций");
+        InlineKeyboardButton coursesDescription = new InlineKeyboardButton("Каталог");
         coursesDescription.setCallbackData(Action.getCourseDescription + "_" + chatId);
         coursesDescription.setUrl("https://t.me/c/2388702610/1039");
         InlineKeyboardButton chooseCourse = new InlineKeyboardButton("Выбрать курс");

@@ -234,11 +234,8 @@ public class CommandMessageProcessor implements MessageProcessor {
         private void handleStartCommand() {
             log.info(CMD_LOG, userId, Command.start);
             ChatUtils.sendMessage(userId,
-                    """
-                            Здравствуйте!
-                                                        
-                            Вас приветствует, бот-помощник курсов
-                            Школы Аюрведы и здорового образа жизни "Tulasi"
+                    """     
+                            Вас приветствует бот-помощник школы "ДЖАГАННАТХА АЮРВЕДА"
                             """);
             ChatUtils.sendMainMenu(userId);
         }
