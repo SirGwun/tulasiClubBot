@@ -65,7 +65,10 @@ public class ChooseGroupHandler implements CallbackHandler {
                 ChatUtils.addInGroup(userId, groupId, "Член избранной группы");
             } else {
                 SessionController.getInstance().setUserGroupId(userId, groupId);
-                ChatUtils.sendMessage(userId, "Выбрана группа: " + group.getName() + "\nТеперь пришлите подтверждение оплаты");
+                ChatUtils.sendMessage(userId, "Выбрана группа: " + group.getName()
+                        + "\nТеперь отправьте в сообщении чек об оплате"
+                        + "\nРекомендованная сумма пожертвования - 700 ₽\n"
+                        + Main.dataUtils.getPaymentInfo());
             }
         } else {
             ChatUtils.sendMessage(userId, "Бот не выходит в группу или не является в ней администратором");
