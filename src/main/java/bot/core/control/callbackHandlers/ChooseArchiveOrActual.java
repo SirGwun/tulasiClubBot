@@ -27,7 +27,7 @@ public class ChooseArchiveOrActual extends AbstractCallbackHandler {
         InlineKeyboardButton actualButton = new InlineKeyboardButton("Текущий курс - " + Main.dataUtils.getActualGroupTag());
         actualButton.setCallbackData(Action.chooseTag + "_"  + actualTag);
 
-        InlineKeyboardButton archiveButton = new InlineKeyboardButton("Архив");
+        InlineKeyboardButton archiveButton = new InlineKeyboardButton("\uD83D\uDCC1 Архив");
         archiveButton.setCallbackData(Action.archive + "_" + userId);
 
         buttonRows.add(Collections.singletonList(actualButton));
