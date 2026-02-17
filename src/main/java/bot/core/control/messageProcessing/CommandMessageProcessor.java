@@ -151,7 +151,7 @@ public class CommandMessageProcessor implements MessageProcessor {
             } else {
                 ChatUtils.sendMessage(userId, "Следующее сообщение которое вы отправите в этот чат " +
                         "будет разослано всем пользователям. \nДля отмены используйте команду /" + Command.cancel);
-                state.setAction(EditingActions.SENDING_SPREAD);
+                state.setAction(EditingActions.SENDING_SPREAD_WITHOUT_BUTTON);
             }
         }
 

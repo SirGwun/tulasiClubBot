@@ -85,6 +85,8 @@ public final class ChatUtils {
     public static void spreadToIds(List<Long> chatIds, MessageContext context, boolean withButton) {
         long fromChatId  = context.getChatId();
         int messageId = context.message().getMessageId();
+        chatIds.remove(Main.dataUtils.getAdminId());
+
         for (Long targetChatId : chatIds) {
 
             CopyMessage copiedMessage = new CopyMessage();
