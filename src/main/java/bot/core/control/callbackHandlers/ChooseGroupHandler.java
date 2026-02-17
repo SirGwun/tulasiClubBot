@@ -67,7 +67,7 @@ public class ChooseGroupHandler implements CallbackHandler {
                 SessionController.getInstance().setUserGroupId(userId, groupId);
                 ChatUtils.sendMessage(userId, "Выбрана группа: " + group.getName()
                         + "\nТеперь отправьте в сообщении чек об оплате"
-                        + "\nРекомендованная сумма пожертвования - 700 ₽\n"
+                        + "\n\nРекомендованная сумма пожертвования - 700 ₽\n\n"
                         + Main.dataUtils.getPaymentInfo());
             }
         } else {
