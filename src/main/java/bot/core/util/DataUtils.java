@@ -61,7 +61,7 @@ public final class DataUtils {
         loadGroupList();
     }
 
-    public void checkAdminRights() {
+    public void checkAndFixAdminRights() {
         boolean needToStore = false;
         for (Group group : groupList) {
             boolean realAdminRight = ChatUtils.isBotAdminInGroup(group.getId());
