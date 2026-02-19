@@ -20,6 +20,7 @@ public class ProductionConfig implements ConfigProvider {
             case "quiz.name" -> System.getenv("TESTBOTNAME");
             case "shop.key" -> System.getenv("SHOPKEY");
             case "shop.id" -> System.getenv("SHOPID");
+            case "db.url" -> System.getenv("DBURL");
             default -> throw new IllegalArgumentException();
         };
     }
