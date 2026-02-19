@@ -242,7 +242,12 @@ public final class ChatUtils {
         Map<Integer, String> tags = Main.dataUtils.getTagMap();
         List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
         for (Map.Entry<Integer, String> entry : tags.entrySet()) {
-            InlineKeyboardButton button = new InlineKeyboardButton(entry.getValue());
+            InlineKeyboardButton button = new InlineKeyboardButton();
+            if (!entry.getValue().equals(Main.dataUtils.getActualGroupTag())) {
+                button.setText(entry.getValue() + " (Архив)");
+            } else {
+                button.setText(entry.getValue() + " (Текущая)");
+            }
             button.setCallbackData(callback + "_" + entry.getKey());
             buttons.add(Collections.singletonList(button));
         }

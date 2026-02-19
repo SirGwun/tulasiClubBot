@@ -46,7 +46,7 @@ public class CommonMessageProcessor implements MessageProcessor {
 
         if (session.getGroupId() == null) {
             ChatUtils.sendMessage(ctx.getChatId(), "Группа не выбрана, пожалуйста, выберете группу при помощи \n" +
-                    "Меню -> /set_group " +
+                    "Меню -> Выбрать курс -> Выберете курс -> Выберете лекцию (группу)  " +
                     "После чего отправьте подтверждение оплаты повторно");
             return;
         }

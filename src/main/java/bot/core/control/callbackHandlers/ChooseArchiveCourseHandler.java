@@ -41,7 +41,7 @@ public class ChooseArchiveCourseHandler extends AbstractCallbackHandler {
 
         log.debug("user {} in process chooseCourse button", update.getCallbackQuery().getFrom().getUserName());
         ChatUtils.sendInlineKeyboard(update.getCallbackQuery().getFrom().getId(),
-                "Выберете интересующий вас курс",
+                "Выберете интересующий вас курс из архива ↓↓↓",
                 keyboardMarkup);
     }
 }

@@ -4,6 +4,7 @@ import bot.core.Main;
 import bot.core.control.SessionController;
 import bot.core.model.Group;
 import bot.core.util.ChatUtils;
+import bot.core.util.DataUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
@@ -61,13 +62,13 @@ public class ChooseGroupHandler implements CallbackHandler {
         }
 
         if (group.isBotAdmin()) {
-            if (isItFavoriteUser(userId)) {
+            if (isItFavoriteUser(userId, groupId)) {
                 ChatUtils.addInGroup(userId, groupId, "Член избранной группы");
             } else {
                 SessionController.getInstance().setUserGroupId(userId, groupId);
                 ChatUtils.sendMessage(userId, "Выбрана группа: " + group.getName()
-                        + "\nТеперь отправьте в сообщении чек об оплате"
-                        + "\n\nРекомендованная сумма пожертвования - 700 ₽\n\n"
+                        + "\n\nТеперь отправьте в сообщении чек об оплате"
+                        + "\n(рекомендованная сумма пожертвования - 700 ₽)\n\n"
                         + Main.dataUtils.getPaymentInfo());
             }
         } else {
@@ -76,7 +77,12 @@ public class ChooseGroupHandler implements CallbackHandler {
     }
 
 
-    private boolean isItFavoriteUser(Long userId) {
+    private boolean isItFavoriteUser(Long userId, Long groupId) {
+        Group group = Main.dataUtils.getGroupById(groupId);
+        if (group == null || group.getTag() == null) return false;
+
+        String tag = group.getTag();
+
         return areUserInGroup(userId, Main.dataUtils.getFavoriteGroupId());
     }
 
