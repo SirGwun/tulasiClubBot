@@ -1,27 +1,44 @@
 package bot.core.model;
 
-public class User {
-    private final long id;
-    private final String userName;
-    private final String firstName;
-    private final String lastName;
+import java.time.LocalDateTime;
 
-    public User(long id, String username, String firstName, String lastName) {
+public class User {
+    public static String DEFAULT_NAME = "unknown";
+
+    private int id;
+    private final long chatId;
+    private String name;
+    private LocalDateTime createdAt;
+
+    public User(int id, long chatId, String name, LocalDateTime createdAt) {
         this.id = id;
-        this.userName = username;
-        this.firstName = firstName;
-        this.lastName = lastName;
+        this.chatId = chatId;
+        this.name = name;
+        this.createdAt = createdAt;
     }
 
-    public long getId() {
+    public User(long chatId, String name) {
+        this.chatId = chatId;
+        this.name = name;
+    }
+
+    public int getId() {
         return id;
     }
 
-    public String getLastName() {
-        return lastName;
+    public long getChatId() {
+        return chatId;
     }
 
-    public String getUserName() {
-        return userName;
+    public String getName() {
+        return name;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

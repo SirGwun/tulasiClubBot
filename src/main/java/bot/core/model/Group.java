@@ -2,6 +2,7 @@ package bot.core.model;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class Group implements Serializable {
@@ -11,6 +12,14 @@ public class Group implements Serializable {
     String name;
     String tag;
     boolean isBotAdmin;
+    LocalDateTime createdAt;
+
+    public Group(long id, String name, String tag, LocalDateTime createdAt) {
+        this.id = id;
+        this.name = name;
+        this.tag = tag;
+        this.createdAt = createdAt;
+    }
 
     public Group(String name, long id, String tag, boolean isBotAdmin) {
         this.id = id;
