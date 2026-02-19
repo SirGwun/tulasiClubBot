@@ -1,7 +1,9 @@
-package bot.core.control.callbackHandlers;
+package bot.core.control.callbackHandlers.groupNavigation;
 
 import bot.core.Main;
 import bot.core.control.SessionController;
+import bot.core.control.callbackHandlers.Action;
+import bot.core.control.callbackHandlers.CallbackHandler;
 import bot.core.model.Group;
 import bot.core.util.ChatUtils;
 import bot.core.util.DataUtils;
@@ -9,6 +11,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Приглашает в группу, запрашивает подтверждение
@@ -50,32 +58,54 @@ public class ChooseGroupHandler implements CallbackHandler {
         CallbackQuery cq = update.getCallbackQuery();
         String[] data = cq.getData().split("_");
         Long groupId = Long.parseLong(data[1]);
-        long userId = cq.getMessage().getChatId();
-        log.info("User {} set group {}", userId, groupId);
+        long chatId = cq.getMessage().getChatId();
+        log.debug("User {} set group {}", chatId, groupId);
 
         Group group = Main.dataUtils.getGroupById(groupId);
 
         if (group == null) {
-            ChatUtils.sendMessage(userId, "Группа не найдена");
+            ChatUtils.sendMessage(chatId, "Группа не найдена");
             log.warn("Группа не найдена {}", groupId);
             return;
         }
 
         if (group.isBotAdmin()) {
-            if (isItFavoriteUser(userId, groupId)) {
-                ChatUtils.addInGroup(userId, groupId, "Член избранной группы");
+            if (isItFavoriteUser(chatId, groupId)) {
+                ChatUtils.addInGroup(chatId, groupId, "Член избранной группы");
             } else {
-                SessionController.getInstance().setUserGroupId(userId, groupId);
-                ChatUtils.sendMessage(userId, "Выбрана группа: " + group.getName()
+                SessionController.getInstance().setUserGroupId(chatId, groupId);
+                ChatUtils.sendMessage(chatId, "Выбрана группа: " + group.getName()
                         + "\n\nТеперь отправьте в сообщении чек об оплате"
                         + "\n(рекомендованная сумма пожертвования - 700 ₽)\n\n"
                         + Main.dataUtils.getPaymentInfo());
             }
         } else {
-            ChatUtils.sendMessage(userId, "Бот не выходит в группу или не является в ней администратором");
+            ChatUtils.sendMessage(chatId, "Бот не входит в группу или не является в ней администратором");
         }
     }
 
+//    private InlineKeyboardMarkup buildPaymentKeyboard(Long chatId) {
+//        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
+//
+//        InlineKeyboardButton russianCard = new InlineKeyboardButton("С карты российского банка");
+//        russianCard.setCallbackData(Action.payWithRussianCard + "_" + chatId);
+//
+//        InlineKeyboardButton foreignCard = new InlineKeyboardButton("С карты иностранного банка");
+//        foreignCard.setCallbackData(Action.payWithForeignCard + "_" + chatId);
+//
+//        InlineKeyboardButton alreadyPaid = new InlineKeyboardButton("Я уже оплатил(а) (прислать чек)");
+//        alreadyPaid.setCallbackData(Action.alreadyPaid + "_" + chatId);
+//
+//        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+//
+//        rows.add(Collections.singletonList(russianCard));
+//        rows.add(Collections.singletonList(foreignCard));
+//        rows.add(Collections.singletonList(alreadyPaid));
+//
+//        keyboardMarkup.setKeyboard(rows);
+//
+//        return keyboardMarkup;
+//    }
 
     private boolean isItFavoriteUser(Long userId, Long groupId) {
         Group group = Main.dataUtils.getGroupById(groupId);

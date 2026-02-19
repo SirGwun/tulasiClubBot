@@ -1,7 +1,9 @@
-package bot.core.control.callbackHandlers;
+package bot.core.control.callbackHandlers.administation;
 
 import bot.core.Main;
 import bot.core.control.SessionController;
+import bot.core.control.callbackHandlers.Action;
+import bot.core.control.callbackHandlers.CallbackHandler;
 import bot.core.model.TimerController;
 import bot.core.util.ChatUtils;
 import org.slf4j.Logger;
