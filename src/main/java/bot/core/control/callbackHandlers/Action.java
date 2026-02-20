@@ -28,6 +28,6 @@ public enum Action {
 
     none,
 
-    specialGroupTagChoose, //ничего не делать
+    specialGroupTagChoose,
     buyWholeCourse
 }
