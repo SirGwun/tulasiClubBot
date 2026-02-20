@@ -5,7 +5,8 @@ public enum EditingActions {
     EDIT_HELP,
     EDIT_PAYMENT_INFO,
     SENDING_SPREAD,
-    SENDING_SPREAD_WITHOUT_BUTTON;
+    SENDING_SPREAD_WITHOUT_BUTTON,
+    WAIT_FOR_SPECIAL_GROUP;
 
     @Override
     public String toString() {
@@ -14,7 +15,8 @@ public enum EditingActions {
             case EDIT_HELP -> "редактирование помощи";
             case EDIT_PAYMENT_INFO -> "установка методов оплаты";
             case SENDING_SPREAD -> "рассылка";
-            case SENDING_SPREAD_WITHOUT_BUTTON -> "Рассылка без кнопки";
+            case SENDING_SPREAD_WITHOUT_BUTTON -> "рассылка без кнопки";
+            case WAIT_FOR_SPECIAL_GROUP -> "ожидание особой группы";
         };
     }
 }
