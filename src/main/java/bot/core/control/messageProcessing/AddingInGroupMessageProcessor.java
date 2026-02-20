@@ -1,14 +1,22 @@
 package bot.core.control.messageProcessing;
 
 import bot.core.Main;
+import bot.core.control.SessionController;
+import bot.core.control.callbackHandlers.Action;
+import bot.core.control.callbackHandlers.administation.oneTime.ChoseTagForSpecialGroup;
+import bot.core.model.*;
+import bot.core.repos.GroupRepository;
 import bot.core.util.ChatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.objects.ChatMemberUpdated;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
-import bot.core.model.Group;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Executors;
@@ -41,8 +49,11 @@ public class AddingInGroupMessageProcessor implements MessageProcessor {
 
     @Override
     public void process(Update update) {
+        SessionState session = SessionController.getInstance().openSessionIfNeeded(update.getMyChatMember().getFrom()).getState();
+
         ChatMemberUpdated myChatMember = update.getMyChatMember();
         String status = myChatMember.getNewChatMember().getStatus();
+
         if (status.equalsIgnoreCase("left")
                 || status.equalsIgnoreCase("kicked"))
             processChatLeft(
@@ -51,17 +62,50 @@ public class AddingInGroupMessageProcessor implements MessageProcessor {
                     myChatMember.getFrom().getId(),
                     myChatMember.getChat().getType()
             );
-        else if (status.equalsIgnoreCase("administrator") //показывать если добавлен, но не админ
+        else if (status.equalsIgnoreCase("administrator")
                 || status.equalsIgnoreCase("creator")) {
-            processChatAddition(
-                    myChatMember.getChat().getId(),
-                    myChatMember.getChat().getTitle(),
-                    myChatMember.getFrom().getId(),
-                    myChatMember.getChat().getType()
-            );
+            if (session.getAction() == EditingActions.WAIT_FOR_SPECIAL_GROUP) {
+                processSpecialGroupAdding(
+                        myChatMember.getChat().getId(),
+                        myChatMember.getChat().getTitle(),
+                        myChatMember.getFrom().getId()
+                );
+                session.setAction(EditingActions.NONE);
+            } else {
+                processChatAddition(
+                        myChatMember.getChat().getId(),
+                        myChatMember.getChat().getTitle(),
+                        myChatMember.getFrom().getId(),
+                        myChatMember.getChat().getType()
+                );
+            }
         }
     }
 
+    private void processSpecialGroupAdding(Long chatId, String chatName, Long fromId) {
+        GroupRepository repository = new GroupRepository();
+
+        Main.paymentBot.registerOneTimeHandler(new ChoseTagForSpecialGroup(chatId, chatName));
+
+        List<Tag> tagList = repository.findAllTag();
+        InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
+
+        for (Tag tag : tagList) {
+            InlineKeyboardButton button = new InlineKeyboardButton(tag.getName());
+            button.setCallbackData(Action.specialGroupTagChoose + "_" + tag.getId());
+            buttons.add(Collections.singletonList(button));
+        }
+
+        inlineKeyboard.setKeyboard(buttons);
+
+        ChatUtils.sendInlineKeyboard(
+                fromId,
+                "Выберете для какого тега вы добавили эту избранную группу",
+                inlineKeyboard);
+    }
+
+    //todo доделать чтобы выходил из специальных групп
     private void processChatLeft(long chatId, String chatName, Long fromId, String type) {
         String chatType = ("group".equals(type) || "supergroup".equals(type)) ? "группы" : "канала";
 
@@ -70,7 +114,7 @@ public class AddingInGroupMessageProcessor implements MessageProcessor {
             Main.dataUtils.removeGroup(chatId);
             ChatUtils.sendMessage(fromId, "Бот был удален из " + chatType + " " + chatName);
         } else {                                                     // чат не найден
-            log.info("Попытка удалить несуществующую группу: {}", chatName);
+            log.info("Удален из не записанной группы: {}", chatName);
         }
     }
 
