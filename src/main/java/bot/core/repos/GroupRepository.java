@@ -3,7 +3,6 @@ package bot.core.repos;
 import bot.core.model.Group;
 import bot.core.model.SpecialGroup;
 import bot.core.model.Tag;
-import bot.core.model.User;
 import bot.core.util.config.DataConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -117,6 +116,25 @@ public class GroupRepository {
         return Optional.empty();
     }
 
+    public List<Group> getAllGroupForTag(Tag tag) {
+        String sql = "SELECT * FROM Groups WHERE tag = ?";
+        List<Group> groups = new ArrayList<>();
+
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setString(1, tag.getName());
+            try (ResultSet rs = ps.executeQuery()) {
+
+                while (rs.next()) {
+                    groups.add(mapRowToGroup(rs));
+                }
+            }
+        } catch (SQLException e) {
+            logger.error("Error finding Al Group For Tag {}", tag.getName(), e);
+        }
+
+        return groups;
+    }
+
     // SpecialGroups methods
     public boolean saveSpecialGroup(SpecialGroup group) {
         String sql = "INSERT INTO SpecialGroups (id, name, tag) VALUES (?, ?, ?)";
@@ -195,6 +213,8 @@ public class GroupRepository {
 
         return Optional.empty();
     }
+
+
     // Tags methods
 
     public void saveTag(Tag tag) {
@@ -267,6 +287,7 @@ public class GroupRepository {
 
         return tags;
     }
+
     // Mapping methods
 
     private Group mapRowToGroup(ResultSet rs) throws SQLException {
@@ -306,5 +327,6 @@ public class GroupRepository {
         } catch (SQLException e) {
             throw new RuntimeException("Error closing connection", e);
         }
+
     }
 }

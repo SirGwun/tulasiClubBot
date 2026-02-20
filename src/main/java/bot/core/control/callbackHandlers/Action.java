@@ -26,6 +26,8 @@ public enum Action {
     rightArrow,
     leftArrow,
 
+    none,
+
     specialGroupTagChoose, //ничего не делать
-    none
+    buyWholeCourse
 }

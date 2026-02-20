@@ -156,7 +156,12 @@ public final class ChatUtils {
 
     public static InlineKeyboardMarkup getTaggedGroupKeyboard(Action callBack, Long userId, String tag, String style) {
         List<InlineKeyboardButton> buttons = getTagetButtonList(callBack, userId, tag);
+
         buttons.sort(Comparator.comparingInt(o -> Utils.firstPositiveNumber(o.getText())));
+
+        InlineKeyboardButton bayAllCourse = new InlineKeyboardButton("\uD83D\uDC8E Курс целиком");
+        bayAllCourse.setCallbackData(Action.buyWholeCourse + "_" + tag);
+        buttons.addFirst(bayAllCourse);
 
         InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup();
         if (buttons.size() <= 10 || style.equals(COMMON_STILE)) {

@@ -9,7 +9,9 @@ import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -38,6 +40,7 @@ public class ChooseTagHandler extends AbstractCallbackHandler {
         log.debug("User {} press chooseTag button", user.getUserName());
 
         InlineKeyboardMarkup keyboard = ChatUtils.getTaggedGroupKeyboard(Action.chooseGroup, user.getId(), tag, ChatUtils.ARROWED_STILE);
+
         if (keyboard.getKeyboard().isEmpty()) {
             log.warn("Вызов getTaggedGroupKeyboard без доступных групп");
             ChatUtils.sendMessage(user.getId(), "На данный момент нет доступных групп");

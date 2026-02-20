@@ -3,10 +3,7 @@ package bot.core.control.messageProcessing;
 import bot.core.Main;
 import bot.core.control.callbackHandlers.*;
 import bot.core.control.callbackHandlers.administation.*;
-import bot.core.control.callbackHandlers.groupNavigation.ChooseGroupHandler;
-import bot.core.control.callbackHandlers.groupNavigation.ChooseTagHandler;
-import bot.core.control.callbackHandlers.groupNavigation.GetCoueseList;
-import bot.core.control.callbackHandlers.groupNavigation.GetJoinRequestedLinkHandler;
+import bot.core.control.callbackHandlers.groupNavigation.*;
 import bot.core.control.callbackHandlers.groupNavigation.pointers.RightPointerButtonHandler;
 import bot.core.control.callbackHandlers.menu.GetCourseDescriptionHandler;
 import bot.core.control.callbackHandlers.menu.GetInstructionHandler;
@@ -50,7 +47,8 @@ public class CallbackProcessor implements MessageProcessor {
                 new GetPaymentInstructionHandler(),
                 new GetCourseDescriptionHandler(),
                 new LeftPointerButtonHandler(),
-                new RightPointerButtonHandler()
+                new RightPointerButtonHandler(),
+                new BuyWholeCourseHandler()
         };
         for (CallbackHandler handler : list) {
             handlers.put(handler.getAction(), handler);
