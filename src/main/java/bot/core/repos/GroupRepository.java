@@ -3,12 +3,15 @@ package bot.core.repos;
 import bot.core.model.Group;
 import bot.core.model.SpecialGroup;
 import bot.core.model.Tag;
+import bot.core.model.User;
 import bot.core.util.config.DataConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class GroupRepository {
@@ -26,7 +29,7 @@ public class GroupRepository {
     public void createCommonGroupTable() {
         String sql = """
                 CREATE TABLE IF NOT EXISTS Groups (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    id INT PRIMARY KEY,
                     name VARCHAR(100) NOT NULL,
                     tag VARCHAR(100) NOT NULL,
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -44,7 +47,7 @@ public class GroupRepository {
     public void createSpecialGroupsTable() {
         String sql = """
                 CREATE TABLE IF NOT EXISTS SpecialGroups (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    id INT PRIMARY KEY,
                     name VARCHAR(100) NOT NULL,
                     tag VARCHAR(100) NOT NULL,
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -62,8 +65,8 @@ public class GroupRepository {
     public void createTagsTable() {
         String sql = """
                 CREATE TABLE IF NOT EXISTS Tags (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
-                    name VARCHAR(100) NOT NULL,
+                    id INT PRIMARY KEY,
+                    name VARCHAR(100) UNIQUE NOT NULL,
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
                 )
                 """;
@@ -78,14 +81,15 @@ public class GroupRepository {
 
     // Groups methods
     public void saveGroup(Group group) {
-        String sql = "INSERT INTO Groups (name, tag) VALUES ('" +
-                group.getName() + "', '" +
-                group.getTag() + "')";
+        String sql = "INSERT INTO Groups (id, name, tag) VALUES (?, ?, ?)";
 
-        try (Statement statement = getConnection().createStatement()) {
-            statement.executeUpdate(sql, Statement.RETURN_GENERATED_KEYS);
+        try (PreparedStatement ps = getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setLong(1, group.getId());
+            ps.setString(2, group.getName());
+            ps.setString(3, group.getTag());
+            ps.executeUpdate();
 
-            try (ResultSet rs = statement.getGeneratedKeys()) {
+            try (ResultSet rs = ps.getGeneratedKeys()) {
                 if (rs.next()) {
                     logger.debug("Group saved with id: {}", rs.getInt(1));
                 }
@@ -96,13 +100,15 @@ public class GroupRepository {
     }
 
     public Optional<Group> findGroupById(int id) {
-        String sql = "SELECT * FROM Groups WHERE id = " + id;
+        String sql = "SELECT * FROM Groups WHERE id = ?";
 
-        try (Statement statement = getConnection().createStatement();
-             ResultSet rs = statement.executeQuery(sql)) {
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setInt(1, id);
 
-            if (rs.next()) {
-                return Optional.of(mapRowToGroup(rs));
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(mapRowToGroup(rs));
+                }
             }
         } catch (SQLException e) {
             logger.error("Error finding group by id {}", id, e);
@@ -112,32 +118,36 @@ public class GroupRepository {
     }
 
     // SpecialGroups methods
-    public void saveSpecialGroup(SpecialGroup group) {
-        String sql = "INSERT INTO SpecialGroups (name, tag) VALUES ('" +
-                group.getName() + "', '" +
-                group.getTag() + "')";
+    public boolean saveSpecialGroup(SpecialGroup group) {
+        String sql = "INSERT INTO SpecialGroups (id, name, tag) VALUES (?, ?, ?)";
+        try (PreparedStatement ps = getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setLong(1, group.getId());
+            ps.setString(2, group.getName());
+            ps.setString(3, group.getTag());
+            ps.executeUpdate();
 
-        try (Statement statement = getConnection().createStatement()) {
-            statement.executeUpdate(sql, Statement.RETURN_GENERATED_KEYS);
-
-            try (ResultSet rs = statement.getGeneratedKeys()) {
+            try (ResultSet rs = ps.getGeneratedKeys()) {
                 if (rs.next()) {
                     logger.debug("Special group saved with id: {}", rs.getInt(1));
                 }
             }
+            return true;
         } catch (SQLException e) {
             logger.error("Error saving special group", e);
+            return false;
         }
     }
 
     public Optional<SpecialGroup> findSpecialGroupById(int id) {
-        String sql = "SELECT * FROM SpecialGroups WHERE id = " + id;
+        String sql = "SELECT * FROM SpecialGroups WHERE id = ?";
 
-        try (Statement statement = getConnection().createStatement();
-             ResultSet rs = statement.executeQuery(sql)) {
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setInt(1, id);
 
-            if (rs.next()) {
-                return Optional.of(mapRowToSpecialGroup(rs));
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(mapRowToSpecialGroup(rs));
+                }
             }
         } catch (SQLException e) {
             logger.error("Error finding special group by id {}", id, e);
@@ -148,35 +158,74 @@ public class GroupRepository {
 
     // Tags methods
     public void saveTag(Tag tag) {
-        String sql = "INSERT INTO Tags (name) VALUES ('" + tag.getName() + "')";
+        String sql = "INSERT INTO Tags (id, name) VALUES (?, ?)";
 
-        try (Statement statement = getConnection().createStatement()) {
-            statement.executeUpdate(sql, Statement.RETURN_GENERATED_KEYS);
+        try (PreparedStatement ps = getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setLong(1, tag.getId());
+            ps.setString(2, tag.getName());
+            ps.executeUpdate();
 
-            try (ResultSet rs = statement.getGeneratedKeys()) {
+            try (ResultSet rs = ps.getGeneratedKeys()) {
                 if (rs.next()) {
                     logger.debug("Tag saved with id: {}", rs.getInt(1));
                 }
             }
         } catch (SQLException e) {
-            logger.error("Error saving tag", e);
+            logger.error("Error saving tag {}", e.getMessage());
         }
     }
 
     public Optional<Tag> findTagById(int id) {
-        String sql = "SELECT * FROM Tags WHERE id = " + id;
+        String sql = "SELECT * FROM Tags WHERE id = ?";
 
-        try (Statement statement = getConnection().createStatement();
-             ResultSet rs = statement.executeQuery(sql)) {
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setInt(1, id);
 
-            if (rs.next()) {
-                return Optional.of(mapRowToTag(rs));
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(mapRowToTag(rs));
+                }
             }
         } catch (SQLException e) {
             logger.error("Error finding tag by id {}", id, e);
         }
 
         return Optional.empty();
+    }
+
+    public Optional<Tag> findTagByName(String name) {
+        String sql = "SELECT * FROM Tags WHERE name = ?";
+
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setString(1, name);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(mapRowToTag(rs));
+                }
+            }
+        } catch (SQLException e) {
+            logger.error("Error finding tag by name {}", name, e);
+        }
+
+        return Optional.empty();
+    }
+
+    public List<Tag> findAllTag() {
+        String sql = "SELECT * FROM Tags";
+        List<Tag> tags = new ArrayList<>();
+
+        try (PreparedStatement ps = getConnection().prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                tags.add(mapRowToTag(rs));
+            }
+        } catch (SQLException e) {
+            logger.error("Error finding all tags", e);
+        }
+
+        return tags;
     }
 
     // Mapping methods
