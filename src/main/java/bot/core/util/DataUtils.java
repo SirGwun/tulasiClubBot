@@ -1,12 +1,11 @@
 package bot.core.util;
 
 import bot.core.Main;
-import bot.core.control.SessionController;
-import bot.core.model.TimerController;
-import bot.core.model.Session;
-import bot.core.model.Group;
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.joran.JoranConfigurator;
+import bot.core.model.*;
+import bot.core.repos.GroupRepository;
+import bot.core.repos.SessionRepository;
+import bot.core.repos.UserRepository;
+
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,360 +18,126 @@ import java.sql.*;
 import java.time.Instant;
 import java.util.*;
 
-/**
- * Utility class that stores configuration and helper data for the bot.
- * All state is kept in instance fields instead of static ones.
- */
 public final class DataUtils {
-    private final static Logger log = LoggerFactory.getLogger(DataUtils.class);
 
-    private final boolean amvera = System.getenv("AMVERA") != null && System.getenv("AMVERA").equals("1");
+    private static final Logger log = LoggerFactory.getLogger(DataUtils.class);
+
+    private final boolean amvera =
+            System.getenv("AMVERA") != null && System.getenv("AMVERA").equals("1");
+
     private final String base = amvera ? "/data/" : "data/";
-    private final String configPath;
-    private final String groupListPath;
-    private final String helpPath;
-    private final String paymentFolderPath;
-    private final String catalogPath;
-    private final String tagListPath;
+    private final String configPath = base + "config.properties";
+    private final String helpPath = base + "help.txt";
+    private final String paymentFolderPath = base + "Payment info/";
+    private final String catalogPath = base + "catalog.txt";
+
+    private final Properties config = new Properties();
 
     private long adminChatID;
-    private long favoriteGroupID;
     private int timerMinutes;
     private String help;
-    private final Properties config = new Properties();
-    private List<Group> groupList = new ArrayList<>();
 
-    private Connection connection;
+    private final GroupRepository groupRepository;
+    private final SessionRepository sessionRepository;
+    private final UserRepository userRepository;
 
-    /**
-     * Create a new instance and load configuration and group list.
-     * Paths are resolved depending on the environment.
-     */
-    public DataUtils() {
-        this.configPath = base + "config.properties";
-        this.groupListPath = base + "groupList.ser";
-        this.helpPath = base + "help.txt";
-        this.paymentFolderPath = base + "Payment info/";
-        this.catalogPath = base + "catalog.txt";
-        this.tagListPath = base + "tagList.txt";
+    public DataUtils(GroupRepository groupRepository,
+                     SessionRepository sessionRepository,
+                     UserRepository userRepository) {
 
-        if (amvera) loadProdLogger();
+        this.groupRepository = groupRepository;
+        this.sessionRepository = sessionRepository;
+        this.userRepository = userRepository;
+
         loadConfig();
-        loadGroupList();
     }
 
-    public void checkAndFixAdminRights() {
-        boolean needToStore = false;
-        for (Group group : groupList) {
-            boolean realAdminRight = ChatUtils.isBotAdminInGroup(group.getId());
-            if (realAdminRight != group.isBotAdmin()) {
-                group.setIsBotAdmin(realAdminRight);
-                needToStore = true;
-            }
-        }
-        if (needToStore) {
-            saveGroupList();
-        }
-    }
-
-    private void loadProdLogger() {
-        LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
-        context.reset(); // сброс текущей конфигурации
-        JoranConfigurator configurator = new JoranConfigurator();
-        configurator.setContext(context);
-        try (InputStream configStream = Thread.currentThread()
-                .getContextClassLoader()
-                .getResourceAsStream("logback-prod.xml")) {
-            if (configStream == null) {
-                throw new IllegalArgumentException("Logback config not found: " + "logback-prod.xml");
-            }
-            configurator.doConfigure(configStream); // загружаем как stream
-        } catch (Exception e) {
-            log.error("Failed to configure logging context", e);
-        }
-    }
+    /* ================= GROUPS ================= */
 
     public void addNewGroup(String groupName, long groupId) {
-        Group newGroup = new Group(
+        Group group = new Group(
                 groupName,
                 groupId,
                 getActualGroupTag(),
-                ChatUtils.isBotAdminInGroup(groupId));
-        groupList.add(newGroup);
-        saveGroupList();
-    }
+                ChatUtils.isBotAdminInGroup(groupId)
+        );
 
-    private void saveConfig() {
-        try (OutputStream configOutput = new FileOutputStream(configPath)) {
-            config.store(configOutput, null);
-        } catch (IOException ex) {
-            Main.log.error("Can't save config {}", ex.getMessage());
-        }
-    }
-
-    private void loadConfig() {
-        try (InputStream configInput = new FileInputStream(configPath)) {
-            config.load(configInput);
-            adminChatID = Long.parseLong(config.getProperty("adminChatID"));
-            favoriteGroupID = Long.parseLong(config.getProperty("favoriteGroupID"));
-            timerMinutes = Integer.parseInt(config.getProperty("timeMinutes"));
-        } catch (FileNotFoundException ex) {
-            log.error("Не удалось загрузить конфиг {}", ex.getMessage());
-        } catch (IOException ex) {
-            log.error("Unable to read конфиг file : {}", ex.getMessage());
-        }
+        groupRepository.saveGroup(group);
     }
 
     public synchronized List<Group> getGroupList() {
-        return groupList;
-    }
-
-    private Object load(String name) {
-        try (ObjectInputStream input = new ObjectInputStream(new FileInputStream(base + name + ".ser"))) {
-            return input.readObject();
-        } catch (FileNotFoundException ex) {
-            log.error("Не удалось найти файл {}", groupListPath);
-        } catch (IOException ex) {
-            log.error("Unable to read {} : {}", name, ex.getMessage());
-        } catch (ClassNotFoundException e) {
-            log.error("Unable find class: {}", e.getMessage());
-        }
-        return null;
-    }
-
-    public void saveSessions(Map<Long, Session> sessionByUser) {
-        try (ObjectOutputStream output = new ObjectOutputStream(new FileOutputStream(base + "sessions" + ".ser"))) {
-            output.writeObject(sessionByUser);
-        } catch (IOException ex) {
-            log.error("Can't save {} \n {}", "sessions", ex.getMessage());
-        }
-    }
-
-    public Map<Long, Session> loadSessions() {
-        Object ses = load("sessions");
-        if (!(ses instanceof Map<?, ?> rawMap)) {
-            log.warn("Loaded object is not a Map");
-            return Collections.emptyMap();
-        }
-
-        Map<Long, Session> result = new HashMap<>();
-
-        for (Map.Entry<?, ?> entry : rawMap.entrySet()) {
-            if (!(entry.getKey() instanceof Long)) {
-                log.warn("Invalid key type: {}", entry.getKey());
-                continue;
-            }
-            if (!(entry.getValue() instanceof Session)) {
-                log.warn("Invalid value type for key {}", entry.getKey());
-                continue;
-            }
-            result.put((Long) entry.getKey(), (Session) entry.getValue());
-        }
-
-        return result;
-    }
-
-
-    private void loadGroupList() {
-        Object list =  load("groupList");
-        if (!(list instanceof List<?> lodedList)) {
-            log.warn("Loaded object is not a List");
-            return;
-        }
-        List<Group> groupList = new ArrayList<>();
-        for (Object object : lodedList) {
-            if (!(object instanceof Group group)) {
-                log.warn("Loaded object is not a Group");
-                return;
-            }
-            groupList.add(group);
-        }
-        log.info("Loaded {} groups", groupList.size());
-        this.groupList = groupList;
-    }
-
-    public void saveGroupList() {
-        try (ObjectOutputStream groupListOutput = new ObjectOutputStream(new FileOutputStream(groupListPath))) {
-            groupListOutput.writeObject(groupList);
-        } catch (IOException ex) {
-            log.error("Can't save groupList {}", ex.getMessage());
-        }
-    }
-
-
-    public long getAdminId() {
-        return adminChatID;
-    }
-
-    public long getFavoriteGroupId() {
-        return favoriteGroupID;
-    }
-
-    public String getHelp() {
-        if (help == null) {
-            try (InputStream input = new FileInputStream(helpPath)) {
-                help = IOUtils.toString(input, StandardCharsets.UTF_8);
-            } catch (FileNotFoundException e) {
-                log.error("Не удалось загрузить help.txt", e);
-            } catch (IOException e) {
-                log.error("Не удалось прочитать help.txt", e);
-            }
-        }
-        return help;
-    }
-
-    public void setHelp(String help) {
-        this.help = help;
-        try (OutputStream output = new FileOutputStream(helpPath)) {
-            IOUtils.write(help, output, StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            log.error("Не удалось сохранить help.txt", e);
-        }
-    }
-
-
-    public String getHistoryId() {
-        return (String) config.get("history");
+        return groupRepository.findAllGroups();
     }
 
     public void removeGroup(Long groupId) {
-        Group removeGroup = null;
 
-        for (Group group : groupList) {
-            if (Objects.equals(group.getId(), groupId)) {
-                removeGroup = group;
-                break;
-            }
+        Group group = groupRepository.findGroupById(groupId).orElse(null);
+        if (group == null) {
+            log.info("Группа {} не найдена", groupId);
+            return;
         }
-        if (removeGroup != null) {
-            try {
-                LeaveChat leaveChat = new LeaveChat();
-                leaveChat.setChatId(groupId);
-                Main.paymentBot.execute(leaveChat);
-            } catch (TelegramApiException e) {
-                log.warn("Не удалось выйти из группы {}", removeGroup.getName());
-            }
 
-            groupList.remove(removeGroup);
-            log.info("Группа {} удалена из списка", removeGroup.getName());
-            saveGroupList();
-        } else {
-            log.info("Группа {} не найдена в списке", groupId);
+        try {
+            LeaveChat leaveChat = new LeaveChat();
+            leaveChat.setChatId(groupId);
+            Main.paymentBot.execute(leaveChat);
+        } catch (TelegramApiException e) {
+            log.warn("Не удалось выйти из группы {}", group.getName());
         }
+
+        groupRepository.deleteGroup(groupId);
+        log.info("Группа {} удалена", group.getName());
+    }
+
+    public void updateGroupName(String groupName, Long groupId) {
+        groupRepository.updateGroupName(groupId, groupName);
     }
 
     public String getGroupName(Long groupId) {
-        if (groupId == null) return null;
-        for (Group group : groupList) {
-            if (Objects.equals(group.getId(), groupId)) {
-                return group.getName();
-            }
-        }
-        return null;
+        Group group = groupRepository.findGroupById(groupId).orElse(null);
+        return group != null ? group.getName() : null;
     }
 
     public Group getGroupByName(String name) {
-        for (Group group : groupList) {
-            if (group.getName().equals(name)) {
-                return group;
-            }
-        }
-        return null;
+        return groupRepository.findGroupByName(name).orElse(null);
     }
 
     public Group getGroupById(Long id) {
-        for (Group group : groupList) {
-            if (group.getId() == (id)) {
-                return group;
-            }
-        }
-        return null;
+        return groupRepository.findGroupById(id).orElse(null);
     }
 
     public boolean containsGroupId(long id) {
-        return groupList.stream().anyMatch(g -> g.getId() == id);
+        return groupRepository.findGroupById(id).isPresent();
     }
 
-    public String getCatalog() {
-        try (InputStream catalogInput = new FileInputStream(catalogPath)) {
-            return IOUtils.toString(catalogInput, StandardCharsets.UTF_8);
-        } catch (FileNotFoundException ex) {
-            log.warn("Не удалось загрузить каталог {}", ex.getMessage());
-        } catch (IOException ex) {
-            log.warn("Unable to read каталог file : {}", ex.getMessage());
-        }
-        return null;
-    }
+    public void checkAndFixAdminRights() {
+        List<Group> groups = groupRepository.findAllGroups();
 
-    public void setPaymentInfo(String text) {
-        try (OutputStream out = new FileOutputStream(paymentFolderPath + "paymentText.txt")) {
-            IOUtils.write(text, out, StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            log.error("Ошибка при сохранении payment info", e);
-        }
-    }
-
-    public String getPaymentInfo() {
-        try (InputStream input = new FileInputStream(paymentFolderPath + "paymentText.txt")) {
-            return IOUtils.toString(input, StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            log.error("Ошибка при чтении paymentInfo", e);
-        }
-        return "";
-    }
-
-    public String getActualGroupTag() { //todo возвращать номер а не название
-        return getTagMap().get(Integer.parseInt(config.getProperty("groupTag")));
-    }
-
-    public void setGroupTag(String groupTag) {
-        for (Map.Entry<?, String> entry : getTagMap().entrySet()) {
-            if (entry.getValue().equalsIgnoreCase(groupTag)) {
-                config.setProperty("groupTag", String.valueOf(entry.getKey()));
-                saveConfig();
-                break;
+        for (Group group : groups) {
+            boolean realAdmin = ChatUtils.isBotAdminInGroup(group.getId());
+            if (realAdmin != group.isBotAdmin()) {
+                group.setIsBotAdmin(realAdmin);
+                groupRepository.updateGroupAdminRights(group.getId(), realAdmin);
             }
         }
     }
 
-    public Map<Integer, String> getTagMap() {
-        Map<Integer, String> tags = new HashMap<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(tagListPath))) {
-            while (reader.ready()) {
-                String input = reader.readLine();
-                tags.put(Integer.parseInt(input.substring(0, 1)),
-                        input.substring(2));
-            }
-        } catch (IOException e) {
-            log.error("Ошибка чтения tagList {}", e.getMessage());
-        }
-        return tags;
+    /* ================= SESSIONS ================= */
+
+    public void saveSession(Session sessionByUser) {
+        sessionRepository.save(sessionByUser);
     }
 
-    public void addNewTag(String tagName) {
-        Map<Integer, String> tags = getTagMap();
-        int newTagId = tags.size() + 1;
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(tagListPath, true))) {
-            writer.write("\n" + newTagId + " " + tagName);
-        } catch (IOException e) {
-            log.error("Ошибка при добавлении нового тега {}", e.getMessage());
+    public Map<Long, Session> loadSessions() {
+        List<Session> sessions = sessionRepository.findAll();
+        Map<Long, Session> result = new HashMap<>();
+        for (Session session : sessions) {
+            result.put(session.getUserId(), session);
         }
+        return result;
     }
 
-    public Integer getTagId(String tag) {
-        Map<Integer, String> tags = getTagMap();
-        if (!tags.containsValue(tag)) {
-            log.warn("Попытка прочитать не существующий тег {}", tag);
-            return -1;
-        }
-
-        for (Map.Entry<Integer, String> entry : tags.entrySet()) {
-            if (entry.getValue().equalsIgnoreCase(tag))
-                return entry.getKey();
-        }
-        log.warn("Попытка прочитать не существующий тег {}", tag);
-        return -1;
-    }
+    /* ================= TIMERS ================= */
 
     public int getTimerMinutes() {
         return timerMinutes;
@@ -444,15 +209,123 @@ public final class DataUtils {
     }
 
     private Connection getConnection() throws SQLException {
-        if (connection == null || connection.isClosed()) {
-            connection = DriverManager.getConnection("jdbc:sqlite:" + base + "DataBase.db");
+        return DriverManager.getConnection("jdbc:sqlite:" + base + "DataBase.db");
+    }
+
+    /* ================= TAGS ================= */
+
+    public String getActualGroupTag() {
+        int tagId = Integer.parseInt(config.getProperty("groupTag"));
+        return groupRepository.findTagById(tagId).orElse(null).getName();
+    }
+
+    public void setGroupTag(String groupTag) {
+        var tag = groupRepository.findTagByName(groupTag).orElse(null);
+        if (tag != null) {
+            config.setProperty("groupTag", String.valueOf(tag.getId()));
+            saveConfig();
         }
-        return connection;
+    }
+
+    public Map<Long, String> getTagMap() {
+        Map<Long, String> result = new HashMap<>();
+        groupRepository.findAllTag()
+                .forEach(tag -> result.put(tag.getId(), tag.getName()));
+        return result;
+    }
+
+    public void addNewTag(String tagName) {
+        groupRepository.saveTag(new Tag(groupRepository.findAllTag().size() + 1, tagName));
+    }
+
+    public Long getTagId(String tagName) {
+        Tag tag = groupRepository.findTagByName(tagName).orElse(null);
+        return tag != null ? tag.getId() : -1;
+    }
+
+    /* ================= CONFIG ================= */
+
+    private void loadConfig() {
+        try (InputStream input = new FileInputStream(configPath)) {
+            config.load(input);
+            adminChatID = Long.parseLong(config.getProperty("adminChatID"));
+            timerMinutes = Integer.parseInt(config.getProperty("timeMinutes"));
+        } catch (IOException e) {
+            log.error("Ошибка загрузки config", e);
+        }
+    }
+
+    private void saveConfig() {
+        try (OutputStream output = new FileOutputStream(configPath)) {
+            config.store(output, null);
+        } catch (IOException ex) {
+            log.error("Can't save config {}", ex.getMessage());
+        }
+    }
+
+    public String getHistoryId() {
+        return (String) config.get("history");
+    }
+
+    public long getAdminId() {
+        return adminChatID;
+    }
+
+
+    /* ================= FILE CONTENT ================= */
+
+    public String getHelp() {
+        if (help == null) {
+            try (InputStream input = new FileInputStream(helpPath)) {
+                help = IOUtils.toString(input, StandardCharsets.UTF_8);
+            } catch (IOException e) {
+                log.error("Ошибка чтения help.txt", e);
+            }
+        }
+        return help;
+    }
+
+    public void setHelp(String help) {
+        this.help = help;
+        try (OutputStream output = new FileOutputStream(helpPath)) {
+            IOUtils.write(help, output, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            log.error("Ошибка сохранения help.txt", e);
+        }
+    }
+
+    public String getCatalog() {
+        try (InputStream input = new FileInputStream(catalogPath)) {
+            return IOUtils.toString(input, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            log.error("Ошибка чтения catalog.txt", e);
+        }
+        return null;
+    }
+
+    public void setPaymentInfo(String text) {
+        try (OutputStream out =
+                     new FileOutputStream(paymentFolderPath + "paymentText.txt")) {
+            IOUtils.write(text, out, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            log.error("Ошибка сохранения payment info", e);
+        }
+    }
+
+    public String getPaymentInfo() {
+        try (InputStream input =
+                     new FileInputStream(paymentFolderPath + "paymentText.txt")) {
+            return IOUtils.toString(input, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            log.error("Ошибка чтения payment info", e);
+        }
+        return "";
     }
 
     public List<Long> getUsrList() {
-        return SessionController.getSessionMap().keySet().stream().toList();
+        return userRepository.findAll()
+                .stream()
+                .map(User::getChatId)
+                .toList();
     }
 }
-
-
