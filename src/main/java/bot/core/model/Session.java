@@ -1,28 +1,24 @@
 package bot.core.model;
 
 import bot.core.Main;
+import bot.core.control.SessionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChat;
 import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.io.Serial;
-import java.io.Serializable;
-
-public class Session implements Serializable {
+public class Session {
     private static final Logger log = LoggerFactory.getLogger(Session.class);
-    @Serial
-    private static final long serialVersionUID = 3L;
+
     long userId;
     String userName;
     Long groupId;
-    SessionState state;
+    EditingActions action;
 
     public Session(long userId, String userName) {
         this.userId = userId;
         this.userName = userName;
-        state = new SessionState();
     }
 
     public Long getGroupId() {
@@ -33,8 +29,12 @@ public class Session implements Serializable {
         this.groupId = groupId;
     }
 
-    public SessionState getState() {
-        return state;
+    public EditingActions getAction() {
+        return action;
+    }
+
+    public void setAction(EditingActions action) {
+        this.action = action;
     }
 
     public long getUserId() {

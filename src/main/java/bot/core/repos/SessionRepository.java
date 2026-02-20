@@ -1,13 +1,15 @@
 package bot.core.repos;
 
 import bot.core.model.Session;
-import bot.core.model.SessionState;
 import bot.core.model.EditingActions;
 import bot.core.util.config.DataConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 public class SessionRepository {
@@ -15,6 +17,10 @@ public class SessionRepository {
     private final Logger logger = LoggerFactory.getLogger(SessionRepository.class);
     private final DataConfig dataConfig = new DataConfig();
     private Connection connection;
+
+    public SessionRepository() {
+        createSessionsTable();
+    }
 
     private Connection getConnection() throws SQLException {
         if (connection == null || connection.isClosed()) {
@@ -42,24 +48,52 @@ public class SessionRepository {
 
     public void save(Session session) {
         String sql = """
-                INSERT INTO Sessions (userId, userName, groupId, action)
-                VALUES (?, ?, ?, ?)
-                ON DUPLICATE KEY UPDATE
-                    userName = VALUES(userName),
-                    groupId = VALUES(groupId),
-                    action = VALUES(action)
-                """;
+        INSERT INTO Sessions (userId, userName, groupId, action)
+        VALUES (?, ?, ?, ?)
+        ON CONFLICT(userId) DO UPDATE SET
+            userName = excluded.userName,
+            groupId = excluded.groupId,
+            action = excluded.action
+        """;
 
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setLong(1, session.getUserId());
             ps.setString(2, session.getUserName());
             ps.setObject(3, session.getGroupId());
-            ps.setString(4, session.getState().getAction().name());
+            ps.setString(4, session.getAction().name());
             ps.executeUpdate();
         } catch (SQLException e) {
             logger.error("Error saving session {}", session.getUserId(), e);
         }
     }
+
+
+    public void saveAll(Collection<Session> values) {
+        if (values == null || values.isEmpty()) return;
+
+        String sql = """
+        INSERT INTO Sessions (userId, userName, groupId, action)
+        VALUES (?, ?, ?, ?)
+        ON CONFLICT(userId) DO UPDATE SET
+            userName = excluded.userName,
+            groupId = excluded.groupId,
+            action = excluded.action
+        """;
+
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            for (Session session : values) {
+                ps.setLong(1, session.getUserId());
+                ps.setString(2, session.getUserName());
+                ps.setObject(3, session.getGroupId());
+                ps.setString(4, session.getAction().name());
+                ps.addBatch();
+            }
+            ps.executeBatch();
+        } catch (SQLException e) {
+            logger.error("Error saving sessions batch. Count: {}", values.size(), e);
+        }
+    }
+
 
     public Optional<Session> findByUserId(long userId) {
         String sql = "SELECT * FROM Sessions WHERE userId = ?";
@@ -77,6 +111,23 @@ public class SessionRepository {
         }
 
         return Optional.empty();
+    }
+
+    public List<Session> findAll() {
+        String sql = "SELECT * FROM Sessions";
+        List<Session> sessions = new ArrayList<>();
+
+        try (PreparedStatement ps = getConnection().prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                sessions.add(mapRowToSession(rs));
+            }
+        } catch (SQLException e) {
+            logger.error("Error finding all users", e);
+        }
+
+        return sessions;
     }
 
     public void updateGroupId(long userId, Long groupId) {
@@ -124,8 +175,7 @@ public class SessionRepository {
         session.setGroupId(groupId);
 
         EditingActions action = EditingActions.valueOf(actionStr);
-        SessionState state = session.getState();
-        state.setAction(action);
+        session.setAction(action);
 
         return session;
     }
