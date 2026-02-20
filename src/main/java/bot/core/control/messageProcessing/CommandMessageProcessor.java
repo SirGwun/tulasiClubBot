@@ -11,6 +11,7 @@ import bot.core.repos.GroupRepository;
 import bot.core.repos.UserRepository;
 import bot.core.util.ChatUtils;
 import bot.core.control.callbackHandlers.Action;
+import bot.core.util.DataUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChat;
@@ -139,41 +140,7 @@ public class CommandMessageProcessor implements MessageProcessor {
         }
 
         private void handleAction() {
-            log.info("Triggered action");
-
-            GroupRepository groupRepository = new GroupRepository();
-
-            groupRepository.createCommonGroupTable();
-            groupRepository.createSpecialGroupsTable();
-            groupRepository.createTagsTable();
-
-            List<Group> groupList = Main.dataUtils.getGroupList();
-
-            for (Group group : groupList) {
-                groupRepository.saveGroup(group);
-            }
-            for (Map.Entry<Long, String> entry : Main.dataUtils.getTagMap().entrySet()) {
-                Long id = entry.getKey();
-                String name = entry.getValue();
-
-                groupRepository.saveTag(new Tag(id, name));
-            }
-
-            groupRepository.saveSpecialGroup(new SpecialGroup(
-                    1002589029101L,
-                    "Второй поток ОМОЛОЖЕНИЕ и БАЗОВЫЕ ОСНОВЫ АЮРВЕДЫ",
-                    "default"));
-
-            UserRepository userRepository = new UserRepository();
-            userRepository.createAllUsersTable();
-
-            for (Map.Entry<Long, Session> entry : SessionService.getSessionMap().entrySet()) {
-                Long userId = entry.getKey();
-                String userName = entry.getValue().getUserName();
-                if (userName == null || userName.isEmpty()) userName = User.DEFAULT_NAME;
-
-                userRepository.saveUser(new User(userId, userName));
-            }
+            System.out.println(Main.dataUtils.getGroupById(1002589029101L).getName());
         }
 
         private void handleAddSpecialGroup() {

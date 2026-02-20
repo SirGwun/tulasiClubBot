@@ -10,7 +10,7 @@ import bot.core.repos.GroupRepository;
 import bot.core.util.ChatUtils;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
-//мб перенести в ChooseGroupHandler
+//мб перенести в ChooseGroupHandler upated - НАДО СОЕДЕНИТЬ В 1 СУЩНОСТЬ! ЛОГИКА ДУБЛИРУЕТСЯ
 public class BuyWholeCourseHandler extends AbstractCallbackHandler {
     public BuyWholeCourseHandler() {
         super(Action.buyWholeCourse);
@@ -39,6 +39,7 @@ public class BuyWholeCourseHandler extends AbstractCallbackHandler {
             return;
         }
 
+
         String tagName = queryData[1];
 
         GroupRepository repository = new GroupRepository();
@@ -55,6 +56,7 @@ public class BuyWholeCourseHandler extends AbstractCallbackHandler {
             return;
         }
 
+        SessionService.getInstance().setUserGroupId(fromId, specialGroup.getId());
         Tag tag = repository.findTagByName(tagName).orElse(null);
         int courseSize = tag != null ? repository.getAllGroupForTag(tag).size() : 0;
 
