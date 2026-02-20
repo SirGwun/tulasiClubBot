@@ -79,15 +79,20 @@ public class Validator {
 
             Main.paymentBot.execute(sendMessage);
         } catch (TelegramApiException e) {
-            Main.log.error("Ошибка при отправке сообщения администратору", e);
+            Main.log.error("Ошибка при отправке сообщения администратору {}", e.getMessage(), e);
             ChatUtils.sendMessage(Main.dataUtils.getAdminId(), "Ошибка, при запросе группу " + Main.dataUtils.getGroupName(groupId));
         }
     }
-    private static String createInviteLink(Long groupId) throws TelegramApiException {
-        CreateChatInviteLink link = new CreateChatInviteLink();
-        link.setChatId(groupId);
-        link.setCreatesJoinRequest(true);
-        return Main.paymentBot.execute(link).getInviteLink();
+    private static String createInviteLink(Long groupId) {
+        try {
+            CreateChatInviteLink link = new CreateChatInviteLink();
+            link.setChatId(groupId);
+            link.setCreatesJoinRequest(true);
+            return Main.paymentBot.execute(link).getInviteLink();
+        } catch (TelegramApiException e) {
+            log.error("Ошибка при создании createInviteLink в {} ", groupId);
+            return null;
+        }
     }
 
     public String extractTextFromPDF(PDDocument document) {

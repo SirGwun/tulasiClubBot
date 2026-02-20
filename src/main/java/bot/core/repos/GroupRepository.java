@@ -353,11 +353,11 @@ public class GroupRepository {
         }
     }
 
-    public Optional<Tag> findTagById(int id) {
+    public Optional<Tag> findTagById(long id) {
         String sql = "SELECT * FROM Tags WHERE id = ?";
 
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
-            ps.setInt(1, id);
+            ps.setLong(1, id);
 
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
