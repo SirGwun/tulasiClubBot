@@ -2,6 +2,15 @@ package bot.core.control.messageProcessing;
 
 import bot.core.Main;
 import bot.core.control.callbackHandlers.*;
+import bot.core.control.callbackHandlers.administation.*;
+import bot.core.control.callbackHandlers.groupNavigation.ChooseGroupHandler;
+import bot.core.control.callbackHandlers.groupNavigation.ChooseTagHandler;
+import bot.core.control.callbackHandlers.groupNavigation.GetJoinRequestedLinkHandler;
+import bot.core.control.callbackHandlers.groupNavigation.pointers.RightPointerButtonHandler;
+import bot.core.control.callbackHandlers.menu.ChooseArchiveOrActual;
+import bot.core.control.callbackHandlers.menu.GetCourseDescriptionHandler;
+import bot.core.control.callbackHandlers.menu.GetInstructionHandler;
+import bot.core.control.callbackHandlers.menu.GetPaymentInstructionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
@@ -47,6 +56,14 @@ public class CallbackProcessor implements MessageProcessor {
         for (CallbackHandler handler : list) {
             handlers.put(handler.getAction(), handler);
         }
+    }
+
+    public void registerHandler(CallbackHandler handler) {
+        handlers.put(handler.getAction(), handler);
+    }
+
+    public void deleteHandlerForAction(Action action) {
+        handlers.remove(action);
     }
 
     public void handleCallbackQuery(Update update) {
