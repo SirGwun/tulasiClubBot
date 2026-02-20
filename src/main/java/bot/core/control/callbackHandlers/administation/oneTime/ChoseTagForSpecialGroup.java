@@ -51,6 +51,9 @@ public class ChoseTagForSpecialGroup extends AbstractCallbackHandler {
         } else {
             ChatUtils.sendMessage(fromId, "Произошла ошибка при записи в базу данных");
         }
+
+        ChatUtils.deleteMessage(update.getCallbackQuery().getFrom().getId(),
+                update.getCallbackQuery().getMessage().getMessageId());
     }
 
     private void error(long userId) {
