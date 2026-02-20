@@ -19,6 +19,7 @@ public class Session {
     public Session(long userId, String userName) {
         this.userId = userId;
         this.userName = userName;
+        action = EditingActions.NONE;
     }
 
     public Long getGroupId() {
