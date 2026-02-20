@@ -395,6 +395,7 @@ public final class DataUtils {
             stmt.setLong(4, timer.getStartTime());
             stmt.executeUpdate();
         } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
             log.warn("Not success insertion for userId={}, groupId={}: \n{}",
                     timer.getUserId(), timer.getGroupId(), ex.getMessage());
         }
@@ -438,12 +439,12 @@ public final class DataUtils {
             }
             resultSet.getLong(1);
         } catch (SQLException ex) {
-            log.warn("Failed to load timers");
+            log.warn("Failed to load timers {}", ex.getMessage());
         }
     }
 
     private Connection getConnection() throws SQLException {
-        if (connection == null) {
+        if (connection == null || connection.isClosed()) {
             connection = DriverManager.getConnection("jdbc:sqlite:" + base + "DataBase.db");
         }
         return connection;
