@@ -15,25 +15,20 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class AddingInGroupMessageProcessor implements MessageProcessor {
     SessionService sessionService = SessionService.getInstance();
     Logger log = LoggerFactory.getLogger(AddingInGroupMessageProcessor.class);
+    GroupRepository groupRepository = new GroupRepository();
 
     private final ScheduledExecutorService scheduler =
-            Executors.newSingleThreadScheduledExecutor();
+            Executors.newScheduledThreadPool(4);
 
-    private ScheduledFuture<?> scheduledTask;
-    private final AtomicInteger attemptsLeft = new AtomicInteger(0);
+    private final Map<Long, ScheduledFuture<?>> tasks = new ConcurrentHashMap<>();
+    private final Map<Long, AtomicInteger> attempts = new ConcurrentHashMap<>();
 
     private final Object lock = new Object();
 
@@ -66,7 +61,7 @@ public class AddingInGroupMessageProcessor implements MessageProcessor {
             );
         else if (status.equalsIgnoreCase("administrator")
                 || status.equalsIgnoreCase("creator")) {
-            if (sessionService.getAction(fromId) == EditingActions.WAIT_FOR_SPECIAL_GROUP) {
+                if (sessionService.getAction(fromId) == EditingActions.WAIT_FOR_SPECIAL_GROUP) {
                 processSpecialGroupAdding(
                         newChatId,
                         myChatMember.getChat().getTitle(),
@@ -85,6 +80,7 @@ public class AddingInGroupMessageProcessor implements MessageProcessor {
     }
 
     private void processSpecialGroupAdding(Long chatId, String chatName, Long fromId) {
+        log.info("In process special group adding {} ", chatId);
         GroupRepository repository = new GroupRepository();
 
         Main.paymentBot.registerOneTimeHandler(new ChoseTagForSpecialGroup(chatId, chatName));
@@ -128,15 +124,18 @@ public class AddingInGroupMessageProcessor implements MessageProcessor {
 
         if (byId == null && byName == null) {                        // полностью новый чат
             log.info("Bot added to {}", chatName);
-            Main.dataUtils.addNewGroup(chatName, chatId);
+            groupRepository.saveGroup(new Group(
+                    chatName,
+                    chatId,
+                    Main.dataUtils.getActualGroupTag(),
+                    ChatUtils.isBotAdminInGroup(chatId)));
             ChatUtils.sendMessage(fromId, "Вы успешно добавили бота в " + chatType + " " + chatName);
-            checkAdminRightsLater(3);
             return;
         }
 
         if (byId != null && !Objects.equals(byId.getName(), chatName)) {  // id тот же, имя изменилось
             byId.setName(chatName);
-            Main.dataUtils.updateGroupName(chatName, chatId);
+            groupRepository.updateGroupName(chatId, chatName);
             return;
         }
 
@@ -147,77 +146,98 @@ public class AddingInGroupMessageProcessor implements MessageProcessor {
             return;
         }
 
-        log.warn("Добавление уже существующей группы {}", byId);     // id и имя совпали
+        ChatUtils.sendMessage(fromId,
+                "Добавление уже записанной группы, данные обновлены " + chatName);
+        log.warn("Добавление уже записанной группы, данные обновлены {}", byId);     // id и имя совпали
+        Main.dataUtils.saveOrUpdateGroup(chatId, chatName);
+
+        checkAdminRightsLater(chatId,3);
     }
 
-    public void checkAdminRightsLater(int tries) {
-        if (isAdminRightsOK()) {
-            return;
-        }
+    public void checkAdminRightsLater(long groupId, int tries) {
 
-        synchronized (lock) {
-            if (scheduledTask != null && !scheduledTask.isDone()) {
-                attemptsLeft.set(Math.max(attemptsLeft.get(), tries));
-                return;
+        Group group = Main.dataUtils.getGroupById(groupId);
+        if (group == null) return;
+
+        if (group.isBotAdmin()) return;
+
+        attempts.putIfAbsent(groupId, new AtomicInteger(tries));
+
+        tasks.compute(groupId, (id, existingTask) -> {
+
+            if (existingTask != null && !existingTask.isDone()) {
+                return existingTask;
             }
 
-            attemptsLeft.set(tries);
-            scheduledTask = scheduler.schedule(this::executeCheck, 5, TimeUnit.SECONDS);
-        }
+            return scheduler.schedule(
+                    () -> executeCheck(groupId),
+                    5,
+                    TimeUnit.SECONDS
+            );
+        });
     }
 
-    private void executeCheck() {
+    private void executeCheck(Long groupId) {
         try {
-            Main.dataUtils.checkAndFixAdminRights();
 
-            if (isAdminRightsOK()) {
+            Group group = Main.dataUtils.getGroupById(groupId);
+            if (group == null) {
+                cleanup(groupId);
                 return;
             }
 
-            int remaining = attemptsLeft.decrementAndGet();
+            boolean realAdmin = ChatUtils.isBotAdminInGroup(groupId);
 
-            if (remaining <= 0) {
-                notifyAdmin();
+            if (realAdmin != group.isBotAdmin()) {
+                group.setIsBotAdmin(realAdmin);
+                groupRepository.updateGroupAdminRights(groupId, realAdmin);
+            }
+
+            if (realAdmin) {
+                cleanup(groupId);
                 return;
             }
 
-            synchronized (lock) {
-                scheduledTask = scheduler.schedule(this::executeCheck, 10, TimeUnit.SECONDS);
+            AtomicInteger counter = attempts.get(groupId);
+            if (counter == null) {
+                cleanup(groupId);
+                return;
             }
+
+            if (counter.decrementAndGet() <= 0) {
+                notifyAdmin(group);
+                cleanup(groupId);
+                return;
+            }
+
+            ScheduledFuture<?> newTask = scheduler.schedule(
+                    () -> executeCheck(groupId),
+                    10,
+                    TimeUnit.SECONDS
+            );
+
+            tasks.put(groupId, newTask);
 
         } catch (Exception e) {
             log.error(e.getMessage());
         }
     }
-
-    private void notifyAdmin() {
-        StringBuilder builder = new StringBuilder();
-        List<Group> groupList = Main.dataUtils.getGroupList();
-
-        for (Group group : groupList) {
-            if (!group.isBotAdmin()) {
-                builder.append(group.getTag())
-                        .append(" - ")
-                        .append(group.getName())
-                        .append("\n");
-            }
+    private void cleanup(Long groupId) {
+        ScheduledFuture<?> future = tasks.remove(groupId);
+        if (future != null) {
+            future.cancel(false);
         }
+        attempts.remove(groupId);
+    }
+
+
+    private void notifyAdmin(Group group) {
 
         ChatUtils.sendMessage(
                 Main.dataUtils.getAdminId(),
-                "В некоторых добавленных группах бот не является админом. " +
-                        "Они не будут отображаться пользователям. " +
-                        "Удалите из них бота совсем или удалите и добавьте заново.\n\n" +
-                        "Список таких групп:\n" +
-                        builder.toString()
+                "Бот не является админом в группе:\n" +
+                        group.getTag() + " - " +
+                        group.getName()
         );
-    }
-
-    public boolean isAdminRightsOK() {
-        List<Group> groupList = Main.dataUtils.getGroupList();
-        for (Group group : groupList) {
-            if (!group.isBotAdmin()) return false;
-        }
-        return true;
     }
 }
