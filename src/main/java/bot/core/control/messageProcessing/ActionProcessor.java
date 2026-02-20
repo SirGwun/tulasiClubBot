@@ -5,6 +5,7 @@ import bot.core.control.SessionController;
 import bot.core.model.*;
 import bot.core.util.ChatUtils;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.util.List;
 
@@ -29,19 +30,21 @@ public class ActionProcessor implements MessageProcessor {
         switch (session.getAction()) {
             case EDIT_HELP -> {
                 handleEditHelp(message);
+                session.setAction(EditingActions.NONE);
             }
             case EDIT_PAYMENT_INFO -> {
                 handleEditPaymentInfo(message);
+                session.setAction(EditingActions.NONE);
             }
             case SENDING_SPREAD_WITHOUT_BUTTON -> {
                 handleSendSpreadWithoutButton(message);
+                session.setAction(EditingActions.NONE);
             }
             case SENDING_SPREAD -> {
                 handleSendSpread(message);
+                session.setAction(EditingActions.NONE);
             }
         }
-
-        session.setAction(EditingActions.NONE);
     }
 
     private void handleEditHelp(MessageContext message) {
