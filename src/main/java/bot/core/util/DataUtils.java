@@ -16,6 +16,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.*;
 
 public final class DataUtils {
@@ -89,13 +90,28 @@ public final class DataUtils {
         log.info("Группа {} удалена", group.getName());
     }
 
+    public void saveOrUpdateGroup(long id, String name) {
+        String tag = groupRepository.findGroupById(id)
+                .map(Group::getTag)
+                .orElseGet(this::getActualGroupTag);
+
+        groupRepository.saveOrUpdateGroup(new Group(id, name, tag, LocalDateTime.now()));
+    }
+
     public void updateGroupName(String groupName, Long groupId) {
         groupRepository.updateGroupName(groupId, groupName);
     }
 
     public String getGroupName(Long groupId) {
-        Group group = groupRepository.findGroupById(groupId).orElse(null);
-        return group != null ? group.getName() : null;
+        Optional<BaseGroup> groupOptional = groupRepository.findAnyGroupById(groupId);
+
+        if (groupOptional.isEmpty()) {
+            log.error("Группа с неизвестным именем {}", groupId);
+            return null;
+        }
+
+        BaseGroup group = groupOptional.get();
+        return group.getName();
     }
 
     public Group getGroupByName(String name) {
