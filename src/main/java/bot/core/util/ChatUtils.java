@@ -26,7 +26,9 @@ import bot.core.model.Group;
 
 import java.util.*;
 
-/** Utility methods for interacting with chats. */
+/**
+ * Utility methods for interacting with chats.
+ */
 public final class ChatUtils {
     private static final Logger log = LoggerFactory.getLogger(ChatUtils.class);
     public static final String ARROWED_STILE = "arrowed";
@@ -62,8 +64,8 @@ public final class ChatUtils {
 
     public static void sendMainMenu(long chatId) {
         String text = """
-        Выберете нужную кнопку ↓
-        """;
+                Выберете нужную кнопку ↓
+                """;
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
 
         InlineKeyboardButton coursesDescription = new InlineKeyboardButton("Каталог");
@@ -89,7 +91,7 @@ public final class ChatUtils {
     }
 
     public static void spreadToIds(List<Long> chatIds, MessageContext context, boolean withButton) {
-        long fromChatId  = context.getChatId();
+        long fromChatId = context.getChatId();
         int messageId = context.message().getMessageId();
         chatIds.remove(Main.dataUtils.getAdminId());
 
@@ -121,7 +123,7 @@ public final class ChatUtils {
 
         InlineKeyboardButton button = new InlineKeyboardButton();
         button.setText(buttonText);
-        button.setCallbackData(Action.chooseTag + "_"  + actualTag);
+        button.setCallbackData(Action.chooseTag + "_" + actualTag);
 
         row.add(button);
 
@@ -328,71 +330,83 @@ public final class ChatUtils {
                 .orElse(new User(userId))
                 .getName();
 
+        String userInviteLink = createOneTimeInviteLink(groupId);
+        sendInviteToUser(userId, groupId, groupName, userInviteLink);
+
+        String historyLink = getJoinRequestedLink(groupId);
+        sendToHistoryChat(userName, groupName, historyLink, reason);
+    }
+
+    private static String getJoinRequestedLink(Long groupId)  {
         try {
-            String historyLink = getJoinRequestedLink(groupId);
-            sendToHistoryChat(userName, groupName, historyLink, reason);
-
-            String userInviteLink = createOneTimeInviteLink(groupId);
-            sendInviteToUser(userId, groupId, groupName, userInviteLink);
-
+            CreateChatInviteLink link = new CreateChatInviteLink();
+            link.setChatId(groupId);
+            link.setCreatesJoinRequest(true);
+            return Main.paymentBot.execute(link).getInviteLink();
         } catch (TelegramApiException e) {
-            log.error("Ошибка при добавлении пользователя в группу {}", e.getMessage());
+            log.error("Ошибка при создании JoinRequestedLink на {}", groupId);
+            return null;
         }
     }
 
-    private static String getJoinRequestedLink(Long groupId) throws TelegramApiException {
-        CreateChatInviteLink link = new CreateChatInviteLink();
-        link.setChatId(groupId);
-        link.setCreatesJoinRequest(true);
-        return Main.paymentBot.execute(link).getInviteLink();
+    private static String createOneTimeInviteLink(Long groupId) {
+        try {
+            CreateChatInviteLink link = new CreateChatInviteLink();
+            link.setChatId(groupId);
+            link.setName("Присоединиться к курсу");
+            link.setExpireDate(0); // бессрочно
+            link.setMemberLimit(1); // одноразовая
+            return Main.paymentBot.execute(link).getInviteLink();
+        } catch (TelegramApiException e) {
+            log.error("Ошибка при создании OneTimeInviteLink на {}", groupId);
+            return null;
+        }
     }
 
-    private static String createOneTimeInviteLink(Long groupId) throws TelegramApiException {
-        CreateChatInviteLink link = new CreateChatInviteLink();
-        link.setChatId(groupId);
-        link.setName("Присоединиться к курсу");
-        link.setExpireDate(0); // бессрочно
-        link.setMemberLimit(1); // одноразовая
-        return Main.paymentBot.execute(link).getInviteLink();
-    }
-
-    private static void sendToHistoryChat(String userName, String groupName, String link, String reason) throws TelegramApiException {
+    private static void sendToHistoryChat(String userName, String groupName, String link, String reason) {
         String message = "Пользователю @" + userName + " отправлено приглашение в группу " +
                 "<a href=\"" + link + "\">" + groupName + "</a>\nПричина: " + reason;
+        try {
+            SendMessage msg = new SendMessage();
+            msg.setChatId(Main.dataUtils.getHistoryId());
+            msg.setText(message);
+            msg.setParseMode("HTML");
+            msg.setDisableWebPagePreview(true);
 
-        SendMessage msg = new SendMessage();
-        msg.setChatId(Main.dataUtils.getHistoryId());
-        msg.setText(message);
-        msg.setParseMode("HTML");
-        msg.setDisableWebPagePreview(true);
-
-        Main.paymentBot.execute(msg);
+            Main.paymentBot.execute(msg);
+        } catch (TelegramApiException e) {
+            log.error("Ошибка при пересылке сообщения в чат истории {} {}", Main.dataUtils.getHistoryId(), userName);
+        }
     }
 
-    private static void sendInviteToUser(long userId, long groupId, String groupName, String link) throws TelegramApiException {
+    private static void sendInviteToUser(long userId, long groupId, String groupName, String link) {
         String messageText =
                 "Для присоединения к группе перейдите по ссылке ниже:\n\n" +
                         "<a href=\"" + link + "\">" + groupName + " — мы рады вас видеть!</a>\n\n" +
                         "После того как вы воспользуетесь этой ссылкой, группа появится во вкладке \"Все чаты\".\n" +
                         "Если не можете её найти — воспользуйтесь кнопкой ниже.";
+        try {
+            SendMessage msg = new SendMessage();
+            msg.setChatId(userId);
+            msg.setText(messageText);
+            msg.setParseMode("HTML");
 
-        SendMessage msg = new SendMessage();
-        msg.setChatId(userId);
-        msg.setText(messageText);
-        msg.setParseMode("HTML");
+            InlineKeyboardButton button = new InlineKeyboardButton();
+            button.setText("Я вступил, но не могу найти группу");
 
-        InlineKeyboardButton button = new InlineKeyboardButton();
-        button.setText("Я вступил, но не могу найти группу");
-        button.setCallbackData(Action.getJoinRequestedLink + "_"
-                + getJoinRequestedLink(groupId) + "_"
-                + userId);
+            button.setCallbackData(Action.getJoinRequestedLink + "_"
+                    + getJoinRequestedLink(groupId) + "_"
+                    + userId);
 
-        InlineKeyboardMarkup replyMarkup = new InlineKeyboardMarkup();
-        replyMarkup.setKeyboard(List.of(List.of(button)));
+            InlineKeyboardMarkup replyMarkup = new InlineKeyboardMarkup();
+            replyMarkup.setKeyboard(List.of(List.of(button)));
 
-        msg.setReplyMarkup(replyMarkup);
+            msg.setReplyMarkup(replyMarkup);
 
-        Main.paymentBot.execute(msg);
+            Main.paymentBot.execute(msg);
+        } catch (TelegramApiException e) {
+            log.error("Ошибка при добавлении пользователя в группу {}", e.getMessage());
+        }
     }
 
     /**
