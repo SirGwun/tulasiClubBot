@@ -76,6 +76,7 @@ public class Validator {
             Main.paymentBot.execute(sendMessage);
         } catch (TelegramApiException e) {
             Main.log.error("Ошибка при отправке сообщения администратору", e);
+            ChatUtils.sendMessage(Main.dataUtils.getAdminId(), "Ошибка, при запросе группу " + Main.dataUtils.getGroupName(groupId));
         }
     }
     private static String createInviteLink(Long groupId) throws TelegramApiException {
