@@ -111,8 +111,33 @@ public class GroupRepository {
         }
     }
 
-    public void updateGroupAdminRights(long id, boolean isBotAdmin) {
+    public void saveOrUpdateGroup(Group group) {
+        String sql = """
+        INSERT INTO Groups (id, name, tag, is_bot_admin)
+        VALUES (?, ?, ?, ?)
+        ON CONFLICT(id) DO UPDATE SET
+            name = excluded.name,
+            tag = excluded.tag,
+            is_bot_admin = excluded.is_bot_admin
+        """;
 
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+
+            ps.setLong(1, group.getId());
+            ps.setString(2, group.getName());
+            ps.setString(3, group.getTag());
+            ps.setBoolean(4, group.isBotAdmin());
+
+            ps.executeUpdate();
+
+            logger.debug("Group saved or updated with id: {}", group.getId());
+
+        } catch (SQLException e) {
+            logger.error("Error saving or updating group {}", group.getId(), e);
+        }
+    }
+
+    public void updateGroupAdminRights(long id, boolean isBotAdmin) {
         String sql = "UPDATE Groups SET is_bot_admin = ? WHERE id = ?";
 
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
@@ -286,9 +311,9 @@ public class GroupRepository {
     }
 
     public Optional<SpecialGroup> findSpecialGroupForGroup(Long groupId) {
-        Group group = findGroupById(groupId.intValue()).orElse(null);
+        Group group = findGroupById(groupId).orElse(null);
 
-        if (group == null) return Optional.empty();;
+        if (group == null) return Optional.empty();
 
         String sql = "SELECT * FROM SpecialGroups WHERE tag = ?";
 

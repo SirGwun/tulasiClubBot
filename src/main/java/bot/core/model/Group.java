@@ -1,7 +1,5 @@
 package bot.core.model;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -32,6 +30,10 @@ public class Group implements BaseGroup {
         this.name = name;
         this.tag = tag;
         this.isBotAdmin = isBotAdmin;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 
     public boolean isBotAdmin() {
