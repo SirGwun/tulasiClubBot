@@ -1,5 +1,8 @@
 package bot.core;
 
+import bot.core.repos.GroupRepository;
+import bot.core.repos.SessionRepository;
+import bot.core.repos.UserRepository;
 import bot.core.util.DataUtils;
 import org.slf4j.LoggerFactory;
 
@@ -9,7 +12,7 @@ import quizbot.core.QuizBot;
 public class Main {
     public static final Logger log = LoggerFactory.getLogger(Main.class);
     public static PaymentBot paymentBot;
-    public static DataUtils dataUtils = new DataUtils();;
+    public static DataUtils dataUtils = new DataUtils(new GroupRepository(), new SessionRepository(), new UserRepository());
     public static boolean test;
 
     public static void main(String[] args) {

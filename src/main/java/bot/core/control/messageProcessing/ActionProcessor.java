@@ -1,23 +1,21 @@
 package bot.core.control.messageProcessing;
 
 import bot.core.Main;
-import bot.core.control.SessionController;
+import bot.core.control.SessionService;
 import bot.core.model.*;
 import bot.core.util.ChatUtils;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.User;
-
-import java.util.List;
 
 public class ActionProcessor implements MessageProcessor {
+    SessionService sessionService = SessionService.getInstance();
     @Override
     public boolean canProcess(Update update) {
         if (!update.hasMessage()) return false;
 
         MessageContext message = new MessageContext(update.getMessage());
-        SessionState session = SessionController.getInstance().openSessionIfNeeded(update.getMessage().getFrom()).getState();
+        long userId = update.getMessage().getFrom().getId();
 
-        return session.getAction() != EditingActions.NONE
+        return sessionService.getAction(userId) != EditingActions.NONE
                 && message.isFromAdmin()
                 && !message.getText().equals("/cancel");
     }
@@ -25,24 +23,24 @@ public class ActionProcessor implements MessageProcessor {
     @Override
     public void process(Update update) {
         MessageContext message = new MessageContext(update.getMessage());
-        SessionState session = SessionController.getInstance().openSessionIfNeeded(update.getMessage().getFrom()).getState();
+        Long userId = update.getMessage().getFrom().getId();
 
-        switch (session.getAction()) {
-            case EDIT_HELP -> {
+        switch (sessionService.getAction(userId)) {
+            case EditingActions.EDIT_HELP -> {
                 handleEditHelp(message);
-                session.setAction(EditingActions.NONE);
+                sessionService.setSessionAction(userId, EditingActions.NONE);
             }
-            case EDIT_PAYMENT_INFO -> {
+            case EditingActions.EDIT_PAYMENT_INFO -> {
                 handleEditPaymentInfo(message);
-                session.setAction(EditingActions.NONE);
+                sessionService.setSessionAction(userId, EditingActions.NONE);
             }
-            case SENDING_SPREAD_WITHOUT_BUTTON -> {
+            case EditingActions.SENDING_SPREAD_WITHOUT_BUTTON -> {
                 handleSendSpreadWithoutButton(message);
-                session.setAction(EditingActions.NONE);
+                sessionService.setSessionAction(userId, EditingActions.NONE);
             }
-            case SENDING_SPREAD -> {
+            case EditingActions.SENDING_SPREAD -> {
                 handleSendSpread(message);
-                session.setAction(EditingActions.NONE);
+                sessionService.setSessionAction(userId, EditingActions.NONE);
             }
         }
     }

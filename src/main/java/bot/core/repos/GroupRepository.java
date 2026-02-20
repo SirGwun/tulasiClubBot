@@ -31,6 +31,7 @@ public class GroupRepository {
                     id INT PRIMARY KEY,
                     name VARCHAR(100) NOT NULL,
                     tag VARCHAR(100) NOT NULL,
+                    is_bot_admin BOOLEAN NOT NULL DEFAULT 0,
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
                 )
                 """;
@@ -78,31 +79,73 @@ public class GroupRepository {
         }
     }
 
-    // Groups methods
-    public void saveGroup(Group group) {
-        String sql = "INSERT INTO Groups (id, name, tag) VALUES (?, ?, ?)";
+    // ===================== GROUP METHODS =====================
 
-        try (PreparedStatement ps = getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+    public void saveGroup(Group group) {
+        String sql = "INSERT INTO Groups (id, name, tag, is_bot_admin) VALUES (?, ?, ?, ?)";
+
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setLong(1, group.getId());
             ps.setString(2, group.getName());
             ps.setString(3, group.getTag());
-            ps.executeUpdate();
+            ps.setBoolean(4, group.isBotAdmin());
 
-            try (ResultSet rs = ps.getGeneratedKeys()) {
-                if (rs.next()) {
-                    logger.debug("Group saved with id: {}", rs.getInt(1));
-                }
-            }
+            ps.executeUpdate();
+            logger.debug("Group saved with id: {}", group.getId());
+
         } catch (SQLException e) {
             logger.error("Error saving group", e);
         }
     }
 
-    public Optional<Group> findGroupById(int id) {
+    public void updateGroupAdminRights(long id, boolean isBotAdmin) {
+
+        String sql = "UPDATE Groups SET is_bot_admin = ? WHERE id = ?";
+
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setBoolean(1, isBotAdmin);
+            ps.setLong(2, id);
+
+            ps.executeUpdate();
+            logger.debug("Group with id {} updated", id);
+
+        } catch (SQLException e) {
+            logger.error("Error updating group {}", id, e);
+        }
+    }
+
+    public void updateGroupName(Long id, String name) {
+
+        String sql = "UPDATE Groups SET name = ? WHERE id = ?";
+
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setString(1, name);
+            ps.setLong(2, id);
+
+            ps.executeUpdate();
+            logger.debug("Group with id {} updated", id);
+
+        } catch (SQLException e) {
+            logger.error("Error updating group {}", id, e);
+        }
+    }
+
+    public void deleteGroup(Long groupId) {
+        String sql = "DELETE FROM Groups WHERE id = ?";
+
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setLong(1, groupId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            logger.error("Error deleting group", e);
+        }
+    }
+
+    public Optional<Group> findGroupById(long id) {
         String sql = "SELECT * FROM Groups WHERE id = ?";
 
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
-            ps.setInt(1, id);
+            ps.setLong(1, id);
 
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -116,20 +159,57 @@ public class GroupRepository {
         return Optional.empty();
     }
 
+    public Optional<Group> findGroupByName(String name) {
+        String sql = "SELECT * FROM Groups WHERE name = ?";
+
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setString(1, name);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(mapRowToGroup(rs));
+                }
+            }
+        } catch (SQLException e) {
+            logger.error("Error finding group by name {}", name, e);
+        }
+
+        return Optional.empty();
+    }
+
+    public List<Group> findAllGroups() {
+        String sql = "SELECT * FROM Groups";
+        List<Group> groups = new ArrayList<>();
+
+        try (PreparedStatement ps = getConnection().prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                groups.add(mapRowToGroup(rs));
+            }
+
+        } catch (SQLException e) {
+            logger.error("Error finding all groups", e);
+        }
+
+        return groups;
+    }
+
     public List<Group> getAllGroupForTag(Tag tag) {
         String sql = "SELECT * FROM Groups WHERE tag = ?";
         List<Group> groups = new ArrayList<>();
 
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setString(1, tag.getName());
-            try (ResultSet rs = ps.executeQuery()) {
 
+            try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     groups.add(mapRowToGroup(rs));
                 }
             }
+
         } catch (SQLException e) {
-            logger.error("Error finding Al Group For Tag {}", tag.getName(), e);
+            logger.error("Error finding groups for tag {}", tag.getName(), e);
         }
 
         return groups;
@@ -290,20 +370,25 @@ public class GroupRepository {
 
     // Mapping methods
 
+    // ===================== MAPPING =====================
+
     private Group mapRowToGroup(ResultSet rs) throws SQLException {
         long id = rs.getLong("id");
         String name = rs.getString("name");
         String tag = rs.getString("tag");
+        boolean isBotAdmin = rs.getBoolean("is_bot_admin");
+
         Timestamp timestamp = rs.getTimestamp("created_at");
         LocalDateTime createdAt = timestamp != null ? timestamp.toLocalDateTime() : null;
 
-        return new Group(id, name, tag, createdAt);
+        return new Group(id, name, tag, isBotAdmin, createdAt);
     }
 
     private SpecialGroup mapRowToSpecialGroup(ResultSet rs) throws SQLException {
         long id = rs.getLong("id");
         String name = rs.getString("name");
         String tag = rs.getString("tag");
+
         Timestamp timestamp = rs.getTimestamp("created_at");
         LocalDateTime createdAt = timestamp != null ? timestamp.toLocalDateTime() : null;
 
@@ -313,6 +398,7 @@ public class GroupRepository {
     private Tag mapRowToTag(ResultSet rs) throws SQLException {
         long id = rs.getLong("id");
         String name = rs.getString("name");
+
         Timestamp timestamp = rs.getTimestamp("created_at");
         LocalDateTime createdAt = timestamp != null ? timestamp.toLocalDateTime() : null;
 
@@ -327,6 +413,5 @@ public class GroupRepository {
         } catch (SQLException e) {
             throw new RuntimeException("Error closing connection", e);
         }
-
     }
 }

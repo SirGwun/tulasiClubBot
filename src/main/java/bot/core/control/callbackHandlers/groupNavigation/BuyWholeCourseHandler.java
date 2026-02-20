@@ -1,7 +1,7 @@
 package bot.core.control.callbackHandlers.groupNavigation;
 
 import bot.core.Main;
-import bot.core.control.SessionController;
+import bot.core.control.SessionService;
 import bot.core.control.callbackHandlers.AbstractCallbackHandler;
 import bot.core.control.callbackHandlers.Action;
 import bot.core.model.SpecialGroup;
@@ -84,8 +84,8 @@ public class BuyWholeCourseHandler extends AbstractCallbackHandler {
                 tagName
         );
 
-        SessionController sessionController = SessionController.getInstance();
-        sessionController.setUserGroupId(fromId, specialGroup.getId());
+        SessionService sessionService = SessionService.getInstance();
+        sessionService.setUserGroupId(fromId, specialGroup.getId());
 
         ChatUtils.deleteMessage(update.getCallbackQuery().getFrom().getId(),
                 update.getCallbackQuery().getMessage().getMessageId());

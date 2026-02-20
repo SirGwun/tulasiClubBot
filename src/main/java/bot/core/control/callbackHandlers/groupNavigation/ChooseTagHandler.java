@@ -34,8 +34,8 @@ public class ChooseTagHandler extends AbstractCallbackHandler {
         String[] data = update.getCallbackQuery().getData().split("_");
         String tagId = data[1];
         User user = update.getCallbackQuery().getFrom();
-        Map<Integer, String> tagMap = Main.dataUtils.getTagMap();
-        String tag = tagMap.get(Integer.parseInt(tagId));
+        Map<Long, String> tagMap = Main.dataUtils.getTagMap();
+        String tag = tagMap.get(Long.parseLong(tagId));
 
         log.debug("User {} press chooseTag button", user.getUserName());
 

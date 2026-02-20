@@ -14,6 +14,14 @@ public class Group implements Serializable {
     boolean isBotAdmin;
     LocalDateTime createdAt;
 
+    public Group(long id, String name, String tag, boolean isBotAdmin, LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+        this.id = id;
+        this.isBotAdmin = isBotAdmin;
+        this.name = name;
+        this.tag = tag;
+    }
+
     public Group(long id, String name, String tag, LocalDateTime createdAt) {
         this.id = id;
         this.name = name;

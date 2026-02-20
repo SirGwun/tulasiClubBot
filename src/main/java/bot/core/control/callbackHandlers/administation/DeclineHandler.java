@@ -1,10 +1,12 @@
 package bot.core.control.callbackHandlers.administation;
 
 import bot.core.Main;
-import bot.core.control.SessionController;
+import bot.core.control.SessionService;
 import bot.core.control.callbackHandlers.Action;
 import bot.core.control.callbackHandlers.CallbackHandler;
 import bot.core.model.TimerController;
+import bot.core.model.User;
+import bot.core.repos.UserRepository;
 import bot.core.util.ChatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +22,8 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 import java.time.Instant;
 
 public class DeclineHandler implements CallbackHandler {
+    UserRepository userRepository = new UserRepository();
+
     private static final Logger log = LoggerFactory.getLogger(DeclineHandler.class);
     private final Action action = Action.decline;
 
@@ -67,10 +71,9 @@ public class DeclineHandler implements CallbackHandler {
     }
 
     private void handleDeclineAction(long targetUserId) {
-        long groupId = SessionController.getInstance().getUserSession(targetUserId).getGroupId();
-        String userName = SessionController.getInstance()
-                .getUserSession(targetUserId)
-                .getUserName();
+        long groupId = SessionService.getInstance().getUserGroupId(targetUserId);
+        String userName = userRepository.findByChatId(targetUserId)
+                .orElse(new User(targetUserId)).getName();
         String groupName = Main.dataUtils.getGroupName(groupId);
 
         try {

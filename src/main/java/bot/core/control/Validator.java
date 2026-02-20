@@ -4,6 +4,7 @@ import bot.core.Main;
 import bot.core.PaymentBot;
 import bot.core.model.MessageContext;
 import bot.core.model.TimerController;
+import bot.core.repos.GroupRepository;
 import bot.core.util.ChatUtils;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -27,6 +28,8 @@ public class Validator {
     private static final Logger log = LoggerFactory.getLogger(Validator.class);
     Document document;
     String documentText;
+    private GroupRepository groupRepository = new GroupRepository();
+
     public boolean isValidPayment(Message message) {
         if (message.hasDocument()) {
             document = message.getDocument();
@@ -50,7 +53,8 @@ public class Validator {
 
     public void sendOuHumanValidation(MessageContext ctx) {
         long userId = ctx.getFromId();
-        Long groupId = SessionController.getInstance().getUserSession(ctx.getFromId()).getGroupId();
+        Long groupId = SessionService.getInstance().getUserGroupId(ctx.getFromId());
+
 
         if (Main.dataUtils.getTimerMinutes() != -1) {
             TimerController.addTimer(userId, groupId, Main.dataUtils.getTimerMinutes());

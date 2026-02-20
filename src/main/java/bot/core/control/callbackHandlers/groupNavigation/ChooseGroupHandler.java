@@ -1,27 +1,20 @@
 package bot.core.control.callbackHandlers.groupNavigation;
 
 import bot.core.Main;
-import bot.core.control.SessionController;
+import bot.core.control.SessionService;
 import bot.core.control.callbackHandlers.Action;
 import bot.core.control.callbackHandlers.CallbackHandler;
 import bot.core.model.Group;
 import bot.core.model.SpecialGroup;
 import bot.core.repos.GroupRepository;
 import bot.core.util.ChatUtils;
-import bot.core.util.DataUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatMember;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Приглашает в группу, запрашивает подтверждение
@@ -78,7 +71,7 @@ public class ChooseGroupHandler implements CallbackHandler {
             if (isItFavoriteUser(chatId, groupId)) {
                 ChatUtils.addInGroup(chatId, groupId, "Член избранной группы ");
             } else {
-                SessionController.getInstance().setUserGroupId(chatId, groupId);
+                SessionService.getInstance().setUserGroupId(chatId, groupId);
                 ChatUtils.sendMessage(chatId, "Выбрана группа: " + group.getName()
                         + "\n\nТеперь отправьте в сообщении чек об оплате"
                         + "\n(рекомендованная сумма пожертвования - 700 ₽)\n\n"

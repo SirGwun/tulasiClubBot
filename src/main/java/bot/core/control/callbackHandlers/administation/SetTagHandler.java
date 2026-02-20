@@ -51,8 +51,8 @@ public class SetTagHandler implements CallbackHandler {
         long userId = cq.getMessage().getChatId();
         int messageId = cq.getMessage().getMessageId();
 
-        Map<Integer, String> tags = Main.dataUtils.getTagMap();
-        String tag = tags.get(Integer.parseInt(tagId));
+        Map<Long, String> tags = Main.dataUtils.getTagMap();
+        String tag = tags.get(Long.parseLong(tagId));
         if (tag == null) {
             log.error("Попытка прочитать несуществующий тег {} ", tagId);
             return;

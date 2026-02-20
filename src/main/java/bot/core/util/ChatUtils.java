@@ -1,9 +1,11 @@
 package bot.core.util;
 
 import bot.core.Main;
-import bot.core.control.SessionController;
+import bot.core.control.SessionService;
 import bot.core.control.callbackHandlers.Action;
 import bot.core.model.MessageContext;
+import bot.core.model.User;
+import bot.core.repos.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.CopyMessage;
@@ -27,6 +29,8 @@ public final class ChatUtils {
     private static final Logger log = LoggerFactory.getLogger(ChatUtils.class);
     public static final String ARROWED_STILE = "arrowed";
     public static final String COMMON_STILE = "common";
+
+    private static UserRepository userRepository = new UserRepository();
 
     private ChatUtils() {
         // utility class
@@ -108,7 +112,7 @@ public final class ChatUtils {
     private static void addInlineKeyboard(Long chatId, Long messageId) throws TelegramApiException {
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
         String buttonText = "Перейти к курсу - " + Main.dataUtils.getActualGroupTag();
-        int actualTag = Main.dataUtils.getTagId(Main.dataUtils.getActualGroupTag());
+        long actualTag = Main.dataUtils.getTagId(Main.dataUtils.getActualGroupTag());
 
         List<InlineKeyboardButton> row = new ArrayList<>();
 
@@ -243,13 +247,13 @@ public final class ChatUtils {
 
 
     public static InlineKeyboardMarkup getAllTagKeyboard(Action callback) {
-        Map<Integer, String> tags = Main.dataUtils.getTagMap();
+        Map<Long, String> tags = Main.dataUtils.getTagMap();
         List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
 
         String actualTag = Main.dataUtils.getActualGroupTag();
-        Integer actualTagId = null;
+        Long actualTagId = null;
 
-        for (Map.Entry<Integer, String> entry : tags.entrySet()) {
+        for (Map.Entry<Long, String> entry : tags.entrySet()) {
             if (entry.getValue().equals(actualTag)) {
                 actualTagId = entry.getKey();
                 break;
@@ -263,7 +267,7 @@ public final class ChatUtils {
             buttons.add(Collections.singletonList(actualButton));
         }
 
-        for (Map.Entry<Integer, String> entry : tags.entrySet()) {
+        for (Map.Entry<Long, String> entry : tags.entrySet()) {
             if (!entry.getValue().equals(actualTag)) {
                 InlineKeyboardButton button = new InlineKeyboardButton();
                 button.setText("\uD83D\uDCE6 " + entry.getValue() + " (Запись)");
@@ -306,15 +310,16 @@ public final class ChatUtils {
     }
 
     public static void addInGroup(long userId, Long groupId, String reason) {
+
+
         String groupName = Main.dataUtils.getGroupName(groupId);
+
         if (groupName == null) {
             log.error("Попытка добавить в неизвестную группу {}", groupId);
             return;
         }
 
-        String userName = SessionController.getInstance()
-                .getUserSession(userId)
-                .getUserName();
+        String userName = userRepository.findByChatId(userId).orElse(new User(userId, "unknown")).getName();
 
         try {
             String historyLink = getJoinRequestedLink(groupId);

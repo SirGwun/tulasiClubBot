@@ -1,7 +1,7 @@
 package bot.core.control.messageProcessing;
 
 import bot.core.Main;
-import bot.core.control.SessionController;
+import bot.core.control.SessionService;
 import bot.core.control.callbackHandlers.Action;
 import bot.core.control.callbackHandlers.administation.oneTime.ChoseTagForSpecialGroup;
 import bot.core.model.*;
@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class AddingInGroupMessageProcessor implements MessageProcessor {
+    SessionService sessionService = SessionService.getInstance();
     Logger log = LoggerFactory.getLogger(AddingInGroupMessageProcessor.class);
 
     private final ScheduledExecutorService scheduler =
@@ -49,33 +50,34 @@ public class AddingInGroupMessageProcessor implements MessageProcessor {
 
     @Override
     public void process(Update update) {
-        SessionState session = SessionController.getInstance().openSessionIfNeeded(update.getMyChatMember().getFrom()).getState();
-
         ChatMemberUpdated myChatMember = update.getMyChatMember();
         String status = myChatMember.getNewChatMember().getStatus();
+
+        Long fromId = myChatMember.getFrom().getId();
+        Long newChatId = myChatMember.getChat().getId();
 
         if (status.equalsIgnoreCase("left")
                 || status.equalsIgnoreCase("kicked"))
             processChatLeft(
-                    myChatMember.getChat().getId(),
+                    newChatId,
                     myChatMember.getChat().getTitle(),
-                    myChatMember.getFrom().getId(),
+                    fromId,
                     myChatMember.getChat().getType()
             );
         else if (status.equalsIgnoreCase("administrator")
                 || status.equalsIgnoreCase("creator")) {
-            if (session.getAction() == EditingActions.WAIT_FOR_SPECIAL_GROUP) {
+            if (sessionService.getAction(fromId) == EditingActions.WAIT_FOR_SPECIAL_GROUP) {
                 processSpecialGroupAdding(
-                        myChatMember.getChat().getId(),
+                        newChatId,
                         myChatMember.getChat().getTitle(),
-                        myChatMember.getFrom().getId()
+                        fromId
                 );
-                session.setAction(EditingActions.NONE);
+                sessionService.setSessionAction(fromId, EditingActions.NONE);
             } else {
                 processChatAddition(
-                        myChatMember.getChat().getId(),
+                        newChatId,
                         myChatMember.getChat().getTitle(),
-                        myChatMember.getFrom().getId(),
+                        fromId,
                         myChatMember.getChat().getType()
                 );
             }
@@ -134,7 +136,7 @@ public class AddingInGroupMessageProcessor implements MessageProcessor {
 
         if (byId != null && !Objects.equals(byId.getName(), chatName)) {  // id тот же, имя изменилось
             byId.setName(chatName);
-            Main.dataUtils.saveGroupList();
+            Main.dataUtils.updateGroupName(chatName, chatId);
             return;
         }
 

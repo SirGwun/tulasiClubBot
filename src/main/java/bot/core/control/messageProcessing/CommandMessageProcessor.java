@@ -2,11 +2,11 @@ package bot.core.control.messageProcessing;
 
 import bot.core.Main;
 import bot.core.control.Command;
+import bot.core.control.SessionService;
 import bot.core.model.*;
 import bot.core.kassa.PaymentService;
 import bot.core.model.EditingActions;
 import bot.core.model.MessageContext;
-import bot.core.control.SessionController;
 import bot.core.repos.GroupRepository;
 import bot.core.repos.UserRepository;
 import bot.core.util.ChatUtils;
@@ -36,20 +36,18 @@ public class CommandMessageProcessor implements MessageProcessor {
     @Override
     public void process(Update update) {
         MessageContext message = new MessageContext(update.getMessage());
-        Session session = SessionController.getInstance()
-                .openSessionIfNeeded(update.getMessage().getFrom());
-        CommandHandler handler = new CommandHandler(session.getState(), message.getFromId());
+        CommandHandler handler = new CommandHandler(message.getFromId());
         handler.handle(message);
     }
 
     static class CommandHandler {
+        SessionService sessionService = SessionService.getInstance();
+
         private static final Logger log = LoggerFactory.getLogger(CommandHandler.class);
         private static final String CMD_LOG = "User {} use {}";
-        private final SessionState state;
         private final long userId;
 
-        public CommandHandler(SessionState state, long userId) {
-            this.state = state;
+        public CommandHandler(long userId) {
             this.userId = userId;
         }
 
@@ -154,8 +152,8 @@ public class CommandMessageProcessor implements MessageProcessor {
             for (Group group : groupList) {
                 groupRepository.saveGroup(group);
             }
-            for (Map.Entry<Integer, String> entry : Main.dataUtils.getTagMap().entrySet()) {
-                int id = entry.getKey();
+            for (Map.Entry<Long, String> entry : Main.dataUtils.getTagMap().entrySet()) {
+                Long id = entry.getKey();
                 String name = entry.getValue();
 
                 groupRepository.saveTag(new Tag(id, name));
@@ -169,7 +167,7 @@ public class CommandMessageProcessor implements MessageProcessor {
             UserRepository userRepository = new UserRepository();
             userRepository.createAllUsersTable();
 
-            for (Map.Entry<Long, Session> entry : SessionController.getSessionMap().entrySet()) {
+            for (Map.Entry<Long, Session> entry : SessionService.getSessionMap().entrySet()) {
                 Long userId = entry.getKey();
                 String userName = entry.getValue().getUserName();
                 if (userName == null || userName.isEmpty()) userName = User.DEFAULT_NAME;
@@ -179,7 +177,7 @@ public class CommandMessageProcessor implements MessageProcessor {
         }
 
         private void handleAddSpecialGroup() {
-            SessionController.getInstance().getUserSession(userId).getState().setAction(EditingActions.WAIT_FOR_SPECIAL_GROUP);
+            sessionService.setSessionAction(userId, EditingActions.WAIT_FOR_SPECIAL_GROUP);
             ChatUtils.sendMessage(userId, "Добавьте бота в специальную группу админом");
         }
 
@@ -199,16 +197,16 @@ public class CommandMessageProcessor implements MessageProcessor {
                 ChatUtils.sendMessage(userId, "Следующее сообщение которое вы отправите в этот чат " +
                         "будет разослано всем пользователям, " +
                         "вместе с кнопкой \n\"" + buttonText + "\"\nДля отмены используйте команду /" + Command.cancel);
-                state.setAction(EditingActions.SENDING_SPREAD);
+                sessionService.setSessionAction(userId, EditingActions.SENDING_SPREAD);
             } else {
                 ChatUtils.sendMessage(userId, "Следующее сообщение которое вы отправите в этот чат " +
                         "будет разослано всем пользователям. \nДля отмены используйте команду /" + Command.cancel);
-                state.setAction(EditingActions.SENDING_SPREAD_WITHOUT_BUTTON);
             }
+            sessionService.setSessionAction(userId, EditingActions.SENDING_SPREAD_WITHOUT_BUTTON);
         }
 
         private void handleGetUserList() {
-            Map<Long, Session> sessionMap = SessionController.getSessionMap();
+            Map<Long, Session> sessionMap = SessionService.getSessionMap();
             List<String[]> tempList = new ArrayList<>();
             List<String> resultList = new ArrayList<>();
 
@@ -395,8 +393,8 @@ public class CommandMessageProcessor implements MessageProcessor {
 
         private void handleCancelCommand() {
             log.info(CMD_LOG, userId, Command.cancel);
-            EditingActions action = state.getAction();
-            state.setAction(EditingActions.NONE);
+            EditingActions action = sessionService.getAction(userId);
+            sessionService.setSessionAction(userId, EditingActions.NONE);
             ChatUtils.sendMessage(userId, "Режим работы над командой " + action.toString() + " отменен");
         }
 
@@ -418,13 +416,13 @@ public class CommandMessageProcessor implements MessageProcessor {
 
         private void handleEditHelpCommand() {
             log.info(CMD_LOG, userId, Command.edit_help);
-            state.setAction(EditingActions.EDIT_HELP);
+            sessionService.setSessionAction(userId, EditingActions.EDIT_HELP);
             ChatUtils.sendMessage(userId, "Введите новое сообщение помощи");
         }
 
         private void handleSetPaymentInfo() {
             log.info(CMD_LOG, userId, Command.set_payment_info);
-            state.setAction(EditingActions.EDIT_PAYMENT_INFO);
+            sessionService.setSessionAction(userId, EditingActions.EDIT_PAYMENT_INFO);
             ChatUtils.sendMessage(userId, "Пришлите сообщение содержащее информацию о методах оплаты");
         }
 
@@ -445,7 +443,7 @@ public class CommandMessageProcessor implements MessageProcessor {
             String text = parts[1];
             log.info("Admin {} use say command to @{}", userId, username);
 
-            Long targetId = SessionController.getInstance().getUserIdByUsername(username);
+            Long targetId = SessionService.getInstance().getUserIdByUsername(username);
             if (targetId == null) {
                 try {
                     GetChat getChat = new GetChat("@" + username);

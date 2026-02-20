@@ -44,7 +44,7 @@ public class UserRepository {
         String sql = "INSERT INTO Users (chatId, name) VALUES (?, ?)";
 
         try (PreparedStatement ps = getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            ps.setLong(1, user.getChatId());
+            ps.setLong(1, user.getId());
             ps.setString(2, user.getName());
             ps.executeUpdate();
 
@@ -54,7 +54,7 @@ public class UserRepository {
                 }
             }
         } catch (SQLException e) {
-            logger.error("Error storing user {}", user.getChatId());
+            logger.error("Error storing user {}", user.getId());
         }
     }
 
