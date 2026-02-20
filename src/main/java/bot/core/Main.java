@@ -32,7 +32,7 @@ public class Main {
     }
 
     public static void init() {
-        dataUtils.checkAndFixAdminRights();
-        dataUtils.loadTimers();
+//        dataUtils.checkAndFixAdminRights();
+//        dataUtils.loadTimers();
     }
 }
