@@ -5,14 +5,19 @@ import bot.core.control.SessionController;
 import bot.core.control.callbackHandlers.Action;
 import bot.core.control.callbackHandlers.CallbackHandler;
 import bot.core.model.Group;
+import bot.core.model.SpecialGroup;
+import bot.core.repos.GroupRepository;
 import bot.core.util.ChatUtils;
 import bot.core.util.DataUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatMember;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -71,7 +76,7 @@ public class ChooseGroupHandler implements CallbackHandler {
 
         if (group.isBotAdmin()) {
             if (isItFavoriteUser(chatId, groupId)) {
-                ChatUtils.addInGroup(chatId, groupId, "Член избранной группы");
+                ChatUtils.addInGroup(chatId, groupId, "Член избранной группы ");
             } else {
                 SessionController.getInstance().setUserGroupId(chatId, groupId);
                 ChatUtils.sendMessage(chatId, "Выбрана группа: " + group.getName()
@@ -108,26 +113,30 @@ public class ChooseGroupHandler implements CallbackHandler {
 //    }
 
     private boolean isItFavoriteUser(Long userId, Long groupId) {
-        Group group = Main.dataUtils.getGroupById(groupId);
-        if (group == null || group.getTag() == null) return false;
+        GroupRepository groupRepository = new GroupRepository();
+        SpecialGroup specialGroup = groupRepository.findSpecialGroupForGroup(groupId).orElse(null);
 
-        String tag = group.getTag();
+        if (specialGroup == null) { specialGroup = groupRepository.findSpecialGroupByTag("default").orElse(null); }
 
-        return areUserInGroup(userId, Main.dataUtils.getFavoriteGroupId());
+        if (specialGroup == null) {
+            log.error("Нет избранной группы даже по умолчанию");
+            return false;
+        }
+        return areUserInGroup(userId, specialGroup.getId());
     }
 
     private boolean areUserInGroup(long userId, long groupId) {
         try {
-            org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatMember getChatMember = new org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatMember();
+            GetChatMember getChatMember = new GetChatMember();
             getChatMember.setChatId(groupId);
             getChatMember.setUserId(userId);
-            org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember chatMember = Main.paymentBot.execute(getChatMember);
+            ChatMember chatMember = Main.paymentBot.execute(getChatMember);
             String status = chatMember.getStatus();
             return status.equals("member")
                     || status.equals("administrator")
                     || status.equals("creator")
                     || status.equals("restricted");
-        } catch (org.telegram.telegrambots.meta.exceptions.TelegramApiException e) {
+        } catch (TelegramApiException e) {
             log.warn("Не удалось получить статус пользователя в избранной группе {} ", userId);
         }
         return false;

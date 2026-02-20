@@ -3,6 +3,7 @@ package bot.core.control.messageProcessing;
 import bot.core.Main;
 import bot.core.control.callbackHandlers.*;
 import bot.core.control.callbackHandlers.administation.*;
+import bot.core.control.callbackHandlers.groupNavigation.ChooseArchiveCourseHandler;
 import bot.core.control.callbackHandlers.groupNavigation.ChooseGroupHandler;
 import bot.core.control.callbackHandlers.groupNavigation.ChooseTagHandler;
 import bot.core.control.callbackHandlers.groupNavigation.GetJoinRequestedLinkHandler;

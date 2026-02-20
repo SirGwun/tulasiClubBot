@@ -1,4 +1,4 @@
-package bot.core.control.callbackHandlers.administation;
+package bot.core.control.callbackHandlers.groupNavigation;
 
 import bot.core.Main;
 import bot.core.control.callbackHandlers.AbstractCallbackHandler;

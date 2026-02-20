@@ -156,7 +156,47 @@ public class GroupRepository {
         return Optional.empty();
     }
 
+    public Optional<SpecialGroup> findSpecialGroupByTag(String tag) {
+        String sql = "SELECT * FROM SpecialGroups WHERE tag = ?";
+
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setString(1, tag);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(mapRowToSpecialGroup(rs));
+                }
+            }
+        } catch (SQLException e) {
+            logger.error("Error finding special group by tag {}", tag, e);
+        }
+
+        return Optional.empty();
+    }
+
+    public Optional<SpecialGroup> findSpecialGroupForGroup(Long groupId) {
+        Group group = findGroupById(groupId.intValue()).orElse(null);
+
+        if (group == null) return Optional.empty();;
+
+        String sql = "SELECT * FROM SpecialGroups WHERE tag = ?";
+
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setString(1, group.getTag());
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(mapRowToSpecialGroup(rs));
+                }
+            }
+        } catch (SQLException e) {
+            logger.error("Error finding special group for group {}", groupId, e);
+        }
+
+        return Optional.empty();
+    }
     // Tags methods
+
     public void saveTag(Tag tag) {
         String sql = "INSERT INTO Tags (id, name) VALUES (?, ?)";
 
@@ -227,8 +267,8 @@ public class GroupRepository {
 
         return tags;
     }
-
     // Mapping methods
+
     private Group mapRowToGroup(ResultSet rs) throws SQLException {
         int id = rs.getInt("id");
         String name = rs.getString("name");
