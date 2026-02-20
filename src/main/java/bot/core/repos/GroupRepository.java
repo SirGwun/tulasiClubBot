@@ -291,7 +291,7 @@ public class GroupRepository {
     // Mapping methods
 
     private Group mapRowToGroup(ResultSet rs) throws SQLException {
-        int id = rs.getInt("id");
+        long id = rs.getLong("id");
         String name = rs.getString("name");
         String tag = rs.getString("tag");
         Timestamp timestamp = rs.getTimestamp("created_at");
@@ -301,7 +301,7 @@ public class GroupRepository {
     }
 
     private SpecialGroup mapRowToSpecialGroup(ResultSet rs) throws SQLException {
-        int id = rs.getInt("id");
+        long id = rs.getLong("id");
         String name = rs.getString("name");
         String tag = rs.getString("tag");
         Timestamp timestamp = rs.getTimestamp("created_at");
@@ -311,7 +311,7 @@ public class GroupRepository {
     }
 
     private Tag mapRowToTag(ResultSet rs) throws SQLException {
-        int id = rs.getInt("id");
+        long id = rs.getLong("id");
         String name = rs.getString("name");
         Timestamp timestamp = rs.getTimestamp("created_at");
         LocalDateTime createdAt = timestamp != null ? timestamp.toLocalDateTime() : null;
