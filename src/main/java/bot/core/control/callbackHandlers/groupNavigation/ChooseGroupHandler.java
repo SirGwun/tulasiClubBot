@@ -87,6 +87,8 @@ public class ChooseGroupHandler implements CallbackHandler {
         } else {
             ChatUtils.sendMessage(chatId, "Бот не входит в группу или не является в ней администратором");
         }
+        ChatUtils.deleteMessage(update.getCallbackQuery().getFrom().getId(),
+                update.getCallbackQuery().getMessage().getMessageId());
     }
 
 //    private InlineKeyboardMarkup buildPaymentKeyboard(Long chatId) {

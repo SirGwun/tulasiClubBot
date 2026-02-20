@@ -61,8 +61,6 @@ public class BuyWholeCourseHandler extends AbstractCallbackHandler {
         final int PRICE_PER_LESSON = 700;
         int totalPrice = courseSize * PRICE_PER_LESSON;
 
-        SessionController.getInstance().setUserGroupId(fromId, specialGroup.getId());
-
         String text = String.format("""
             Спасибо за выбор курса "%s".
 
@@ -85,6 +83,12 @@ public class BuyWholeCourseHandler extends AbstractCallbackHandler {
                 specialGroup.getName(),
                 tagName
         );
+
+        SessionController sessionController = SessionController.getInstance();
+        sessionController.setUserGroupId(fromId, specialGroup.getId());
+
+        ChatUtils.deleteMessage(update.getCallbackQuery().getFrom().getId(),
+                update.getCallbackQuery().getMessage().getMessageId());
 
         ChatUtils.sendMessage(fromId, text);
     }
