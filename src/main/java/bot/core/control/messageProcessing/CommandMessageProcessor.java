@@ -7,27 +7,20 @@ import bot.core.kassa.PaymentService;
 import bot.core.model.EditingActions;
 import bot.core.model.MessageContext;
 import bot.core.control.SessionController;
+import bot.core.repos.GroupRepository;
+import bot.core.repos.UserRepository;
 import bot.core.util.ChatUtils;
 import bot.core.control.callbackHandlers.Action;
-import bot.core.util.DataUtils;
-import bot.core.util.RenameButtons;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChat;
-import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatMember;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.Chat;
-import org.telegram.telegrambots.meta.api.objects.InputFile;
-import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -135,13 +128,59 @@ public class CommandMessageProcessor implements MessageProcessor {
                 case Command.action:
                     handleAction();
                     break;
-                case Command.testPayment:
+                case Command.test_payment:
                     handleTestPayment();
+                    break;
+                case add_special_group:
+                    handleAddSpecialGroup();
                     break;
                 default:
                     log.warn("Неизвестная команда {}", command);
                     break;
             }
+        }
+
+        private void handleAction() {
+            log.info("Triggered action");
+
+            GroupRepository groupRepository = new GroupRepository();
+
+            groupRepository.createCommonGroupTable();
+            groupRepository.createSpecialGroupsTable();
+            groupRepository.createTagsTable();
+
+            List<Group> groupList = Main.dataUtils.getGroupList();
+
+            for (Group group : groupList) {
+                groupRepository.saveGroup(group);
+            }
+            for (Map.Entry<Integer, String> entry : Main.dataUtils.getTagMap().entrySet()) {
+                int id = entry.getKey();
+                String name = entry.getValue();
+
+                groupRepository.saveTag(new Tag(id, name));
+            }
+
+            groupRepository.saveSpecialGroup(new SpecialGroup(
+                    1002589029101L,
+                    "Второй поток ОМОЛОЖЕНИЕ и БАЗОВЫЕ ОСНОВЫ АЮРВЕДЫ",
+                    "default"));
+
+            UserRepository userRepository = new UserRepository();
+            userRepository.createAllUsersTable();
+
+            for (Map.Entry<Long, Session> entry : SessionController.getSessionMap().entrySet()) {
+                Long userId = entry.getKey();
+                String userName = entry.getValue().getUserName();
+                if (userName == null || userName.isEmpty()) userName = User.DEFAULT_NAME;
+
+                userRepository.saveUser(new User(userId, userName));
+            }
+        }
+
+        private void handleAddSpecialGroup() {
+            SessionController.getInstance().getUserSession(userId).getState().setAction(EditingActions.WAIT_FOR_SPECIAL_GROUP);
+            ChatUtils.sendMessage(userId, "Добавьте бота в специальную группу админом");
         }
 
         private void handleTestPayment() {
@@ -151,11 +190,6 @@ public class CommandMessageProcessor implements MessageProcessor {
                     "https://t.me/harmoniousNutritionBot",
                     "Проверочный платеж за ничего");
 
-        }
-
-        private void handleAction() {
-            RenameButtons renameButtons = new RenameButtons();
-            renameButtons.doIt();
         }
 
 
@@ -363,7 +397,7 @@ public class CommandMessageProcessor implements MessageProcessor {
             log.info(CMD_LOG, userId, Command.cancel);
             EditingActions action = state.getAction();
             state.setAction(EditingActions.NONE);
-            ChatUtils.sendMessage(userId, "Режим работы над командой" + action.toString() + "отменен");
+            ChatUtils.sendMessage(userId, "Режим работы над командой " + action.toString() + " отменен");
         }
 
         private void handleDelCommand() {

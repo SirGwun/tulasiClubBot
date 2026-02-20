@@ -1,6 +1,9 @@
 package bot.core;
 
 import bot.core.control.Command;
+import bot.core.control.callbackHandlers.Action;
+import bot.core.control.callbackHandlers.CallbackHandler;
+import bot.core.control.callbackHandlers.administation.oneTime.ChoseTagForSpecialGroup;
 import bot.core.control.messageProcessing.CallbackProcessor;
 import bot.core.control.messageProcessing.*;
 
@@ -121,6 +124,23 @@ public class PaymentBot extends TelegramLongPollingBot {
         return name;
     }
 
+    private CallbackProcessor getCallbackProcessor() {
+        for (MessageProcessor processor : processors) {
+            if (processor.getClass() == CallbackProcessor.class) {
+                return (CallbackProcessor) processor;
+            }
+        }
+        return new CallbackProcessor();
+    }
+
+    public void registerOneTimeHandler(CallbackHandler handler) {
+        getCallbackProcessor().registerHandler(handler);
+    }
+
+    public void deleteOneTimeHandler(Action action) {
+        getCallbackProcessor().deleteHandlerForAction(action);
+    }
+
     @Override
     public void onRegister() {
         super.onRegister();
@@ -145,9 +165,10 @@ public class PaymentBot extends TelegramLongPollingBot {
         adminCommands.add(new BotCommand("/" + Command.set_timer, "Установить время для таймеров (в минутах)"));
         adminCommands.add(new BotCommand("/" + Command.getuserlist, "Получить список пользователей в всех группах, куда добавлен бот"));
         adminCommands.add(new BotCommand("/" + Command.say, "Отправить сообщение пользователю (@<username> <text>)"));
-        adminCommands.add(new BotCommand("/" + Command.testPayment, "Отправить проверочный платеж"));
+        adminCommands.add(new BotCommand("/" + Command.test_payment, "Отправить проверочный платеж"));
         adminCommands.add(new BotCommand("/" + Command.spread, "Разослать сообщение всем кто взаимодействовал с ботом"));
         adminCommands.add(new BotCommand("/" + Command.action, "Не трогать!"));
+        adminCommands.add(new BotCommand("/" + Command.add_special_group, "Добавить новую избранную группы"));
         adminCommands.add(new BotCommand("/" + Command.cancel, "Отменить действие"));
 
         try {
