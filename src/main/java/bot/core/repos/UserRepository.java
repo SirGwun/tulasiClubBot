@@ -76,6 +76,28 @@ public class UserRepository {
         return Optional.empty();
     }
 
+    /**
+     * @return если у нескольких пользователей совпадут имена, вернет первого
+     */
+     @Deprecated
+    public Optional<User> findByName(String name) {
+        String sql = "SELECT * FROM Users WHERE name = ?";
+
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setString(1, name);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(mapRowToUser(rs));
+                }
+            }
+        } catch (SQLException e) {
+            logger.error("Error finding user by name {}", name);
+        }
+
+        return Optional.empty();
+    }
+
     public Optional<User> findById(int id) {
         String sql = "SELECT * FROM Users WHERE id = ?";
 

@@ -61,7 +61,8 @@ public class AddingInGroupMessageProcessor implements MessageProcessor {
             );
         else if (status.equalsIgnoreCase("administrator")
                 || status.equalsIgnoreCase("creator")) {
-                if (sessionService.getAction(fromId) == EditingActions.WAIT_FOR_SPECIAL_GROUP) {
+            log.info("Session action in enteringToGroupProcess{}", sessionService.getAction(fromId));
+            if (sessionService.getAction(fromId) == EditingActions.WAIT_FOR_SPECIAL_GROUP) {
                 processSpecialGroupAdding(
                         newChatId,
                         myChatMember.getChat().getTitle(),
@@ -119,7 +120,7 @@ public class AddingInGroupMessageProcessor implements MessageProcessor {
     private void processChatAddition(long chatId, String chatName, Long fromId, String type) {
         String chatType = ("group".equals(type) || "supergroup".equals(type)) ? "группу" : "канал";
 
-        Group byId   = Main.dataUtils.getGroupById(chatId);
+        Group byId = Main.dataUtils.getGroupById(chatId);
         Group byName = Main.dataUtils.getGroupByName(chatName);
 
         if (byId == null && byName == null) {                        // полностью новый чат
@@ -151,7 +152,7 @@ public class AddingInGroupMessageProcessor implements MessageProcessor {
         log.warn("Добавление уже записанной группы, данные обновлены {}", byId);     // id и имя совпали
         Main.dataUtils.saveOrUpdateGroup(chatId, chatName);
 
-        checkAdminRightsLater(chatId,3);
+        checkAdminRightsLater(chatId, 3);
     }
 
     public void checkAdminRightsLater(long groupId, int tries) {
@@ -222,6 +223,7 @@ public class AddingInGroupMessageProcessor implements MessageProcessor {
             log.error(e.getMessage());
         }
     }
+
     private void cleanup(Long groupId) {
         ScheduledFuture<?> future = tasks.remove(groupId);
         if (future != null) {

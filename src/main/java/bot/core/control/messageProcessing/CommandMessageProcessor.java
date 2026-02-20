@@ -43,6 +43,7 @@ public class CommandMessageProcessor implements MessageProcessor {
 
     static class CommandHandler {
         SessionService sessionService = SessionService.getInstance();
+        UserRepository userRepository = new UserRepository();
 
         private static final Logger log = LoggerFactory.getLogger(CommandHandler.class);
         private static final String CMD_LOG = "User {} use {}";
@@ -145,6 +146,7 @@ public class CommandMessageProcessor implements MessageProcessor {
 
         private void handleAddSpecialGroup() {
             sessionService.setSessionAction(userId, EditingActions.WAIT_FOR_SPECIAL_GROUP);
+            log.info("in handleAddSpecialGroup {} ",sessionService.getAction(userId));
             ChatUtils.sendMessage(userId, "Добавьте бота в специальную группу админом");
         }
 
@@ -393,6 +395,7 @@ public class CommandMessageProcessor implements MessageProcessor {
             ChatUtils.sendMessage(userId, "Пришлите сообщение содержащее информацию о методах оплаты");
         }
 
+        @Deprecated
         private void handleSayCommand(String args) {
             log.info(CMD_LOG, userId, Command.say);
             if (args == null || args.isBlank()) {
@@ -410,7 +413,7 @@ public class CommandMessageProcessor implements MessageProcessor {
             String text = parts[1];
             log.info("Admin {} use say command to @{}", userId, username);
 
-            Long targetId = SessionService.getInstance().getUserIdByUsername(username);
+            Long targetId = userRepository.findByName(username).orElse(null).getChatId();
             if (targetId == null) {
                 try {
                     GetChat getChat = new GetChat("@" + username);

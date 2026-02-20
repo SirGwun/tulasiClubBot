@@ -124,7 +124,7 @@ public class SessionRepository {
                 sessions.add(mapRowToSession(rs));
             }
         } catch (SQLException e) {
-            logger.error("Error finding all users", e);
+            logger.error("Error finding all Session {}", e.getMessage(), e);
         }
 
         return sessions;
@@ -168,7 +168,7 @@ public class SessionRepository {
     private Session mapRowToSession(ResultSet rs) throws SQLException {
         long userId = rs.getLong("userId");
         String userName = rs.getString("userName");
-        Long groupId = rs.getObject("groupId", Long.class);
+        long groupId = rs.getLong("groupId");
         String actionStr = rs.getString("action");
 
         Session session = new Session(userId, userName);

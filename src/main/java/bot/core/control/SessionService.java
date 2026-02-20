@@ -6,6 +6,7 @@ import bot.core.repos.SessionRepository;
 import bot.core.repos.UserRepository;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 public class SessionService {
@@ -20,7 +21,8 @@ public class SessionService {
     private static Map<Long, Session> sessionMap;
 
     private SessionService() {
-        sessionMap = Main.dataUtils.loadSessions();
+        Map<Long, Session> loaded = Main.dataUtils.loadSessions();
+        sessionMap = new ConcurrentHashMap<>(loaded != null ? loaded : Map.of());
     }
 
     public static SessionService getInstance() {
@@ -28,8 +30,11 @@ public class SessionService {
     }
 
     public void setUserGroupId(Long userId, Long groupId) {
-        getOrOpenSession(userId).setGroupId(groupId);
-        Main.dataUtils.saveSession(sessionMap.get(userId));
+        Session session = getOrOpenSession(userId);
+        synchronized (session) {
+            sessionRepository.updateGroupId(userId, groupId);
+            session.setGroupId(groupId);
+        }
     }
 
     public EditingActions getAction(long userId) {
@@ -37,7 +42,11 @@ public class SessionService {
     }
 
     public void setSessionAction(Long userId, EditingActions action) {
-        sessionRepository.updateAction(userId, action);
+        Session session = getOrOpenSession(userId);
+        synchronized (session) {
+            sessionRepository.updateAction(userId, action);
+            session.setAction(action);
+        }
     }
 
     public Long getUserGroupId(long userId) {
@@ -46,12 +55,13 @@ public class SessionService {
     }
 
     public Session getOrOpenSession(Long userId) {
-        return sessionMap.computeIfAbsent(userId, id -> {
-            User user = getOrCreateUser(id);
-            Session session = new Session(id, user.getName());
-            sessionRepository.save(session);
-            return session;
-        });
+        return sessionMap.computeIfAbsent(userId, id ->
+                sessionRepository.findByUserId(id).orElseGet(() -> {
+                    User user = getOrCreateUser(id);
+                    Session session = new Session(id, user.getName());
+                    sessionRepository.save(session);
+                    return session;
+                }));
     }
 
     private User getOrCreateUser(Long userId) {
@@ -61,20 +71,5 @@ public class SessionService {
                     userRepository.saveUser(user);
                     return user;
                 });
-    }
-
-    /**
-     * Find user id by username from stored sessions.
-     *
-     * @param username username without @
-     * @return user id or null if not found
-     */
-    public Long getUserIdByUsername(String username) {
-        for (Session session : sessionMap.values()) {
-            if (username.equals(session.getUserName())) {
-                return session.getUserId();
-            }
-        }
-        return null;
     }
 }
