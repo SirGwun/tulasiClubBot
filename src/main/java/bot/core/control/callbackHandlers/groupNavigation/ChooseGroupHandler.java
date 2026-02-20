@@ -132,7 +132,7 @@ public class ChooseGroupHandler implements CallbackHandler {
                     || status.equals("creator")
                     || status.equals("restricted");
         } catch (TelegramApiException e) {
-            log.warn("Не удалось получить статус пользователя в избранной группе {} ", userId);
+            log.warn("Не удалось получить статус пользователя в избранной группе {} {}", userId, groupId);
         }
         return false;
     }
