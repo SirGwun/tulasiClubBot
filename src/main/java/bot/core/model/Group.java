@@ -5,9 +5,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-public class Group implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
+public class Group implements BaseGroup {
     long id;
     String name;
     String tag;
@@ -48,7 +46,7 @@ public class Group implements Serializable {
         return tag;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 

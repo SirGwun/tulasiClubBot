@@ -2,7 +2,7 @@ package bot.core.model;
 
 import java.time.LocalDateTime;
 
-public class SpecialGroup {
+public class SpecialGroup implements BaseGroup {
     long id;
     String name;
     String tag;
@@ -22,7 +22,7 @@ public class SpecialGroup {
         this.tag = tag;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 

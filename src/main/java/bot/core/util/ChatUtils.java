@@ -3,8 +3,10 @@ package bot.core.util;
 import bot.core.Main;
 import bot.core.control.SessionService;
 import bot.core.control.callbackHandlers.Action;
+import bot.core.model.BaseGroup;
 import bot.core.model.MessageContext;
 import bot.core.model.User;
+import bot.core.repos.GroupRepository;
 import bot.core.repos.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +32,7 @@ public final class ChatUtils {
     public static final String ARROWED_STILE = "arrowed";
     public static final String COMMON_STILE = "common";
 
+    private static GroupRepository groupRepository = new GroupRepository();
     private static UserRepository userRepository = new UserRepository();
 
     private ChatUtils() {
@@ -311,15 +314,19 @@ public final class ChatUtils {
 
     public static void addInGroup(long userId, Long groupId, String reason) {
 
+        Optional<BaseGroup> groupOptional = groupRepository.findAnyGroupById(groupId);
 
-        String groupName = Main.dataUtils.getGroupName(groupId);
-
-        if (groupName == null) {
+        if (groupOptional.isEmpty()) {
             log.error("Попытка добавить в неизвестную группу {}", groupId);
             return;
         }
 
-        String userName = userRepository.findByChatId(userId).orElse(new User(userId, "unknown")).getName();
+        BaseGroup group = groupOptional.get();
+        String groupName = group.getName();
+
+        String userName = userRepository.findByChatId(userId)
+                .orElse(new User(userId))
+                .getName();
 
         try {
             String historyLink = getJoinRequestedLink(groupId);
@@ -327,6 +334,7 @@ public final class ChatUtils {
 
             String userInviteLink = createOneTimeInviteLink(groupId);
             sendInviteToUser(userId, groupId, groupName, userInviteLink);
+
         } catch (TelegramApiException e) {
             log.error("Ошибка при добавлении пользователя в группу {}", e.getMessage());
         }

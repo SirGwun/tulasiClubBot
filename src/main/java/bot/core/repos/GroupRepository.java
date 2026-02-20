@@ -1,5 +1,6 @@
 package bot.core.repos;
 
+import bot.core.model.BaseGroup;
 import bot.core.model.Group;
 import bot.core.model.SpecialGroup;
 import bot.core.model.Tag;
@@ -77,6 +78,18 @@ public class GroupRepository {
         } catch (SQLException e) {
             logger.error("Error creating Tags table", e);
         }
+    }
+
+    //===================== BASE GROUP METHODS =================
+
+    public Optional<BaseGroup> findAnyGroupById(long groupId) {
+        Optional<Group> group = findGroupById(groupId);
+        if (group.isPresent()) {
+            return group.map(g -> g);
+        }
+
+        return findSpecialGroupById(groupId)
+                .map(g -> g);
     }
 
     // ===================== GROUP METHODS =====================
@@ -236,11 +249,11 @@ public class GroupRepository {
         }
     }
 
-    public Optional<SpecialGroup> findSpecialGroupById(int id) {
+    public Optional<SpecialGroup> findSpecialGroupById(Long id) {
         String sql = "SELECT * FROM SpecialGroups WHERE id = ?";
 
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
-            ps.setInt(1, id);
+            ps.setLong(1, id);
 
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
