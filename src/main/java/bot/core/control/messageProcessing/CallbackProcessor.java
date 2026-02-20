@@ -3,12 +3,11 @@ package bot.core.control.messageProcessing;
 import bot.core.Main;
 import bot.core.control.callbackHandlers.*;
 import bot.core.control.callbackHandlers.administation.*;
-import bot.core.control.callbackHandlers.groupNavigation.ChooseArchiveCourseHandler;
 import bot.core.control.callbackHandlers.groupNavigation.ChooseGroupHandler;
 import bot.core.control.callbackHandlers.groupNavigation.ChooseTagHandler;
+import bot.core.control.callbackHandlers.groupNavigation.GetCoueseList;
 import bot.core.control.callbackHandlers.groupNavigation.GetJoinRequestedLinkHandler;
 import bot.core.control.callbackHandlers.groupNavigation.pointers.RightPointerButtonHandler;
-import bot.core.control.callbackHandlers.menu.ChooseArchiveOrActual;
 import bot.core.control.callbackHandlers.menu.GetCourseDescriptionHandler;
 import bot.core.control.callbackHandlers.menu.GetInstructionHandler;
 import bot.core.control.callbackHandlers.menu.GetPaymentInstructionHandler;
@@ -46,9 +45,8 @@ public class CallbackProcessor implements MessageProcessor {
                 new DelGroupHandler(),
                 new GetJoinRequestedLinkHandler(),
                 new ChooseTagHandler(),
-                new ChooseArchiveOrActual(),
+                new GetCoueseList(),
                 new GetInstructionHandler(),
-                new ChooseArchiveCourseHandler(),
                 new GetPaymentInstructionHandler(),
                 new GetCourseDescriptionHandler(),
                 new LeftPointerButtonHandler(),

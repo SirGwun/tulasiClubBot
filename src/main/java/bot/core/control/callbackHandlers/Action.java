@@ -2,8 +2,7 @@ package bot.core.control.callbackHandlers;
 
 public enum Action {
     //выбор курса
-    chooseArchiveOrActual,
-    archive,
+    getCourseList,
     chooseTag,
     chooseGroup,
 

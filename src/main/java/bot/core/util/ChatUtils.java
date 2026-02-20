@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.CopyMessage;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.CreateChatInviteLink;
-import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatAdministrators;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatMember;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
@@ -64,7 +63,7 @@ public final class ChatUtils {
         coursesDescription.setCallbackData(Action.getCourseDescription + "_" + chatId);
         coursesDescription.setUrl("https://t.me/c/2388702610/1039");
         InlineKeyboardButton chooseCourse = new InlineKeyboardButton("Выбрать курс");
-        chooseCourse.setCallbackData(Action.chooseArchiveOrActual + "_" + chatId);
+        chooseCourse.setCallbackData(Action.getCourseList + "_" + chatId);
 
         InlineKeyboardButton getInstruction = new InlineKeyboardButton("Инструкция");
         getInstruction.setCallbackData(Action.getInstruction + "_" + chatId);
@@ -241,21 +240,38 @@ public final class ChatUtils {
     public static InlineKeyboardMarkup getAllTagKeyboard(Action callback) {
         Map<Integer, String> tags = Main.dataUtils.getTagMap();
         List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
+
+        String actualTag = Main.dataUtils.getActualGroupTag();
+        Integer actualTagId = null;
+
         for (Map.Entry<Integer, String> entry : tags.entrySet()) {
-            InlineKeyboardButton button = new InlineKeyboardButton();
-            if (!entry.getValue().equals(Main.dataUtils.getActualGroupTag())) {
-                button.setText(entry.getValue() + " (Архив)");
-            } else {
-                button.setText(entry.getValue() + " (Текущая)");
+            if (entry.getValue().equals(actualTag)) {
+                actualTagId = entry.getKey();
+                break;
             }
-            button.setCallbackData(callback + "_" + entry.getKey());
-            buttons.add(Collections.singletonList(button));
+        }
+
+        if (actualTagId != null) {
+            InlineKeyboardButton actualButton = new InlineKeyboardButton();
+            actualButton.setText("\uD83C\uDF93 " + actualTag + " (Текущий)");
+            actualButton.setCallbackData(callback.name() + "_" + actualTagId);
+            buttons.add(Collections.singletonList(actualButton));
+        }
+
+        for (Map.Entry<Integer, String> entry : tags.entrySet()) {
+            if (!entry.getValue().equals(actualTag)) {
+                InlineKeyboardButton button = new InlineKeyboardButton();
+                button.setText("\uD83D\uDCE6 " + entry.getValue() + " (Запись)");
+                button.setCallbackData(callback.name() + "_" + entry.getKey());
+                buttons.add(Collections.singletonList(button));
+            }
         }
 
         InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup();
         keyboard.setKeyboard(buttons);
         return keyboard;
     }
+
 
     public static void deleteMessage(long chatId, int messageId) {
         DeleteMessage deleteMessage = new DeleteMessage();
