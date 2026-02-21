@@ -72,10 +72,19 @@ public class ChooseGroupHandler implements CallbackHandler {
                 ChatUtils.addInGroup(chatId, groupId, "Член избранной группы ");
             } else {
                 SessionService.getInstance().setUserGroupId(chatId, groupId);
-                ChatUtils.sendMessage(chatId, "Выбрана группа: " + group.getName()
-                        + "\n\nТеперь отправьте в сообщении чек об оплате"
-                        + "\n(рекомендованная сумма пожертвования - 700 ₽)\n\n"
-                        + Main.dataUtils.getPaymentInfo());
+
+                ChatUtils.sendMessage(chatId,
+                        "Выбрана группа: " + group.getName()
+                                + "\n\n━━━━━━━━━━━━━━━━━━"
+                                + "\n❗️ ВАЖНО"
+                                + "\n━━━━━━━━━━━━━━━━━━"
+                                + "\nТеперь отправьте ЧЕК ОБ ОПЛАТЕ"
+                                + "\n(документ, скриншот или фото)"
+                                + "\n\nРекомендованная сумма пожертвования — 700 ₽"
+                                + "\n\nℹ️ Сейчас используется временный способ оплаты."
+                                + "\nМы работаем над подключением более удобной онлайн-оплаты."
+                                + "\n\n" + Main.dataUtils.getPaymentInfo()
+                );
             }
         } else {
             ChatUtils.sendMessage(chatId, "Бот не входит в группу или не является в ней администратором");
