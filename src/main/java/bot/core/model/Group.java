@@ -9,7 +9,7 @@ public class Group implements BaseGroup {
     String tag;
     boolean isBotAdmin;
     LocalDateTime createdAt;
-    double price;
+    Double price;
     String description;
 
     public Group(long id, String name, String tag, boolean isBotAdmin, double price, String description, LocalDateTime createdAt) {
@@ -72,7 +72,7 @@ public class Group implements BaseGroup {
         this.name = name;
     }
 
-    public double getPrice() {
+    public Double getPrice() {
         return price;
     }
 

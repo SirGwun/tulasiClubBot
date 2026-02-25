@@ -386,6 +386,31 @@ public class GroupRepository {
         }
     }
 
+    public void updateTag(Tag tag) {String sql = """
+        INSERT INTO Tags (id, name, price, description)
+        VALUES (?, ?, ?, ?)
+        ON CONFLICT(id) DO UPDATE SET
+            name = excluded.name,
+            price = excluded.price,
+            description = excluded.description
+        """;
+
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+
+            ps.setLong(1, tag.getId());
+            ps.setString(2, tag.getName());
+            ps.setDouble(3, tag.getPrice());
+            ps.setString(4, tag.getDescription());
+
+            ps.executeUpdate();
+
+            logger.debug("Tag updated with id: {}", tag.getId());
+
+        } catch (SQLException e) {
+            logger.error("Error updating tag {}", tag.getId(), e);
+        }
+    }
+
     public Optional<Tag> findTagById(long id) {
         String sql = "SELECT * FROM Tags WHERE id = ?";
 

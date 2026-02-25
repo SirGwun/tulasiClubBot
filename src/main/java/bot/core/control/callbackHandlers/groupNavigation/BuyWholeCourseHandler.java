@@ -8,10 +8,13 @@ import bot.core.model.SpecialGroup;
 import bot.core.model.Tag;
 import bot.core.repos.GroupRepository;
 import bot.core.util.ChatUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 //мб перенести в ChooseGroupHandler upated - НАДО СОЕДЕНИТЬ В 1 СУЩНОСТЬ! ЛОГИКА ДУБЛИРУЕТСЯ
 public class BuyWholeCourseHandler extends AbstractCallbackHandler {
+    Logger logger = LoggerFactory.getLogger(BuyWholeCourseHandler.class);
     public BuyWholeCourseHandler() {
         super(Action.buyWholeCourse);
     }
@@ -51,21 +54,27 @@ public class BuyWholeCourseHandler extends AbstractCallbackHandler {
                 );
 
         if (specialGroup == null) {
-            ChatUtils.sendMessage(fromId,
-                    "Произошла ошибка. Пожалуйста, напишите в поддержку или попробуйте другой способ.");
-            return;
+            ChatUtils.sendMessage(fromId, "Не можем найти этот курс, пожалуйста, обратитесь в поддержку");
+            logger.error("specialGroup для тега с именем {} не найден", tagName);
+            throw new RuntimeException("specialGroup для тега с именем " + tagName + " не найден");
         }
 
         SessionService.getInstance().setUserGroupId(fromId, specialGroup.getId());
-        Tag tag = repository.findTagByName(tagName).orElse(null);
-        int courseSize = tag != null ? repository.getAllGroupForTag(tag).size() : 0;
+        Tag tag = repository.findTagByName(tagName).orElseGet(() -> {
+                ChatUtils.sendMessage(fromId, "Не можем найти этот курс, пожалуйста, обратитесь в поддержку");
+                logger.error("Тег с именем {} не найден", tagName);
+                throw new RuntimeException("Тег с именем " + tagName + " не найден");
+            }
+        );
+        int courseSize = repository.getAllGroupForTag(tag).size();
 
         final int PRICE_PER_LESSON = 700;
-        int totalPrice = courseSize * PRICE_PER_LESSON;
+        int totalPrice = tag.getPrice() != 0 ? (int) tag.getPrice() : courseSize * PRICE_PER_LESSON;
+        String tagDescription = tag.getDescription() != null ? tag.getDescription() : "";
 
         String text = String.format("""
                         Спасибо за выбор курса "%s".
-
+                        %s
                         За весь курс — %d руб.
 
                         ━━━━━━━━━━━━━━━━━━
@@ -90,6 +99,7 @@ public class BuyWholeCourseHandler extends AbstractCallbackHandler {
                         Если вы потеряете эту группу, можете всегда ее найти через бот
                         """,
                 tagName,
+                tagDescription,
                 totalPrice,
                 specialGroup.getName(),
                 requisites,

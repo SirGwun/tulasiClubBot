@@ -146,7 +146,7 @@ public class CommandMessageProcessor implements MessageProcessor {
 
             practice.setPrice(15500.0);
             practice.setDescription("ВСЕ ПРАКТИКИ в записи с 60% скидкой");
-            repository.saveTag(practice);
+            repository.updateTag(practice);
 
             List<Group> practiceList = repository.getAllGroupForTag(practice);
 

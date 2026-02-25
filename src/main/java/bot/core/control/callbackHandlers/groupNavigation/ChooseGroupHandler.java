@@ -51,7 +51,6 @@ public class ChooseGroupHandler implements CallbackHandler {
         }
     }
 
-    @Override
     public void handle(Update update) {
         CallbackQuery cq = update.getCallbackQuery();
         String[] data = cq.getData().split("_");
@@ -68,29 +67,51 @@ public class ChooseGroupHandler implements CallbackHandler {
         }
 
         if (group.isBotAdmin()) {
+
             if (isItFavoriteUser(chatId, groupId)) {
                 ChatUtils.addInGroup(chatId, groupId, "Член избранной группы ");
             } else {
+
                 SessionService.getInstance().setUserGroupId(chatId, groupId);
 
-                ChatUtils.sendMessage(chatId,
-                        "Выбрана группа: " + group.getName()
-                                + "\n\n━━━━━━━━━━━━━━━━━━"
-                                + "\n❗️ ВАЖНО"
-                                + "\n━━━━━━━━━━━━━━━━━━"
-                                + "\nТеперь отправьте в сообщении ЧЕК ОБ ОПЛАТЕ"
-                                + "\n(документ, скриншот или фото)"
-                                + "\n\nРекомендованная сумма пожертвования — 700 ₽"
-                                + "\n\nℹ️ Сейчас используется временный способ оплаты."
-                                + "\nМы работаем над подключением более удобной онлайн-оплаты."
-                                + "\n\n" + Main.dataUtils.getPaymentInfo()
-                );
+                double defaultPrice = 700.0;
+                double price = (group.getPrice() != null && group.getPrice() > 0)
+                        ? group.getPrice()
+                        : defaultPrice;
+
+                StringBuilder message = new StringBuilder();
+                message.append("Выбрана группа: ")
+                        .append(group.getName());
+
+                if (group.getDescription() != null && !group.getDescription().isBlank()) {
+                    message.append("\n\n")
+                            .append(group.getDescription());
+                }
+
+                message.append("\n\n━━━━━━━━━━━━━━━━━━")
+                        .append("\n❗️ ВАЖНО")
+                        .append("\n━━━━━━━━━━━━━━━━━━")
+                        .append("\nТеперь отправьте в сообщении ЧЕК ОБ ОПЛАТЕ")
+                        .append("\n(документ, скриншот или фото)")
+                        .append("\n\nРекомендованная сумма пожертвования — ")
+                        .append((int) price)
+                        .append(" ₽")
+                        .append("\n\nℹ️ Сейчас используется временный способ оплаты.")
+                        .append("\nМы работаем над подключением более удобной онлайн-оплаты.")
+                        .append("\n\n")
+                        .append(Main.dataUtils.getPaymentInfo());
+
+                ChatUtils.sendMessage(chatId, message.toString());
             }
+
         } else {
             ChatUtils.sendMessage(chatId, "Бот не входит в группу или не является в ней администратором");
         }
-        ChatUtils.deleteMessage(update.getCallbackQuery().getFrom().getId(),
-                update.getCallbackQuery().getMessage().getMessageId());
+
+        ChatUtils.deleteMessage(
+                update.getCallbackQuery().getFrom().getId(),
+                update.getCallbackQuery().getMessage().getMessageId()
+        );
     }
 
 //    private InlineKeyboardMarkup buildPaymentKeyboard(Long chatId) {

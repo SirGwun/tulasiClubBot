@@ -47,6 +47,7 @@ public class Tag {
     }
 
     public String getDescription() {
+        if (description == null || description.isEmpty()) return "";
         return description;
     }
 
