@@ -9,6 +9,18 @@ public class Group implements BaseGroup {
     String tag;
     boolean isBotAdmin;
     LocalDateTime createdAt;
+    double price;
+    String description;
+
+    public Group(long id, String name, String tag, boolean isBotAdmin, double price, String description, LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+        this.description = description;
+        this.id = id;
+        this.isBotAdmin = isBotAdmin;
+        this.name = name;
+        this.price = price;
+        this.tag = tag;
+    }
 
     public Group(long id, String name, String tag, boolean isBotAdmin, LocalDateTime createdAt) {
         this.createdAt = createdAt;
@@ -58,6 +70,22 @@ public class Group implements BaseGroup {
     }
     public void setName(String name) {
         this.name = name;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     @Override

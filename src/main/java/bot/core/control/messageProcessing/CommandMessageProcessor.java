@@ -141,8 +141,38 @@ public class CommandMessageProcessor implements MessageProcessor {
         }
 
         private void handleAction() {
-            System.out.println(Main.dataUtils.getGroupById(1002589029101L).getName());
+            GroupRepository repository = new GroupRepository();
+            Tag practice = repository.findTagByName("Практики").orElse(null);
+
+            practice.setPrice(15500.0);
+            practice.setDescription("ВСЕ ПРАКТИКИ в записи с 60% скидкой");
+            repository.saveTag(practice);
+
+            List<Group> practiceList = repository.getAllGroupForTag(practice);
+
+            Map<String, PracticeInfo> practices = Map.of(
+                    "1", new PracticeInfo(5000.0, "Здоровье каждого дня - утренняяя насья, гандуши и абхьянга - 3 дня"),
+                    "2", new PracticeInfo(5000.0, "Тренинг на определение аюрведической конституции - пракрити и викрити - 2 дня"),
+                    "3", new PracticeInfo(7000.0, "\"Спокойствие, только спокойствие, или Баланс вата-доши\" - 7 дней"),
+                    "4", new PracticeInfo(5000.0, "Аюрведический кулинарный практикум - 5 дней"),
+                    "5", new PracticeInfo(3000.0, "Уроки пранаямы - 5 дней (проводит преподаватель из Италии - Елена Московкина)"),
+                    "6", new PracticeInfo(5000.0, "Аюрведический уход за кожей лица и волосами - 5 дней"),
+                    "7", new PracticeInfo(5000.0, "Виречана (очищение печени) - курс в записи")
+            );
+
+            for (Group group : practiceList) {
+                for (Map.Entry<String, PracticeInfo> entry : practices.entrySet()) {
+                    if (group.getName().startsWith(entry.getKey())) {
+                        group.setPrice(entry.getValue().price());
+                        group.setDescription(entry.getValue().description());
+                        repository.saveOrUpdateGroup(group);
+                        break;
+                    }
+                }
+            }
         }
+
+        private record PracticeInfo(double price, String description) {}
 
         private void handleAddSpecialGroup() {
             sessionService.setSessionAction(userId, EditingActions.WAIT_FOR_SPECIAL_GROUP);

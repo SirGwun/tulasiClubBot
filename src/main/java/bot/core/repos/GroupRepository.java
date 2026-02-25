@@ -19,6 +19,23 @@ public class GroupRepository {
     private final DataConfig dataConfig = new DataConfig();
     private Connection connection;
 
+    public GroupRepository() {
+        try {
+            addColumnIfNotExists("Groups", "price", "DOUBLE NOT NULL DEFAULT 0");
+            addColumnIfNotExists("Groups", "description", "TEXT");
+
+            addColumnIfNotExists("SpecialGroups", "price", "DOUBLE NOT NULL DEFAULT 0");
+            addColumnIfNotExists("SpecialGroups", "description", "TEXT");
+
+            addColumnIfNotExists("Tags", "price", "DOUBLE NOT NULL DEFAULT 0");
+            addColumnIfNotExists("Tags", "description", "TEXT");
+
+            logger.debug("Migration check completed");
+        } catch (SQLException e) {
+            logger.error("Error during schema migration", e);
+        }
+    }
+
     private Connection getConnection() throws SQLException {
         if (connection == null || connection.isClosed()) {
             connection = DriverManager.getConnection(dataConfig.getDBURl());
@@ -28,14 +45,16 @@ public class GroupRepository {
 
     public void createCommonGroupTable() {
         String sql = """
-                CREATE TABLE IF NOT EXISTS Groups (
-                    id INT PRIMARY KEY,
-                    name VARCHAR(100) NOT NULL,
-                    tag VARCHAR(100) NOT NULL,
-                    is_bot_admin BOOLEAN NOT NULL DEFAULT 0,
-                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-                )
-                """;
+            CREATE TABLE IF NOT EXISTS Groups (
+                id INT PRIMARY KEY,
+                name VARCHAR(100) NOT NULL,
+                tag VARCHAR(100) NOT NULL,
+                is_bot_admin BOOLEAN NOT NULL DEFAULT 0,
+                price DOUBLE NOT NULL DEFAULT 0,
+                description TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+            """;
 
         try (Statement statement = getConnection().createStatement()) {
             statement.execute(sql);
@@ -47,13 +66,15 @@ public class GroupRepository {
 
     public void createSpecialGroupsTable() {
         String sql = """
-                CREATE TABLE IF NOT EXISTS SpecialGroups (
-                    id INT PRIMARY KEY,
-                    name VARCHAR(100) NOT NULL,
-                    tag VARCHAR(100) NOT NULL,
-                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-                )
-                """;
+            CREATE TABLE IF NOT EXISTS SpecialGroups (
+                id INT PRIMARY KEY,
+                name VARCHAR(100) NOT NULL,
+                tag VARCHAR(100) NOT NULL,
+                price DOUBLE NOT NULL DEFAULT 0,
+                description TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+            """;
 
         try (Statement statement = getConnection().createStatement()) {
             statement.execute(sql);
@@ -65,12 +86,14 @@ public class GroupRepository {
 
     public void createTagsTable() {
         String sql = """
-                CREATE TABLE IF NOT EXISTS Tags (
-                    id INT PRIMARY KEY,
-                    name VARCHAR(100) UNIQUE NOT NULL,
-                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-                )
-                """;
+            CREATE TABLE IF NOT EXISTS Tags (
+                id INT PRIMARY KEY,
+                name VARCHAR(100) UNIQUE NOT NULL,
+                price DOUBLE NOT NULL DEFAULT 0,
+                description TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+            """;
 
         try (Statement statement = getConnection().createStatement()) {
             statement.execute(sql);
@@ -95,13 +118,15 @@ public class GroupRepository {
     // ===================== GROUP METHODS =====================
 
     public void saveGroup(Group group) {
-        String sql = "INSERT INTO Groups (id, name, tag, is_bot_admin) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO Groups (id, name, tag, is_bot_admin, price, description) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setLong(1, group.getId());
             ps.setString(2, group.getName());
             ps.setString(3, group.getTag());
             ps.setBoolean(4, group.isBotAdmin());
+            ps.setDouble(5, group.getPrice());
+            ps.setString(6, group.getDescription());
 
             ps.executeUpdate();
             logger.debug("Group saved with id: {}", group.getId());
@@ -113,13 +138,15 @@ public class GroupRepository {
 
     public void saveOrUpdateGroup(Group group) {
         String sql = """
-        INSERT INTO Groups (id, name, tag, is_bot_admin)
-        VALUES (?, ?, ?, ?)
-        ON CONFLICT(id) DO UPDATE SET
-            name = excluded.name,
-            tag = excluded.tag,
-            is_bot_admin = excluded.is_bot_admin
-        """;
+    INSERT INTO Groups (id, name, tag, is_bot_admin, price, description)
+    VALUES (?, ?, ?, ?, ?, ?)
+    ON CONFLICT(id) DO UPDATE SET
+        name = excluded.name,
+        tag = excluded.tag,
+        is_bot_admin = excluded.is_bot_admin,
+        price = excluded.price,
+        description = excluded.description
+    """;
 
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
 
@@ -127,6 +154,8 @@ public class GroupRepository {
             ps.setString(2, group.getName());
             ps.setString(3, group.getTag());
             ps.setBoolean(4, group.isBotAdmin());
+            ps.setDouble(5, group.getPrice());
+            ps.setString(6, group.getDescription());
 
             ps.executeUpdate();
 
@@ -255,11 +284,13 @@ public class GroupRepository {
 
     // SpecialGroups methods
     public boolean saveSpecialGroup(SpecialGroup group) {
-        String sql = "INSERT INTO SpecialGroups (id, name, tag) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO SpecialGroups (id, name, tag, price, description) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement ps = getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setLong(1, group.getId());
             ps.setString(2, group.getName());
             ps.setString(3, group.getTag());
+            ps.setDouble(4, group.getPrice());
+            ps.setString(5, group.getDescription());
             ps.executeUpdate();
 
             try (ResultSet rs = ps.getGeneratedKeys()) {
@@ -336,11 +367,13 @@ public class GroupRepository {
     // Tags methods
 
     public void saveTag(Tag tag) {
-        String sql = "INSERT INTO Tags (id, name) VALUES (?, ?)";
+        String sql = "INSERT INTO Tags (id, name, price, description) VALUES (?, ?, ?, ?)";
 
         try (PreparedStatement ps = getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setLong(1, tag.getId());
             ps.setString(2, tag.getName());
+            ps.setDouble(3, tag.getPrice());
+            ps.setString(4, tag.getDescription());
             ps.executeUpdate();
 
             try (ResultSet rs = ps.getGeneratedKeys()) {
@@ -415,32 +448,53 @@ public class GroupRepository {
         String name = rs.getString("name");
         String tag = rs.getString("tag");
         boolean isBotAdmin = rs.getBoolean("is_bot_admin");
+        double price = rs.getDouble("price");
+        String description = rs.getString("description");
 
         Timestamp timestamp = rs.getTimestamp("created_at");
         LocalDateTime createdAt = timestamp != null ? timestamp.toLocalDateTime() : null;
 
-        return new Group(id, name, tag, isBotAdmin, createdAt);
+        return new Group(id, name, tag, isBotAdmin, price, description, createdAt);
     }
 
     private SpecialGroup mapRowToSpecialGroup(ResultSet rs) throws SQLException {
         long id = rs.getLong("id");
         String name = rs.getString("name");
         String tag = rs.getString("tag");
+        double price = rs.getDouble("price");
+        String description = rs.getString("description");
 
         Timestamp timestamp = rs.getTimestamp("created_at");
         LocalDateTime createdAt = timestamp != null ? timestamp.toLocalDateTime() : null;
 
-        return new SpecialGroup(id, name, tag, createdAt);
+        return new SpecialGroup(id, name, tag, price, description, createdAt);
     }
 
     private Tag mapRowToTag(ResultSet rs) throws SQLException {
         long id = rs.getLong("id");
         String name = rs.getString("name");
+        double price = rs.getDouble("price");
+        String description = rs.getString("description");
 
         Timestamp timestamp = rs.getTimestamp("created_at");
         LocalDateTime createdAt = timestamp != null ? timestamp.toLocalDateTime() : null;
 
-        return new Tag(id, name, createdAt);
+        return new Tag(id, name, price, description, createdAt);
+    }
+
+    private void addColumnIfNotExists(String tableName, String columnName, String columnDefinition) throws SQLException {
+        DatabaseMetaData metaData = getConnection().getMetaData();
+
+        try (ResultSet rs = metaData.getColumns(null, null, tableName, columnName)) {
+            if (!rs.next()) {
+                String sql = "ALTER TABLE " + tableName + " ADD COLUMN " + columnName + " " + columnDefinition;
+
+                try (Statement statement = getConnection().createStatement()) {
+                    statement.execute(sql);
+                    logger.debug("Added column {} to table {}", columnName, tableName);
+                }
+            }
+        }
     }
 
     public void close() {

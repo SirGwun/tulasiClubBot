@@ -54,7 +54,7 @@ public class UserRepository {
                 }
             }
         } catch (SQLException e) {
-            logger.error("Error storing user {}", user.getId());
+            logger.error("Error storing user {}", user.getChatId());
         }
     }
 

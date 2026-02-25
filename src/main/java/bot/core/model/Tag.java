@@ -6,16 +6,20 @@ public class Tag {
     long id;
     String name;
     LocalDateTime createdAt;
-
-    public Tag(long id, String name, LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-        this.id = id;
-        this.name = name;
-    }
+    double price;
+    String description;
 
     public Tag(long id, String name) {
         this.id = id;
         this.name = name;
+    }
+
+    public Tag(long id, String name, double price, String description, LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.price = price;
     }
 
     public long getId() {
@@ -40,5 +44,21 @@ public class Tag {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
     }
 }
