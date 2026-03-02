@@ -68,9 +68,9 @@ public final class ChatUtils {
                 """;
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
 
-        InlineKeyboardButton coursesDescription = new InlineKeyboardButton("Каталог");
-        coursesDescription.setCallbackData(Action.getCourseDescription + "_" + chatId);
-        coursesDescription.setUrl("https://t.me/c/2388702610/1039");
+//        InlineKeyboardButton coursesDescription = new InlineKeyboardButton("Каталог");
+//        coursesDescription.setCallbackData(Action.getCourseDescription + "_" + chatId);
+//        coursesDescription.setUrl("https://t.me/c/2388702610/1039");
         InlineKeyboardButton chooseCourse = new InlineKeyboardButton("Выбрать курс");
         chooseCourse.setCallbackData(Action.getCourseList + "_" + chatId);
 
@@ -82,7 +82,7 @@ public final class ChatUtils {
 
 
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
-        rows.add(Arrays.asList(coursesDescription, chooseCourse));
+        rows.add(List.of(chooseCourse));
         rows.add(Arrays.asList(getInstruction, getPaymentInstruction));
         keyboardMarkup.setKeyboard(rows);
 

@@ -19,8 +19,6 @@ public enum Action {
     getInstruction,
     getPaymentInstruction,
 
-    //ссылка на описание крусов
-    getCourseDescription,
 
     //стрелочки в списке
     rightArrow,

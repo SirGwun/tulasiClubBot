@@ -5,7 +5,6 @@ import bot.core.control.callbackHandlers.*;
 import bot.core.control.callbackHandlers.administation.*;
 import bot.core.control.callbackHandlers.groupNavigation.*;
 import bot.core.control.callbackHandlers.groupNavigation.pointers.RightPointerButtonHandler;
-import bot.core.control.callbackHandlers.menu.GetCourseDescriptionHandler;
 import bot.core.control.callbackHandlers.menu.GetInstructionHandler;
 import bot.core.control.callbackHandlers.menu.GetPaymentInstructionHandler;
 import org.slf4j.Logger;
@@ -45,7 +44,6 @@ public class CallbackProcessor implements MessageProcessor {
                 new GetCoueseList(),
                 new GetInstructionHandler(),
                 new GetPaymentInstructionHandler(),
-                new GetCourseDescriptionHandler(),
                 new LeftPointerButtonHandler(),
                 new RightPointerButtonHandler(),
                 new BuyWholeCourseHandler()
